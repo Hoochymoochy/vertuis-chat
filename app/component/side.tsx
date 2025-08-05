@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Profile from "@/app/component/profile";
 
-export default function Side() {
+interface Chat {
+  newChat: () => void;
+}
+
+export default function Side({ newChat }: Chat) {
   const [isOpen, setIsOpen] = useState(false);
   
   // Mock chat data - replace with your actual chat data
@@ -68,7 +72,7 @@ export default function Side() {
             {/* Header */}
             <div className="p-6 border-b border-gold/20">
               <motion.button
-                onClick={() => setIsOpen(false)}
+                onClick={() => newChat((prev: any) => !prev)}
                 className="w-full bg-gradient-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 border border-gold/30 rounded-xl px-4 py-3 text-white font-medium transition-all duration-200 flex items-center gap-3"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

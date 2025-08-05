@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
@@ -9,11 +9,13 @@ import Side from "@/app/component/side";
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
+  const [newChat, setNewChat] = useState(true);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
   
+
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -34,12 +36,18 @@ export default function Home() {
     ease: "easeOut",
   };
 
+  useEffect(() => {
+      setIsSubmitted(false);
+      setMessage("");
+    console.log(newChat);
+  }, [newChat]);
+
   return (
     <motion.div
       layout
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side />
+      <Side newChat={setNewChat}/>
 
       {/* Main Content Area */}
       <motion.div
