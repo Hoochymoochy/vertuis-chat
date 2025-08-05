@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
+import Side from "@/app/component/side";
 
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -24,8 +25,9 @@ export default function Home() {
   return (
     <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
       
+      
       {/* Logo - moves to top when submitted */}
-      {/* <motion.div
+      <motion.div
         animate={{
           position: isSubmitted ? "absolute" : "static",
           top: isSubmitted ? "2rem" : "auto",
@@ -44,7 +46,7 @@ export default function Home() {
         >
           Veritus
         </motion.h1>
-      </motion.div> */}
+      </motion.div>
 
       {/* Main Content Area */}
       <div className={`flex-grow flex flex-col items-center w-full transition-all duration-700 ease-out ${isSubmitted ? 'justify-end pb-12' : 'justify-center'}`}>
