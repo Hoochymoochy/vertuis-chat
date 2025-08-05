@@ -27,35 +27,63 @@ export default function Home() {
       
       <Side />
       
-      {/* Logo - moves to top when submitted */}
-      <motion.div
-        animate={{
-          position: isSubmitted ? "absolute" : "static",
-          top: isSubmitted ? "2rem" : "auto",
-          left: isSubmitted ? "50%" : "auto",
-          x: isSubmitted ? "-50%" : "0",
-        }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="flex justify-center items-center z-10"
-      >
-        <motion.h1
-          animate={{ 
-            scale: isSubmitted ? 0.5 : 1
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-          className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
-        >
-          Veritus
-        </motion.h1>
-      </motion.div>
+=
 
       {/* Main Content Area */}
       <div className={`flex-grow flex flex-col items-center w-full transition-all duration-700 ease-out ${isSubmitted ? 'justify-end pb-12' : 'justify-center'}`}>
+      
+          {/* Logo - moves to top when submitted */}
+          <motion.div
+            animate={{
+              y: isSubmitted ? "-100%" : 0
+            }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="flex justify-center items-center z-10 mb-4"
+          >
+            <motion.h1
+              animate={{ 
+                scale: isSubmitted ? 0.90 : 1
+              }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
+            >
+              Veritus
+            </motion.h1>
+          </motion.div>
+
+                {/* Chat Messages Area - only show when submitted */}
+                {isSubmitted && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
+          >
+            <div className="space-y-4">
+              {/* User message */}
+              <div className="flex justify-end">
+                <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                  <p className="text-white text-sm">{message}</p>
+                </div>
+              </div>
+              
+              {/* AI response */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="flex justify-start"
+              >
+                <ChatBubble message="I received your message! How can I help you today?" />
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
         
         {/* Input Field - slides to bottom when submitted */}
         <motion.div
           animate={{
-            y: isSubmitted ? "1450%" : 0,
+            y: isSubmitted ? 0 : 0,
             marginTop: isSubmitted ? "auto" : "0",
             scale: isSubmitted ? 0.95 : 1,
           }}
@@ -86,36 +114,6 @@ export default function Home() {
             </div>
           </form>
         </motion.div>
-
-
-        {/* Chat Messages Area - only show when submitted */}
-        {isSubmitted && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
-          >
-            <div className="space-y-4">
-              {/* User message */}
-              <div className="flex justify-end">
-                <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
-                  <p className="text-white text-sm">{message}</p>
-                </div>
-              </div>
-              
-              {/* AI response */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-                className="flex justify-start"
-              >
-                <ChatBubble message="I received your message! How can I help you today?" />
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
       </div>
 
       {/* Bottom Tagline - fades away whensubmitted */}
