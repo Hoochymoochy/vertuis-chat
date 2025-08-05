@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Transition } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
 import Side from "@/app/component/side";
@@ -13,6 +13,7 @@ export default function Home() {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
+  
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,72 +23,86 @@ export default function Home() {
     }
   };
 
+  const smoothSpring: Transition = {
+    type: "spring",
+    stiffness: 70,
+    damping: 18,
+  };
+
+  const easeOutFade: Transition = {
+    duration: 0.6,
+    ease: "easeOut",
+  };
+
   return (
-    <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
-      
+    <motion.div
+      layout
+      className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
+    >
       <Side />
-      
-=
 
       {/* Main Content Area */}
-      <div className={`flex-grow flex flex-col items-center w-full transition-all duration-700 ease-out ${isSubmitted ? 'justify-end pb-12' : 'justify-center'}`}>
-      
-          {/* Logo - moves to top when submitted */}
-          <motion.div
-            animate={{
-              y: isSubmitted ? "-100%" : 0
-            }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            className="flex justify-center items-center z-10 mb-4"
+      <motion.div
+        layout
+        className={`flex-grow flex flex-col items-center w-full ${
+          isSubmitted ? "justify-end pb-12" : "justify-center"
+        }`}
+      >
+        {/* Logo - moves to top when submitted */}
+        <motion.div
+          layout
+          animate={{ y: isSubmitted ? "-100%" : 0 }}
+          transition={smoothSpring}
+          className="flex justify-center items-center z-10 mb-4"
+        >
+          <motion.h1
+            layout
+            animate={{ scale: isSubmitted ? 0.9 : 1 }}
+            transition={smoothSpring}
+            className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
           >
-            <motion.h1
-              animate={{ 
-                scale: isSubmitted ? 0.90 : 1
-              }}
-              transition={{ type: "spring", stiffness: 100 }}
-              className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
-            >
-              Veritus
-            </motion.h1>
-          </motion.div>
+            Veritus
+          </motion.h1>
+        </motion.div>
 
-                {/* Chat Messages Area - only show when submitted */}
-                {isSubmitted && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
-          >
-            <div className="space-y-4">
-              {/* User message */}
-              <div className="flex justify-end">
-                <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
-                  <p className="text-white text-sm">{message}</p>
-                </div>
-              </div>
-              
-              {/* AI response */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-                className="flex justify-start"
-              >
-                <ChatBubble message="I received your message! How can I help you today?" />
+        {/* Chat Messages Area - only show when submitted */}
+        <AnimatePresence>
+          {isSubmitted && (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ ...easeOutFade, delay: 0.3 }}
+              className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
+            >
+              <motion.div layout className="space-y-4">
+                {/* User message */}
+                <motion.div layout className="flex justify-end">
+                  <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                    <p className="text-white text-sm">{message}</p>
+                  </div>
+                </motion.div>
+
+                {/* AI response */}
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...easeOutFade, delay: 0.8 }}
+                  className="flex justify-start"
+                >
+                  <ChatBubble message="I received your message! How can I help you today?" />
+                </motion.div>
               </motion.div>
-            </div>
-          </motion.div>
-        )}
-        
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Input Field - slides to bottom when submitted */}
         <motion.div
-          animate={{
-            y: isSubmitted ? 0 : 0,
-            marginTop: isSubmitted ? "auto" : "0",
-            scale: isSubmitted ? 0.95 : 1,
-          }}
-          transition={{ type: "spring", stiffness: 80, damping: 18 }}
+          layout
+          transition={smoothSpring}
           className="w-full max-w-sm z-20"
         >
           <form onSubmit={handleSubmit} className="relative">
@@ -99,24 +114,19 @@ export default function Home() {
                 className="flex-1 px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold border border-gold focus:outline-none focus:ring-2 focus:ring-gold transition backdrop-blur-sm"
                 onChange={handleInputChange}
               />
-              <button 
+              <button
                 type="submit"
                 className="bg-gold hover:bg-gold/80 p-2 rounded-full transition-colors"
                 aria-label="Send message"
               >
-                <Image 
-                  src="/upload.png"
-                  alt="Send"
-                  width={24}
-                  height={24}
-                />
+                <Image src="/upload.png" alt="Send" width={24} height={24} />
               </button>
             </div>
           </form>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* Bottom Tagline - fades away whensubmitted */}
+      {/* Bottom Tagline - fades away when submitted */}
       <AnimatePresence>
         {!isSubmitted && (
           <motion.div
@@ -124,7 +134,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.6 }}
+            transition={easeOutFade}
             className="text-center mt-10"
           >
             <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
@@ -136,6 +146,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
