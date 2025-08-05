@@ -25,7 +25,7 @@ export default function Home() {
     <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
       
       {/* Logo - moves to top when submitted */}
-      <motion.div
+      {/* <motion.div
         animate={{
           position: isSubmitted ? "absolute" : "static",
           top: isSubmitted ? "2rem" : "auto",
@@ -44,22 +44,19 @@ export default function Home() {
         >
           Veritus
         </motion.h1>
-      </motion.div>
+      </motion.div> */}
 
       {/* Main Content Area */}
-      <div className={`flex-grow flex flex-col ${isSubmitted ? 'pt-20' : ''} ${!isSubmitted ? 'justify-center' : 'justify-start'} items-center w-full`}>
+      <div className={`flex-grow flex flex-col items-center w-full transition-all duration-700 ease-out ${isSubmitted ? 'justify-end pb-12' : 'justify-center'}`}>
         
         {/* Input Field - slides to bottom when submitted */}
         <motion.div
           animate={{
-            position: isSubmitted ? "fixed" : "static",
-            bottom: isSubmitted ? "2rem" : "auto",
-            left: isSubmitted ? "50%" : "auto",
-            x: isSubmitted ? "-50%" : "0",
-            width: isSubmitted ? "calc(100% - 2rem)" : "100%",
-            maxWidth: isSubmitted ? "600px" : "28rem",
+            y: isSubmitted ? "1450%" : 0,
+            marginTop: isSubmitted ? "auto" : "0",
+            scale: isSubmitted ? 0.95 : 1,
           }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
           className="w-full max-w-sm z-20"
         >
           <form onSubmit={handleSubmit} className="relative">
@@ -86,6 +83,7 @@ export default function Home() {
             </div>
           </form>
         </motion.div>
+
 
         {/* Chat Messages Area - only show when submitted */}
         {isSubmitted && (
