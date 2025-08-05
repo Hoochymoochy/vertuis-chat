@@ -25,6 +25,7 @@ export default function Home() {
   return (
     <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
       
+      <Side />
       
       {/* Logo - moves to top when submitted */}
       <motion.div
