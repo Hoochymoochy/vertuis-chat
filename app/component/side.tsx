@@ -1,25 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Profile from "@/app/component/profile";
+import { getAllChat } from "@/app/lib/chat";
 
 interface Chat {
   newChat: () => void;
 }
 
+interface Chat {
+  id: number;
+  title: string;
+  lastMessage: string;
+  time: string;
+}
+
 export default function Side({ newChat }: Chat) {
   const [isOpen, setIsOpen] = useState(false);
+  const [chats, setChats] = useState<Chat[]>([]);
   
-  // Mock chat data - replace with your actual chat data
-  const chats = [
-    { id: 1, title: "Legal Contract Review", lastMessage: "Thanks for the help with...", time: "2 min ago" },
-    { id: 2, title: "Business Strategy", lastMessage: "What are the key factors...", time: "1 hour ago" },
-    { id: 3, title: "Investment Advice", lastMessage: "I need guidance on...", time: "3 hours ago" },
-    { id: 4, title: "Tax Questions", lastMessage: "Can you explain the...", time: "Yesterday" },
-    { id: 5, title: "Real Estate Law", lastMessage: "What should I know about...", time: "2 days ago" },
-  ];
+  useEffect(() => {
+    const fetchChats = async () => {
+      const data = await getAllChat("6e539fc1-cb84-4584-a56a-1e42be88fc79");
+      setChats(data);
+    };
+    fetchChats();
+  }, []);
 
   return (
     <>

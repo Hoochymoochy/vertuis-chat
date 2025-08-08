@@ -5,25 +5,38 @@ import { motion, AnimatePresence, Transition } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
 import Side from "@/app/component/side";
-
+import question from "@/app/lib/question";
+interface LegalSummaryResponse {
+  summary: {
+    summary: string;
+    url: string[];
+  };
+}
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
   const [newChat, setNewChat] = useState(true);
+  const [response, setResponse] = useState<LegalSummaryResponse | null>(null);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
   
-
-
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit  = async (event: React.FormEvent) => {
     event.preventDefault();
     if (message.trim()) {
       setIsSubmitted(true);
+      const response = await question(message);
       console.log("Message submitted:", message);
+      console.log("Response received:", response);
+      console.log(response.summary.summary);
+      setResponse(response);
     }
   };
+
+  useEffect(() => {
+
+  }, []);
 
   const smoothSpring: Transition = {
     type: "spring",
@@ -100,7 +113,7 @@ export default function Home() {
                   transition={{ ...easeOutFade, delay: 0.8 }}
                   className="flex justify-start"
                 >
-                  <ChatBubble message="I received your message! How can I help you today?" />
+                  <ChatBubble message={response?.summary.summary || ""} />
                 </motion.div>
               </motion.div>
             </motion.div>
