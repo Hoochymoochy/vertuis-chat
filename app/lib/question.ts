@@ -1,3 +1,5 @@
+"use client";
+
 import { addMessage } from "@/app/lib/chat";
 
 interface LegalSummaryResponse {
@@ -7,20 +9,37 @@ interface LegalSummaryResponse {
   };
 }
 
-export default async function question(question: string): Promise<LegalSummaryResponse> {
-  // const error = await addChat("6e539fc1-cb84-4584-a56a-1e42be88fc79", question);
-  const error = await addMessage("c0e6bc33-213e-46fa-9e1a-206f8419f364", "user", question);
-  if (error) throw error
-  console.log("Holy molly")
-  const response = await fetch("http://192.168.1.188:4000/ask", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+export default async function question(
+  question: string
+): Promise<LegalSummaryResponse> {
+  // 1️⃣ Make sure chat_id exists
+  const chat_id = localStorage.getItem("chat_id");
+  if (!chat_id) throw new Error("No chat_id found");
+
+  // 2️⃣ Save user message
+  await addMessage(chat_id, "user", question);
+
+  console.log("User message saved");
+
+  // 3️⃣ Send to AI API (placeholder right now)
+  // const response = await fetch("/ask", {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({ query: question }),
+  // });
+  // const data = await response.json();
+
+  const response = {
+    summary: {
+      summary: "summary",
+      url: ["url"],
     },
-    body: JSON.stringify({ query: question }),
-  });
-  const data = await response.json();
-  const error2 = await addMessage("c0e6bc33-213e-46fa-9e1a-206f8419f364", "bot", data.summary.summary);
-  if (error2) throw error2
-  return response.json();
+  };
+
+  // 4️⃣ Save AI message
+  await addMessage(chat_id, "ai", response.summary.summary);
+
+  console.log("AI message saved");
+
+  return response;
 }

@@ -1,75 +1,85 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
 import Side from "@/app/component/side";
 import question from "@/app/lib/question";
-interface LegalSummaryResponse {
-  summary: {
-    summary: string;
-    url: string[];
-  };
-}
+import { getChatId, createChatId, getAllMessage, addMessage } from "@/app/lib/chat"; // Make sure insertMessage is in your lib
+import { supabase } from "@/app/lib/supabaseClient";
+import { init } from "next/dist/compiled/webpack/webpack";
+
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
   const [newChat, setNewChat] = useState(true);
-  const [response, setResponse] = useState<LegalSummaryResponse | null>(null);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
 
+  const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
+  const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
+
+  // 🔹 Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
-  
-  const handleSubmit  = async (event: React.FormEvent) => {
+
+  // 🔹 Fetch all messages for chat
+  const updateChat = async () => {
+    if (!chatId) return;
+    const chatMessages = await getAllMessage(chatId);
+    setMessages(chatMessages || []);
+  };
+
+  // 🔹 Send a message
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (message.trim()) {
-      setIsSubmitted(true);
-      const response = await question(message);
-      console.log("Message submitted:", message);
-      console.log("Response received:", response);
-      console.log(response.summary.summary);
-      setResponse(response);
-    }
+    if (!message.trim() || !chatId) return;
+    setIsSubmitted(true);
+
+    // Save user message
+    await addMessage(chatId, "user", message);
+    setMessage("");
+
+    // Ask AI + save AI response
+    const aiRes = await question(message);
+    await addMessage(chatId, "ai", aiRes.summary.summary);
+
+    // Refresh chat
+    await updateChat();
   };
+
+  const initData = () => {
+    const user_id = localStorage.getItem("user_id");
+    if (user_id) setUserId(user_id);
+    const chat_id = localStorage.getItem("chat_id");
+    if (chat_id) setChatId(chat_id);
+  }
 
   useEffect(() => {
-
-  }, []);
-
-  const smoothSpring: Transition = {
-    type: "spring",
-    stiffness: 70,
-    damping: 18,
-  };
-
-  const easeOutFade: Transition = {
-    duration: 0.6,
-    ease: "easeOut",
-  };
-
+    initData();
+  })
   useEffect(() => {
-      setIsSubmitted(false);
-      setMessage("");
-    console.log(newChat);
-  }, [newChat]);
+    if (chatId) updateChat();
+  }, [chatId, isSubmitted]);
 
   return (
     <motion.div
       layout
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side newChat={setNewChat}/>
+      <Side newChat={setNewChat} />
 
-      {/* Main Content Area */}
+      {/* Main Chat Area */}
       <motion.div
         layout
         className={`flex-grow flex flex-col items-center w-full ${
           isSubmitted ? "justify-end pb-12" : "justify-center"
         }`}
       >
-        {/* Logo - moves to top when submitted */}
+        {/* Logo */}
         <motion.div
           layout
           animate={{ y: isSubmitted ? "-100%" : 0 }}
@@ -86,7 +96,7 @@ export default function Home() {
           </motion.h1>
         </motion.div>
 
-        {/* Chat Messages Area - only show when submitted */}
+        {/* Messages */}
         <AnimatePresence>
           {isSubmitted && (
             <motion.div
@@ -98,34 +108,28 @@ export default function Home() {
               className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
             >
               <motion.div layout className="space-y-4">
-                {/* User message */}
-                <motion.div layout className="flex justify-end">
-                  <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
-                    <p className="text-white text-sm">{message}</p>
-                  </div>
-                </motion.div>
-
-                {/* AI response */}
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...easeOutFade, delay: 0.8 }}
-                  className="flex justify-start"
-                >
-                  <ChatBubble message={response?.summary.summary || ""} />
-                </motion.div>
+                {messages.map((msg) => (
+                  <motion.div
+                    key={msg.id}
+                    layout
+                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {msg.sender === "user" ? (
+                      <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                        <p className="text-white text-sm">{msg.message}</p>
+                      </div>
+                    ) : (
+                      <ChatBubble message={msg.message} />
+                    )}
+                  </motion.div>
+                ))}
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input Field - slides to bottom when submitted */}
-        <motion.div
-          layout
-          transition={smoothSpring}
-          className="w-full max-w-sm z-20"
-        >
+        {/* Input */}
+        <motion.div layout transition={smoothSpring} className="w-full max-w-sm z-20">
           <form onSubmit={handleSubmit} className="relative">
             <div className="flex items-center gap-2">
               <input
@@ -147,7 +151,7 @@ export default function Home() {
         </motion.div>
       </motion.div>
 
-      {/* Bottom Tagline - fades away when submitted */}
+      {/* Tagline */}
       <AnimatePresence>
         {!isSubmitted && (
           <motion.div
@@ -161,9 +165,7 @@ export default function Home() {
             <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
               AI You Can Swear By
             </p>
-            <p className="text-white text-xs italic mt-1">
-              (Not legal advice)
-            </p>
+            <p className="text-white text-xs italic mt-1">(Not legal advice)</p>
           </motion.div>
         )}
       </AnimatePresence>
