@@ -61,6 +61,7 @@ export default function Home() {
   useEffect(() => {
     initData();
   })
+
   useEffect(() => {
     if (chatId) updateChat();
   }, [chatId, isSubmitted]);

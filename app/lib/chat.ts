@@ -89,3 +89,5 @@ export const createChatId = async (user_id: string, title: string) => {
   if (error) throw error
   return data?.id
 }
+
+

@@ -23,8 +23,11 @@ export default function Side({ newChat }: Chat) {
   
   useEffect(() => {
     const fetchChats = async () => {
-      const data = await getAllChat("6e539fc1-cb84-4584-a56a-1e42be88fc79");
+      const user_id = localStorage.getItem("user_id");
+      console.log(user_id);
+      const data = await getAllChat(user_id ?? "");
       setChats(data);
+      console.log(data);
     };
     fetchChats();
   }, []);
