@@ -56,7 +56,7 @@ export default function Home() {
       await addMessage(currentChatId.id, "user", message);
       await addMessage(currentChatId.id, "ai", response.summary.summary);
 
-      router.push(`/?id=${currentChatId.id}`);
+      router.push(`/${currentChatId.id}`);
     } catch (error) {
       console.error("Failed to send message:", error);
     } finally { 
