@@ -6,8 +6,8 @@ import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
 import Side from "@/app/component/side";
 import question from "@/app/lib/question";
-import { getAllMessage, addMessage, addChat } from "@/app/lib/chat";
-import { useRouter } from "next/navigation";
+import { getAllMessage, addMessage, addChat, getAllChat } from "@/app/lib/chat";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -31,10 +31,44 @@ export default function Home() {
         return;
       }
       setUserId(user_id);
+
+      // Check if we have a chat ID in the URL
+      const id  = router.query.id;
+      if (id && typeof id === "string") {
+        // Validate that this chat belongs to the user
+        const userChats = await getAllChat(user_id);
+        const validChat = userChats?.find(chat => chat.id === id);
+        
+        if (validChat) {
+          setChatId(id);
+          setIsSubmitted(true); // Show chat interface if we have a valid existing chat
+        } else {
+          // Invalid chat ID, redirect to home or show error
+          router.push("/");
+        }
+      }
     };
 
-    initializeData();
-  }, []);
+    if (router.isReady) {
+      initializeData();
+    }
+  }, [router.isReady, router.query]);
+
+  // Load messages when chatId changes
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!chatId) return;
+      
+      try {
+        const chatMessages = await getAllMessage(chatId);
+        setMessages(chatMessages || []);
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+      }
+    };
+
+    loadMessages();
+  }, [chatId]);
 
   // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,27 +80,60 @@ export default function Home() {
     event.preventDefault();
     
     if (!message.trim() || !userId || isLoading) return;
-    setIsSubmitted(true);
+    
     setIsLoading(true);
 
     try {
-      let currentChatId = await addChat(userId, message.slice(0, 50));
-      const response = await question(message);
+      let currentChatId = chatId;
 
-      await addMessage(currentChatId.id, "user", message);
-      await addMessage(currentChatId.id, "ai", response.summary.summary);
+      // If no chat exists, create a new one
+      if (!currentChatId) {
+        const newChat = await addChat(userId, message.slice(0, 50)); // Use first 50 chars as title
+        currentChatId = newChat.id;
+        setChatId(currentChatId);
+        
+        // Update URL to include the new chat ID
+        router.push(`/?id=${currentChatId}`, undefined, { shallow: true });
+        setIsSubmitted(true);
+      }
 
-      router.push(`/?id=${currentChatId.id}`);
+      // Save user message
+      await addMessage(currentChatId, "user", message);
+      
+      // Update messages immediately with user message
+      const userMessage = {
+        id: Date.now(), // Temporary ID
+        chat_id: currentChatId,
+        sender: "user",
+        message: message,
+        created_at: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      setMessage("");
+
+      // Get AI response
+      const aiRes = await question(message);
+      await addMessage(currentChatId, "ai", aiRes.summary.summary);
+
+      // Reload all messages to get proper IDs and order
+      const updatedMessages = await getAllMessage(currentChatId);
+      setMessages(updatedMessages || []);
+
     } catch (error) {
       console.error("Failed to send message:", error);
-    } finally { 
+      // You might want to show an error message to the user here
+    } finally {
       setIsLoading(false);
     }
   };
 
-  function handleNewChat(): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleNewChat = () => {
+    setChatId(null);
+    setMessages([]);
+    setIsSubmitted(false);
+    router.push("/", undefined, { shallow: true });
+  };
 
   return (
     <motion.div

@@ -9,17 +9,8 @@ interface LegalSummaryResponse {
   };
 }
 
-export default async function question(
-  question: string
-): Promise<LegalSummaryResponse> {
-  // 1️⃣ Make sure chat_id exists
-  const chat_id = localStorage.getItem("chat_id");
-  if (!chat_id) throw new Error("No chat_id found");
-
-  // 2️⃣ Save user message
-  await addMessage(chat_id, "user", question);
-
-  console.log("User message saved");
+export default async function question(question: string): Promise<LegalSummaryResponse> {
+  // 1️⃣ Make sure chat_id exists;
 
   // 3️⃣ Send to AI API (placeholder right now)
   // const response = await fetch("/ask", {
@@ -35,11 +26,6 @@ export default async function question(
       url: ["url"],
     },
   };
-
-  // 4️⃣ Save AI message
-  await addMessage(chat_id, "ai", response.summary.summary);
-
-  console.log("AI message saved");
 
   return response;
 }
