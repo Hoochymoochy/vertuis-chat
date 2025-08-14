@@ -10,8 +10,6 @@ import { useRouter } from "next/navigation";
 interface Chat {
   id: number;
   title: string;
-  lastMessage: string;
-  time: string;
 }
 
 export default function Side() {
@@ -32,6 +30,10 @@ export default function Side() {
 
   const newChat = () => {
     router.push("/");
+  }
+
+  const handleChatClick = (id: number) => {
+    router.push(`/${id}`);
   }
 
   return (
@@ -118,6 +120,7 @@ export default function Side() {
                 <div className="space-y-2">
                   {chats.map((chat, index) => (
                     <motion.div
+                      onClick={() => handleChatClick(chat.id)}
                       key={chat.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -129,13 +132,7 @@ export default function Side() {
                           <h4 className="text-white text-sm font-medium truncate group-hover:text-gold transition-colors">
                             {chat.title}
                           </h4>
-                          <p className="text-gold/60 text-xs mt-1 truncate">
-                            {chat.lastMessage}
-                          </p>
                         </div>
-                        <span className="text-gold/40 text-xs ml-2 flex-shrink-0">
-                          {chat.time}
-                        </span>
                       </div>
                     </motion.div>
                   ))}
