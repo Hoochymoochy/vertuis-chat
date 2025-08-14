@@ -66,17 +66,13 @@ export default function Home() {
       setIsLoading(false);
     }
   };
-
-  function handleNewChat(): void {
-    throw new Error("Function not implemented.");
-  }
-
+  
   return (
     <motion.div
       layout
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
-    >
-      <Side newChat={handleNewChat} />
+    >      
+      <Side/>
 
       {/* Main Chat Area */}
       <motion.div

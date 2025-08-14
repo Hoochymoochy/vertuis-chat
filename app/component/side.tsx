@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Profile from "@/app/component/profile";
 import { getAllChat } from "@/app/lib/chat";
-
-interface Chat {
-  newChat: () => void;
-}
+import { useRouter } from "next/navigation";
 
 interface Chat {
   id: number;
@@ -17,9 +14,10 @@ interface Chat {
   time: string;
 }
 
-export default function Side({ newChat }: Chat) {
+export default function Side() {
   const [isOpen, setIsOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
+  const router = useRouter();
   
   useEffect(() => {
     const fetchChats = async () => {
@@ -31,6 +29,10 @@ export default function Side({ newChat }: Chat) {
     };
     fetchChats();
   }, []);
+
+  const newChat = () => {
+    router.push("/");
+  }
 
   return (
     <>
@@ -83,7 +85,7 @@ export default function Side({ newChat }: Chat) {
             {/* Header */}
             <div className="p-6 border-b border-gold/20">
               <motion.button
-                onClick={() => newChat((prev: any) => !prev)}
+                onClick={newChat}
                 className="w-full bg-gradient-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 border border-gold/30 rounded-xl px-4 py-3 text-white font-medium transition-all duration-200 flex items-center gap-3"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
