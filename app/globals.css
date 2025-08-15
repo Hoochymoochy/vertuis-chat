@@ -28,3 +28,19 @@ body {
 .bg-marble {
   background-image: url('/123 (1).jpg');
 }
+
+.text-gold {
+  color: #FFD700; /* base gold */
+  background: linear-gradient(90deg, #FFD700, #FFC857);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); /* soft shadow, subtle pop */
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(90deg, #FFE066, #FFD633);
+}
