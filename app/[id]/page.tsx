@@ -19,6 +19,7 @@ export default function Home() {
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const params = useParams();
+  const router = useRouter();
 
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
@@ -35,6 +36,19 @@ export default function Home() {
     };
     initializeData();
   }, []);
+
+  const checkLogin = async () => {
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      router.push("/login");
+      return;
+    }
+    setUserId(user_id);
+  };
+
+    useEffect(() => {
+    checkLogin();
+  }, [userId]);
 
   // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

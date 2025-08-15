@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
@@ -35,6 +35,19 @@ export default function Home() {
 
     initializeData();
   }, []);
+
+  const checkLogin = async () => {
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) {
+      router.push("/login");
+      return;
+    }
+    setUserId(user_id);
+  };
+
+    useEffect(() => {
+    checkLogin();
+  }, [userId]);
 
   // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
