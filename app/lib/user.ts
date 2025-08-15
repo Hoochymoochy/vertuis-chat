@@ -36,3 +36,13 @@ export async function getUser() {
     email: data.user?.email
   }
 }
+
+export async function signInWithGoogle() {
+  const { error } = await supabase.auth.signIn({ provider: 'google' })
+  if (error) throw error
+}
+
+export async function signInWithWhatsApp() {
+  const { error } = await supabase.auth.signIn({ provider: 'whatsapp' })
+  if (error) throw error
+}
