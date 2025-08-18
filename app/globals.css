@@ -3,11 +3,48 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Custom gold palette */
+  --gold-DEFAULT: #FFD700;
+  --gold-50: #fffbea;
+  --gold-100: #fff3c4;
+  --gold-200: #fce588;
+  --gold-300: #fadb5f;
+  --gold-400: #f7c948;
+  --gold-500: #f0b429;
+  --gold-600: #de911d;
+  --gold-700: #cb6e17;
+  --gold-800: #b44d12;
+  --gold-900: #8d2b0b;
+
+  /* Transparency variants for gradients/borders */
+  --gold-10: rgba(255, 215, 0, 0.1);
+  --gold-20: rgba(255, 215, 0, 0.2);
+  --gold-30: rgba(255, 215, 0, 0.3);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* map Tailwind’s gold keyword to our vars */
+  --color-gold: var(--gold-DEFAULT);
+  --color-gold-50: var(--gold-50);
+  --color-gold-100: var(--gold-100);
+  --color-gold-200: var(--gold-200);
+  --color-gold-300: var(--gold-300);
+  --color-gold-400: var(--gold-400);
+  --color-gold-500: var(--gold-500);
+  --color-gold-600: var(--gold-600);
+  --color-gold-700: var(--gold-700);
+  --color-gold-800: var(--gold-800);
+  --color-gold-900: var(--gold-900);
+
+  /* semi-transparent shades */
+  --color-gold-10: var(--gold-10);
+  --color-gold-20: var(--gold-20);
+  --color-gold-30: var(--gold-30);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -30,12 +67,11 @@ body {
 }
 
 .text-gold {
-  color: #FFD700; /* base gold */
-  background: linear-gradient(90deg, #FFD700, #FFC857);
+  color: var(--gold-DEFAULT);
+  background: linear-gradient(90deg, var(--gold-DEFAULT), #FFC857);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); /* soft shadow, subtle pop */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   font-smooth: always;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

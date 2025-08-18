@@ -1,7 +1,5 @@
 "use client";
 
-import { addMessage } from "@/app/lib/chat";
-
 interface LegalSummaryResponse {
   summary: {
     summary: string;
@@ -10,22 +8,19 @@ interface LegalSummaryResponse {
 }
 
 export default async function question(question: string): Promise<LegalSummaryResponse> {
-  // 1️⃣ Make sure chat_id exists;
+  const response = await fetch("http://192.168.1.188:4000/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query: question }),
+  });
+  const data = await response.json();
 
-  // 3️⃣ Send to AI API (placeholder right now)
-  // const response = await fetch("/ask", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ query: question }),
-  // });
-  // const data = await response.json();
+  // const response = {
+  //   summary: {
+  //     summary: "summary",
+  //     url: ["url"],
+  //   },
+  // };
 
-  const response = {
-    summary: {
-      summary: "summary",
-      url: ["url"],
-    },
-  };
-
-  return response;
+  return data;
 }
