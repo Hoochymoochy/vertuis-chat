@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import Profile from "@/app/component/profile";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 
 interface Chat {
-  id: number;
+  id: string;
   title: string;
 }
 
@@ -20,10 +19,8 @@ export default function Side() {
   useEffect(() => {
     const fetchChats = async () => {
       const user_id = localStorage.getItem("user_id");
-      console.log(user_id);
       const data = await getAllChat(user_id ?? "");
       setChats(data);
-      console.log(data);
     };
     fetchChats();
   }, []);
@@ -32,7 +29,7 @@ export default function Side() {
     router.push("/");
   }
 
-  const handleChatClick = (id: number) => {
+  const handleChatClick = (id: string) => {
     router.push(`/${id}`);
   }
 

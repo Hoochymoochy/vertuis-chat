@@ -43,9 +43,17 @@ export async function signInWithGoogle() {
     options: { redirectTo: window.location.origin + '/' }
   })
   if (error) throw error
-}
 
+  const user = await supabase.auth.getUser()
+  return user.data.user
+}
 export async function signInWithWhatsApp() {
-  const { error } = await supabase.auth.signIn({ provider: 'whatsapp' })
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/' }
+  })
   if (error) throw error
+
+  const user = await supabase.auth.getUser()
+  return user.data.user
 }
