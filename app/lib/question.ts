@@ -1,26 +1,20 @@
 "use client";
 
 interface LegalSummaryResponse {
-  summary: {
+  summary: string[];
+  answer: {
     summary: string;
-    url: string[];
+    urls: string[];
   };
 }
 
-export default async function question(question: string): Promise<LegalSummaryResponse> {
-  const response = await fetch("http://192.168.1.188:4000/ask", {
+export default async function question(question: string): Promise<string> {
+  const response = await fetch("https://a43pxnbhbeaefk-4000.proxy.runpod.net/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: question }),
   });
   const data = await response.json();
 
-  // const response = {
-  //   summary: {
-  //     summary: "summary",
-  //     url: ["url"],
-  //   },
-  // };
-
-  return data;
+  return data.answer.summary;
 }

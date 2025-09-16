@@ -16,6 +16,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
@@ -65,13 +66,14 @@ export default function Home() {
     try {
       let currentChatId = await addChat(userId, message.slice(0, 50));
       const response = await question(message);
-
+      console.log(response);
       await addMessage(currentChatId.id, "user", message);
-      await addMessage(currentChatId.id, "ai", response.summary.summary);
+      await addMessage(currentChatId.id, "ai", response);
 
       router.push(`/${currentChatId.id}`);
     } catch (error) {
       console.error("Failed to send message:", error);
+      setFailed(true);
     } finally { 
       setIsLoading(false);
     }
@@ -111,6 +113,27 @@ export default function Home() {
             Veritus
           </motion.h1>
         </motion.div>
+
+        {/* Floating Error */}
+        <AnimatePresence>
+          {failed && (
+            <motion.div
+              key="error-toast"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="flex justify-center items-center"
+            >
+              <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg">
+                <p className="text-white text-sm text-center">
+                  Failed to send message. Please try again.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
         {/* Messages */}
         <AnimatePresence>
@@ -153,8 +176,13 @@ export default function Home() {
                 placeholder="Start chat..."
                 value={message}
                 disabled={isLoading}
-                className="flex-1 px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold border border-gold focus:outline-none focus:ring-2 focus:ring-gold transition backdrop-blur-sm disabled:opacity-50"
-                onChange={handleInputChange}
+                className="flex-1 px-4 py-3 rounded-xl 
+                bg-gold/10 text-white placeholder-gold/60 
+                border border-gold/40 
+                focus:outline-none focus:ring-2 focus:ring-gold 
+                transition backdrop-blur-sm 
+                disabled:opacity-50"
+              onChange={handleInputChange}
               />
               <button
                 type="submit"

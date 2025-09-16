@@ -18,6 +18,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const params = useParams();
   const router = useRouter();
 
@@ -70,12 +71,13 @@ export default function Home() {
       const response = await question(message);
 
       await addMessage(chatId??"", "user", message);
-      await addMessage(chatId??"", "ai", response.summary.summary);
+      await addMessage(chatId??"", "ai", response);
       setMessage("");
       
       updateMessages();
     } catch (error) {
       console.error("Failed to send message:", error);
+      setFailed(true);
     } finally { 
       setIsLoading(false);
     }
@@ -114,7 +116,7 @@ export default function Home() {
 
         {/* Messages */}
         <AnimatePresence>
-          {!isSubmitted && (
+          {!isSubmitted && !failed && (
             <motion.div
               layout
               initial={{ opacity: 0, y: 50 }}
@@ -142,7 +144,29 @@ export default function Home() {
               </motion.div>
             </motion.div>
           )}
+
+          {failed && (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ ...easeOutFade, delay: 0.3 }}
+              className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
+            >
+              <motion.div layout className="space-y-4">
+                <motion.div layout className="flex justify-center">
+                  <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                    <p className="text-white text-sm">
+                      Failed to send message. Please try again.
+                    </p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
+
 
         {/* Input */}
         <motion.div layout transition={smoothSpring} className="w-full max-w-sm z-20">
