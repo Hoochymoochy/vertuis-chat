@@ -68,7 +68,7 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const response = await question(message);
+      const response = await question(message, chatId ?? "");
 
       await addMessage(chatId??"", "user", message);
       await addMessage(chatId??"", "ai", response);

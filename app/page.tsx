@@ -65,7 +65,7 @@ export default function Home() {
 
     try {
       let currentChatId = await addChat(userId, message.slice(0, 50));
-      const response = await question(message);
+      const response = await question(message, currentChatId.id);
       console.log(response);
       await addMessage(currentChatId.id, "user", message);
       await addMessage(currentChatId.id, "ai", response);
@@ -125,14 +125,21 @@ export default function Home() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex justify-center items-center"
             >
-              <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg">
+              <motion.div
+                layout
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
+              >
                 <p className="text-white text-sm text-center">
                   Failed to send message. Please try again.
                 </p>
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
+
 
 
         {/* Messages */}
@@ -187,11 +194,15 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isLoading || !message.trim()}
-                className="bg-gold hover:bg-gold/80 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gold hover:bg-gold/80 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 aria-label="Send message"
               >
-                <Image src="/upload.png" alt="Send" width={24} height={24} />
-              </button>
+                {isLoading ? (
+                  <Spinner />
+                ) : (
+                  <Image src="/upload.png" alt="Send" width={24} height={24} />
+                )}
+            </button>
             </div>
           </form>
         </motion.div>
@@ -216,5 +227,14 @@ export default function Home() {
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+function Spinner() {
+  return (
+    <motion.div
+      className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin"
+      aria-label="Loading"
+    />
   );
 }

@@ -8,11 +8,13 @@ interface LegalSummaryResponse {
   };
 }
 
-export default async function question(question: string): Promise<string> {
-  const response = await fetch("https://a43pxnbhbeaefk-4000.proxy.runpod.net/ask", {
+export default async function question(question: string, id: string): Promise<string> {
+  const response = await fetch("http://192.168.254.139:4000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: question }),
+    body: JSON.stringify({ query: question,
+      id: id
+     }),
   });
   const data = await response.json();
 
