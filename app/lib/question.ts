@@ -9,7 +9,7 @@ interface LegalSummaryResponse {
 }
 
 export default async function question(question: string, id: string): Promise<string> {
-  const response = await fetch("http://192.168.254.139:4000/ask", {
+  const response = await fetch("http://localhost:4000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: question,
