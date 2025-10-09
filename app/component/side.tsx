@@ -20,6 +20,7 @@ export default function Side() {
     const fetchChats = async () => {
       const user_id = localStorage.getItem("user_id");
       const data = await getAllChat(user_id ?? "");
+      console.log(data);
       setChats(data);
     };
     fetchChats();
@@ -27,6 +28,11 @@ export default function Side() {
 
   const newChat = () => {
     router.push("/");
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("user_id");
+    router.push("/login");
   }
 
   const handleChatClick = (id: string) => {
@@ -111,18 +117,34 @@ export default function Side() {
             </div> */}
 
             {/* Chats List */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gold/30 scrollbar-track-transparent hover:scrollbar-thumb-gold/50">
               <div className="p-4">
                 <h3 className="text-gold text-xs uppercase tracking-wider font-semibold mb-3">Recent Chats</h3>
-                <div className="space-y-2">
+                <motion.div 
+                  className="space-y-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
                   {chats.map((chat, index) => (
                     <motion.div
                       onClick={() => handleChatClick(chat.id)}
                       key={chat.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group cursor-pointer rounded-lg hover:bg-gold/10 transition-colors p-3 border border-transparent hover:border-gold/20"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ 
+                        delay: index * 0.05,
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 25
+                      }}
+                      whileHover={{ 
+                        scale: 1.02,
+                        x: 4,
+                        transition: { type: "spring", stiffness: 400, damping: 20 }
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      className="group cursor-pointer rounded-lg hover:bg-gold/10 transition-all duration-200 p-3 border border-transparent hover:border-gold/20"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
@@ -133,14 +155,44 @@ export default function Side() {
                       </div>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             </div>
 
             {/* Footer with Profile */}
-            <div className="p-4 border-t border-gold/20">
+            <div className="p-4 border-t border-gold/20 space-y-3">
               <Profile />
+              <motion.button
+                onClick={handleLogout}
+                className="w-full group relative overflow-hidden rounded-lg bg-gradient-to-r from-red-950/40 to-red-900/40 hover:from-red-900/60 hover:to-red-800/60 border border-red-500/30 hover:border-red-500/50 px-4 py-2.5 transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/20 to-transparent"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "100%" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                />
+                <div className="relative flex items-center justify-center gap-2">
+                  <motion.svg
+                    className="w-4 h-4 text-red-400 group-hover:text-red-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    whileHover={{ rotate: 15 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </motion.svg>
+                  <span className="text-white text-sm font-medium group-hover:text-red-100 transition-colors">
+                    Logout
+                  </span>
+                </div>
+              </motion.button>
             </div>
+
+            
           </motion.div>
         )}
       </AnimatePresence>

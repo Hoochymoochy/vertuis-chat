@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/app/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import google from "@/public/google.svg";
 import whatsapp from "@/public/whatsapp.svg";
-import { signInWithGoogle, signInWithWhatsApp } from "@/app/lib/user";
+import { signIn, signInWithGoogle, signInWithFacebook, } from "@/app/lib/user";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,9 +22,11 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      router.push("/");
+      const data = await signIn(email, password);
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
+        router.push("/");
+      }
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {
@@ -37,7 +38,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await signInWithGoogle();
-      if (data) {
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
         router.push("/");
       }
     } catch (err: any) {
@@ -50,8 +52,9 @@ export default function LoginPage() {
   const handleWhatsAppLogin = async () => {
     setLoading(true);
     try {
-      const data = await signInWithWhatsApp();
-      if (data) {
+      const data = await signInWithFacebook();
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
         router.push("/");
       }
     } catch (err: any) {

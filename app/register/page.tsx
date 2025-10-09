@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signUp, signInWithGoogle, signInWithWhatsApp } from "@/app/lib/user";
+import { signUp, signInWithGoogle, signInWithFacebook } from "@/app/lib/user";
 import Image from "next/image";
 import google from "@/public/google.svg";
 import whatsapp from "@/public/whatsapp.svg";
@@ -23,7 +23,8 @@ export default function RegisterPage() {
 
     try {
       const data = await signUp(email, password);
-      if (data) {
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
         router.push("/");
       }
     } catch (err: any) {
@@ -37,7 +38,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const data = await signInWithGoogle();
-      if (data) {
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
         router.push("/");
       }
     } catch (err: any) {
@@ -50,8 +52,9 @@ export default function RegisterPage() {
   const handleWhatsAppLogin = async () => {
     setLoading(true);
     try {
-      const data = await signInWithWhatsApp();
-      if (data) {
+      const data = await signInWithFacebook();
+      if (data && data.id) {
+        localStorage.setItem("user_id", data.id);
         router.push("/");
       }
     } catch (err: any) {
