@@ -67,8 +67,8 @@ export default function ChatPage() {
         
         // Add user message
         const userMsg = { sender: "user", message: firstMsg, id: Date.now() };
-        setMessages([userMsg]);
         await addMessage(currentChatId, "user", firstMsg);
+        setMessages([userMsg]);
 
         // Trigger AI response
         await triggerAIResponse(firstMsg, currentChatId);
@@ -89,26 +89,30 @@ export default function ChatPage() {
     setFailed(false);
     let aiMessage = "";
 
+    // Add loading bubble immediately
+    const loadingMsg = { sender: "ai", message: "...", id: "ai-loading" };
+    setMessages(prev => [...prev, loadingMsg]);
+
     try {
       await question(msg, chatId, (token: string) => {
         aiMessage += token;
         setMessages(prev => {
-          const withoutOldAI = prev.filter(m => m.id !== "ai-temp");
-          return [...withoutOldAI, { sender: "ai", message: aiMessage, id: "ai-temp" }];
+          const withoutLoading = prev.filter(m => m.id !== "ai-loading" && m.id !== "ai-temp");
+          return [...withoutLoading, { sender: "ai", message: aiMessage, id: "ai-temp" }];
         });
       });
 
       // Replace temp message with final saved version
       await addMessage(chatId, "ai", aiMessage);
       setMessages(prev => {
-        const withoutTemp = prev.filter(m => m.id !== "ai-temp");
+        const withoutTemp = prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading");
         return [...withoutTemp, { sender: "ai", message: aiMessage, id: Date.now() }];
       });
     } catch (err) {
       console.error("AI response failed:", err);
       setFailed(true);
       // Remove temp AI message on failure
-      setMessages(prev => prev.filter(m => m.id !== "ai-temp"));
+      setMessages(prev => prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading"));
     } finally {
       setIsLoading(false);
     }
@@ -131,22 +135,26 @@ export default function ChatPage() {
       setMessages(prev => [...prev, userMsg]);
       await addMessage(chatId, "user", userMessage);
 
-      // Step 2: Stream AI response
+      // Step 2: Add loading bubble
+      const loadingMsg = { sender: "ai", message: "...", id: "ai-loading" };
+      setMessages(prev => [...prev, loadingMsg]);
+
+      // Step 3: Stream AI response
       let aiMessage = "";
       await question(userMessage, chatId, (token: string) => {
         aiMessage += token;
 
         setMessages(prev => {
-          // Remove old streaming AI bubble
-          const withoutOldAI = prev.filter(m => m.id !== "ai-temp");
-          return [...withoutOldAI, { sender: "ai", message: aiMessage, id: "ai-temp" }];
+          // Remove loading and old streaming AI bubble
+          const withoutLoading = prev.filter(m => m.id !== "ai-loading" && m.id !== "ai-temp");
+          return [...withoutLoading, { sender: "ai", message: aiMessage, id: "ai-temp" }];
         });
       });
 
-      // Step 3: Save final AI message and replace temp
+      // Step 4: Save final AI message and replace temp
       await addMessage(chatId, "ai", aiMessage);
       setMessages(prev => {
-        const withoutTemp = prev.filter(m => m.id !== "ai-temp");
+        const withoutTemp = prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading");
         return [...withoutTemp, { sender: "ai", message: aiMessage, id: Date.now() }];
       });
 
@@ -154,7 +162,7 @@ export default function ChatPage() {
       console.error("Failed to send message:", err);
       setFailed(true);
       // Remove temp AI message on failure
-      setMessages(prev => prev.filter(m => m.id !== "ai-temp"));
+      setMessages(prev => prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading"));
     } finally {
       setIsLoading(false);
     }
@@ -175,25 +183,19 @@ export default function ChatPage() {
   const hasMessages = messages.length > 0;
 
   return (
-    <motion.div
+    <div
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
       <Side />
 
-      {/* Main Chat Area */}
-      <div
-        className={`flex-grow flex flex-col items-center w-full ${
-          hasMessages ? "justify-end pb-12" : "justify-center"
-        }`}
-      >
-        {/* Logo - No animation */}
+      {/* Main Chat Area - Static, no justify changes */}
+      <div className="flex-grow flex flex-col items-center w-full justify-end pb-12">
+        {/* Logo */}
         <div
           className="flex justify-center items-center z-10 mb-4"
-          style={{ transform: hasMessages ? 'translateY(-100%)' : 'translateY(0)' }}
         >
           <h1
             className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
-            style={{ transform: hasMessages ? 'scale(0.9)' : 'scale(1)' }}
           >
             Veritus
           </h1>
@@ -214,6 +216,16 @@ export default function ChatPage() {
                   {msg.sender === "user" ? (
                     <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
                       <p className="text-white text-sm">{msg.message}</p>
+                    </div>
+                  ) : msg.message === "..." ? (
+                    <div className="max-w-xs bg-black/60 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                      <motion.p
+                        className="text-gold text-sm"
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        ...
+                      </motion.p>
                     </div>
                   ) : (
                     <ChatBubble message={msg.message} />
@@ -271,22 +283,6 @@ export default function ChatPage() {
           </form>
         </div>
       </div>
-
-      {/* Tagline */}
-      {!hasMessages && (
-        <motion.div
-          key="tagline"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={easeOutFade}
-          className="text-center mt-10"
-        >
-          <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
-            AI You Can Swear By
-          </p>
-          <p className="text-white text-xs italic mt-1">(Not legal advice)</p>
-        </motion.div>
-      )}
-    </motion.div>
+    </div>
   );
 }

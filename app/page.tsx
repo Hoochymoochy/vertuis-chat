@@ -14,6 +14,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
   const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
@@ -42,7 +43,12 @@ export default function Home() {
     event.preventDefault();
     if (!message.trim() || !userId || isLoading) return;
 
+    setIsSubmitted(true);
     setIsLoading(true);
+
+    // Add user message to local state for animation
+    const userMsg = { sender: "user", message: message, id: Date.now() };
+    setMessages([userMsg]);
 
     try {
       const healthRes = await fetch("http://localhost:4000/health");
@@ -55,8 +61,10 @@ export default function Home() {
       // Store first message for the chat page to handle
       localStorage.setItem("first_message", message);
 
-      // Route immediately — message will be handled on chat page
-      router.push(`/${id}`);
+      // Small delay to show the animation before routing
+      setTimeout(() => {
+        router.push(`/${id}`);
+      }, 300);
     } catch (err) {
       console.error("Failed to start chat:", err);
       setFailed(true);
@@ -74,16 +82,20 @@ export default function Home() {
       {/* Main Chat Area */}
       <motion.div
         layout
-        className="flex-grow flex flex-col items-center w-full justify-center"
+        className={`flex-grow flex flex-col items-center w-full ${
+          isSubmitted ? "justify-end pb-12" : "justify-center"
+        }`}
       >
         {/* Logo */}
         <motion.div
           layout
+          animate={{ y: isSubmitted ? "-100%" : 0 }}
           transition={smoothSpring}
           className="flex justify-center items-center z-10 mb-4"
         >
           <motion.h1
             layout
+            animate={{ scale: isSubmitted ? 0.9 : 1 }}
             transition={smoothSpring}
             className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
           >
@@ -112,6 +124,34 @@ export default function Home() {
                 <p className="text-white text-sm text-center">
                   Failed to send message. Please try again.
                 </p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Messages */}
+        <AnimatePresence>
+          {isSubmitted && (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ ...easeOutFade, delay: 0.1 }}
+              className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
+            >
+              <motion.div layout className="space-y-4">
+                {messages.map((msg, index) => (
+                  <motion.div
+                    key={msg.id || index}
+                    layout
+                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
+                      <p className="text-white text-sm">{msg.message}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </motion.div>
             </motion.div>
           )}
@@ -152,18 +192,23 @@ export default function Home() {
       </motion.div>
 
       {/* Tagline */}
-      <motion.div
-        key="tagline"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={easeOutFade}
-        className="text-center mt-10"
-      >
-        <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
-          AI You Can Swear By
-        </p>
-        <p className="text-white text-xs italic mt-1">(Not legal advice)</p>
-      </motion.div>
+      <AnimatePresence>
+        {!isSubmitted && (
+          <motion.div
+            key="tagline"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={easeOutFade}
+            className="text-center mt-10"
+          >
+            <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
+              AI You Can Swear By
+            </p>
+            <p className="text-white text-xs italic mt-1">(Not legal advice)</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
