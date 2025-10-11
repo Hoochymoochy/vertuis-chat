@@ -104,9 +104,10 @@ export default function ChatPage() {
 
       // Replace temp message with final saved version
       await addMessage(chatId, "ai", aiMessage);
+      const finalId = Date.now();
       setMessages(prev => {
         const withoutTemp = prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading");
-        return [...withoutTemp, { sender: "ai", message: aiMessage, id: Date.now() }];
+        return [...withoutTemp, { sender: "ai", message: aiMessage, id: finalId }];
       });
     } catch (err) {
       console.error("AI response failed:", err);
@@ -130,16 +131,13 @@ export default function ChatPage() {
     setMessage(""); // Clear input immediately for better UX
 
     try {
-      // Step 1: Add user message
+      // Step 1: Add user message AND loading bubble together
       const userMsg = { sender: "user", message: userMessage, id: Date.now() };
-      setMessages(prev => [...prev, userMsg]);
+      const loadingMsg = { sender: "ai", message: "...", id: "ai-loading" };
+      setMessages(prev => [...prev, userMsg, loadingMsg]);
       await addMessage(chatId, "user", userMessage);
 
-      // Step 2: Add loading bubble
-      const loadingMsg = { sender: "ai", message: "...", id: "ai-loading" };
-      setMessages(prev => [...prev, loadingMsg]);
-
-      // Step 3: Stream AI response
+      // Step 2: Stream AI response
       let aiMessage = "";
       await question(userMessage, chatId, (token: string) => {
         aiMessage += token;
@@ -151,11 +149,12 @@ export default function ChatPage() {
         });
       });
 
-      // Step 4: Save final AI message and replace temp
+      // Step 3: Save final AI message and replace temp
       await addMessage(chatId, "ai", aiMessage);
+      const finalId = Date.now();
       setMessages(prev => {
         const withoutTemp = prev.filter(m => m.id !== "ai-temp" && m.id !== "ai-loading");
-        return [...withoutTemp, { sender: "ai", message: aiMessage, id: Date.now() }];
+        return [...withoutTemp, { sender: "ai", message: aiMessage, id: finalId }];
       });
 
     } catch (err) {
@@ -188,22 +187,18 @@ export default function ChatPage() {
     >
       <Side />
 
-      {/* Main Chat Area - Static, no justify changes */}
-      <div className="flex-grow flex flex-col items-center w-full justify-end pb-12">
-        {/* Logo */}
-        <div
-          className="flex justify-center items-center z-10 mb-4"
-        >
-          <h1
-            className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
-          >
-            Veritus
-          </h1>
-        </div>
+      {/* Logo - Fixed at top */}
+      <div className="flex justify-center items-center pt-6 pb-4">
+        <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">
+          Veritus
+        </h1>
+      </div>
 
-        {/* Messages Container - No entrance animation */}
+      {/* Main Chat Area */}
+      <div className="flex-grow flex flex-col items-center w-full pb-12">
+        {/* Messages Container */}
         {hasMessages && (
-          <div className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto">
+          <div className="flex-1 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
             <div className="space-y-4">
               {messages.map((msg, index) => (
                 <motion.div
@@ -252,8 +247,8 @@ export default function ChatPage() {
           </motion.div>
         )}
 
-        {/* Input - No animation */}
-        <div className="w-full max-w-sm z-20">
+        {/* Input */}
+        <div className="w-full max-w-sm z-20 mt-auto">
           <form onSubmit={handleSubmit} className="relative">
             <div className="flex items-center gap-2">
               <input
