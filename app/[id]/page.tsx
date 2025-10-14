@@ -8,6 +8,7 @@ import Side from "@/app/component/side";
 import question from "@/app/lib/question";
 import { getAllMessage, addMessage } from "@/app/lib/chat";
 import { useRouter, useParams } from "next/navigation";
+import WorldToCountryMap from "../component/jurisdiction";
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
@@ -17,6 +18,9 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [openMap, setOpenMap] = useState(true);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedJurisdiction, setSelectedJurisdiction] = useState("");
 
   const params = useParams();
   const router = useRouter();
@@ -278,6 +282,50 @@ export default function ChatPage() {
           </form>
         </div>
       </div>
+    <AnimatePresence>
+      {openMap && (
+        <motion.div
+          key="map-popup"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
+          onClick={() => setOpenMap(false)} // click outside to close
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="relative bg-black/80 rounded-2xl border border-gold/40 shadow-xl p-6 max-w-5xl w-full mx-4"
+            onClick={(e) => e.stopPropagation()} // prevents closing when clicking inside
+          >
+            <button
+              onClick={() => setOpenMap(false)}
+              className="absolute top-4 right-4 text-gold hover:text-white transition"
+            >
+              ✕
+            </button>
+
+            <WorldToCountryMap
+              slectedCountry={(name) => {
+                setSelectedCountry(name)
+                setOpenMap(false)
+              }}
+              slectedJurisdiction={setSelectedJurisdiction}
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+<button
+  onClick={() => setOpenMap(true)}
+  className="fixed bottom-6 right-6 bg-gold text-black font-bold px-4 py-3 rounded-xl hover:bg-gold/90 transition-all shadow-lg z-40"
+>
+  🌍 Choose Jurisdiction
+</button>
+
     </div>
   );
 }

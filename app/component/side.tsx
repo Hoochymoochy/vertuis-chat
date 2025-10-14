@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Profile from "@/app/component/profile";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
+import WorldToCountryMap from "@/app/component/jurisdiction";
 
 interface Chat {
   id: string;
@@ -157,6 +158,10 @@ export default function Side() {
                   ))}
                 </motion.div>
               </div>
+            </div>
+
+            <div className="p-4 border-t border-gold/20">
+              Choose your jurisdiction
             </div>
 
             {/* Footer with Profile */}
