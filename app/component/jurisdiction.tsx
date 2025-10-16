@@ -7,9 +7,7 @@ import {
   Geographies,
   Geography,
 } from '@/app/component/SimpleMapClient'
-import { on } from 'events'
-import { s, select } from 'framer-motion/client'
-import { count } from 'console'
+
 
 const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
