@@ -9,6 +9,7 @@ import question from "@/app/lib/question";
 import { getAllMessage, addMessage } from "@/app/lib/chat";
 import { useRouter, useParams } from "next/navigation";
 import WorldToCountryMap from "../component/jurisdiction";
+import { s, select } from "framer-motion/client";
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
@@ -19,8 +20,9 @@ export default function ChatPage() {
   const [failed, setFailed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [openMap, setOpenMap] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedJurisdiction, setSelectedJurisdiction] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [selectedState, setState] = useState<string | null>(null);
+
 
   const params = useParams();
   const router = useRouter();
@@ -29,6 +31,15 @@ export default function ChatPage() {
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
+
+  const onCountrySlected = (country: string) => {
+    setSelectedCountry(country)
+  }
+
+  const onStateSelected = (state: string) => {
+    setState(state)
+  }
+  
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -126,6 +137,7 @@ export default function ChatPage() {
   // Send message & stream AI
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(selectedCountry, selectedState);
     if (!message.trim() || !chatId || isLoading) return;
 
     setIsLoading(true);
@@ -291,7 +303,9 @@ export default function ChatPage() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
-          onClick={() => setOpenMap(false)} // click outside to close
+            onClick={(e) => {
+    if (e.target === e.currentTarget) setOpenMap(false)
+  }}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -309,11 +323,10 @@ export default function ChatPage() {
             </button>
 
             <WorldToCountryMap
-              slectedCountry={(name) => {
-                setSelectedCountry(name)
-                setOpenMap(false)
-              }}
-              slectedJurisdiction={setSelectedJurisdiction}
+              onCountrySlected={onCountrySlected}
+              onStateSelected={onStateSelected}
+              slectedCountry={selectedCountry ?? "world"}
+              slectedState={selectedState ?? ""}
             />
           </motion.div>
         </motion.div>

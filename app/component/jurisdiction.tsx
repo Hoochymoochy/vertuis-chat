@@ -7,18 +7,21 @@ import {
   Geographies,
   Geography,
 } from '@/app/component/SimpleMapClient'
+import { on } from 'events'
+import { s, select } from 'framer-motion/client'
+import { count } from 'console'
 
 const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
 const USA_URL = '/us-states.json'
 
-export default function WorldToCountryMap({
-  slectedCountry,
-  slectedJurisdiction,
-}: {
-  slectedCountry: (country: string) => void, slectedJurisdiction: (country: string) => void
-}) {
-  const [view, setView] = useState<'world' | 'brazil' | 'usa'>('world')
+export default function WorldToCountryMap({onCountrySlected, onStateSelected, slectedCountry, slectedState}: 
+  { onCountrySlected: (country: string) => void, 
+    onStateSelected: (state: string) => void,
+    slectedCountry: string,
+    slectedState: string
+  }) {
+
   const [hovered, setHovered] = useState<string | null>(null)
   const [isZooming, setIsZooming] = useState(false)
 
@@ -26,8 +29,8 @@ export default function WorldToCountryMap({
     if (country === 'Brazil' || country === 'United States of America') {
       setIsZooming(true)
       setTimeout(() => {
-        if (country === 'Brazil') setView('brazil')
-        if (country === 'United States of America') setView('usa')
+        if (country === 'Brazil') onCountrySlected('brazil')
+        if (country === 'United States of America') onCountrySlected('usa')
         setIsZooming(false)
       }, 400)
     }
@@ -36,7 +39,7 @@ export default function WorldToCountryMap({
   const handleBack = () => {
     setIsZooming(true)
     setTimeout(() => {
-      setView('world')
+      onCountrySlected('world')
       setIsZooming(false)
     }, 400)
   }
@@ -52,7 +55,7 @@ export default function WorldToCountryMap({
     <div className="position-absolute">
 
       {/* Back Button */}
-      {view !== 'world' && (
+      {slectedCountry !== 'world' && (
         <motion.button
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -79,7 +82,7 @@ export default function WorldToCountryMap({
       {/* Map Container */}
       <div className="">
         <AnimatePresence mode="wait">
-          {view === 'world' && (
+          {slectedCountry === 'world' && (
             <motion.div
               key="world"
               initial={{ opacity: 0, scale: 1.2 }}
@@ -136,7 +139,7 @@ export default function WorldToCountryMap({
             </motion.div>
           )}
 
-          {view === 'brazil' && (
+          {slectedCountry === 'brazil' && (
             <motion.div
               key="brazil"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -162,7 +165,7 @@ export default function WorldToCountryMap({
                           geography={geo}
                           onMouseEnter={() => setHovered(name)}
                           onMouseLeave={() => setHovered(null)}
-                          onClick={() => slectedCountry(name)}
+                          onClick={() => onStateSelected(name)}
                           style={{
                             default: { 
                               fill: '#1a1a1a', 
@@ -195,7 +198,7 @@ export default function WorldToCountryMap({
             </motion.div>
           )}
 
-          {view === 'usa' && (
+          {slectedCountry === 'usa' && (
             <motion.div
               key="usa"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -221,7 +224,7 @@ export default function WorldToCountryMap({
                           geography={geo}
                           onMouseEnter={() => setHovered(name)}
                           onMouseLeave={() => setHovered(null)}
-                          onClick={() => slectedCountry(name)}
+                          onClick={() => onStateSelected(name)}
                           style={{
                             default: { 
                               fill: '#1a1a1a', 
@@ -264,7 +267,7 @@ export default function WorldToCountryMap({
         className="mt-6 max-w-md bg-black/60 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-3"
       >
         <p className="text-gold text-sm text-center">
-          {view === 'world' 
+          {slectedCountry === 'world' 
             ? 'Brazil and USA are highlighted in gold - click to zoom in' 
             : 'Click on a region to select it'}
         </p>
