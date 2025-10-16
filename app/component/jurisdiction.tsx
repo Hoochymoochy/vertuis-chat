@@ -52,31 +52,45 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
   }
 
   return (
-    <div className="position-absolute">
+    <div className="relative">
+      {/* Back Button */}
+      {slectedCountry !== 'world' && (
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          onClick={handleBack}
+          disabled={isZooming}
+          className="absolute top-4 left-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-4 py-2 hover:bg-black/70 hover:border-gold/50 transition-all disabled:opacity-50 group"
+          whileHover={{ scale: 1.05, x: -2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <div className="flex items-center gap-2">
+            <motion.span
+              className="text-gold text-xl"
+              whileHover={{ x: -3 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              ←
+            </motion.span>
+            <span className="text-gold text-sm font-medium group-hover:text-white transition-colors">
+              Back
+            </span>
+          </div>
+        </motion.button>
+      )}
 
-    {/* Back Button */}
-    {slectedCountry !== 'world' && (
+      {/* Close Button */}
       <motion.button
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        onClick={handleBack}
-        disabled={isZooming}
-        className="absolute top-4 left-10 text-gold hover:text-white transition disabled:opacity-50 text-3xl"
+        onClick={() => setOpenMap(false)}
+        className="absolute top-4 right-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-3 py-2 hover:bg-black/70 hover:border-red-500/50 transition-all group"
+        whileHover={{ scale: 1.05, rotate: 90 }}
+        whileTap={{ scale: 0.95 }}
       >
-        ←
+        <span className="text-gold text-xl group-hover:text-red-400 transition-colors">
+          ✕
+        </span>
       </motion.button>
-    )}
-
-    {/* Close Button */}
-    <button
-      onClick={() => setOpenMap(false)}
-      className="absolute top-4 right-10 text-gold hover:text-white transition text-3xl"
-    >
-      ✕
-    </button>
-
-
 
       {/* Map Container */}
       <div className="">
@@ -89,7 +103,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ 
                 duration: 0.8, 
-                ease: [0.43, 0.13, 0.23, 0.96] // Custom easing for smooth zoom
+                ease: [0.43, 0.13, 0.23, 0.96]
               }}
               className="w-full flex justify-center"
             >
@@ -175,7 +189,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                           style={{
                             default: { 
                               fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
-                              stroke: '#FFD700',
+                              stroke: '#555',
                               strokeWidth: 0.8,
                               outline: 'none',
                               transition: 'all 0.3s ease',
@@ -236,7 +250,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                           style={{
                             default: { 
                               fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
-                              stroke: '#FFD700',
+                              stroke: '#555',
                               strokeWidth: 0.8,
                               outline: 'none',
                               transition: 'all 0.3s ease',
@@ -267,41 +281,78 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
         </AnimatePresence>
       </div>
       
-      {/* Instruction Box */}
+      {/* Info Cards */}
       <div className="flex flex-col items-center justify-center gap-3 mt-5">
+        {/* Instruction Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="w-full max-w-md bg-black/60 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-3"
+          className="w-full max-w-md bg-black/60 backdrop-blur-lg border border-gold/30 rounded-xl px-5 py-3.5 relative overflow-hidden group"
         >
-          <p className="text-gold text-sm text-center">
-            {slectedCountry === 'world'
-              ? 'Brazil and USA are highlighted in gold — click to zoom in'
-              : 'Click on a region to select it'}
-          </p>
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent"
+            initial={{ x: "-100%" }}
+            animate={{ x: "100%" }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          />
+          <div className="relative flex items-start gap-3">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <svg className="w-5 h-5 text-gold mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </motion.div>
+            <p className="text-gold/90 text-sm leading-relaxed">
+              {slectedCountry === 'world'
+                ? 'Brazil and USA are highlighted in gold — click to zoom in and explore states'
+                : 'Click on any state to select it as your jurisdiction'}
+            </p>
+          </div>
         </motion.div>
 
-        {/* Status Box */}
+        {/* Status Card */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="w-full max-w-md bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-2 text-center"
+          className="w-full max-w-md bg-gradient-to-r from-gold/20 to-gold/10 backdrop-blur-lg border border-gold/40 rounded-xl px-5 py-3 relative overflow-hidden"
         >
-          {slectedCountry === 'world' ? (
-            <p className="text-white text-sm font-medium">
-              Country Hover: {hovered || '—'}
-            </p>
-          ) : slectedState ? (
-            <p className="text-white text-sm font-medium">
-              Country: {slectedCountry} — State: {hovered || slectedState}
-            </p>
-          ) : (
-            <p className="text-white text-sm font-medium">
-              Country: {slectedCountry} — State: {hovered || '—'}
-            </p>
-          )}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+          <div className="relative">
+            {slectedCountry === 'world' ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Hovering:</span>
+                  <span className="text-white text-sm font-medium">{hovered || '—'}</span>
+                </div>
+                <motion.div
+                  animate={{ opacity: hovered ? 1 : 0.3 }}
+                  className="w-2 h-2 rounded-full bg-gold"
+                />
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Country:</span>
+                  <span className="text-white text-sm font-medium capitalize">{slectedCountry}</span>
+                </div>
+                <div className="h-px bg-gold/20" />
+                <div className="flex items-center justify-between">
+                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">
+                    {hovered ? 'Hovering:' : slectedState ? 'Selected:' : 'State:'}
+                  </span>
+                  <span className="text-white text-sm font-medium">{hovered || slectedState || '—'}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </motion.div>
       </div>
     </div>
