@@ -8,9 +8,7 @@ import Side from "@/app/component/side";
 import question from "@/app/lib/question";
 import { getAllMessage, addMessage } from "@/app/lib/chat";
 import { useRouter, useParams } from "next/navigation";
-import WorldToCountryMap from "../component/jurisdiction";
-import { s, select } from "framer-motion/client";
-
+import Map from "@/app/component/map";
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
@@ -203,7 +201,7 @@ export default function ChatPage() {
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
       <Side setOpenMap={setOpenMap} selectedCountry={selectedCountry} slectedState={selectedState} />
-
+      <Map openMap={openMap} setOpenMap={setOpenMap} selectedCountry={selectedCountry as string} selectedState={selectedState as string} onCountrySlected={onCountrySlected} onStateSelected={onStateSelected} />
       {/* Logo - Fixed at top */}
       <div className="flex justify-center items-center pt-6 pb-4">
         <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">
@@ -296,39 +294,7 @@ export default function ChatPage() {
         </div>
       </div>
       
-    <AnimatePresence>
-      {openMap && (
-        <motion.div
-          key="map-popup"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
-            onClick={(e) => {
-         if (e.target === e.currentTarget) setOpenMap(false)
-        }}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="relative bg-black/80 rounded-2xl border border-gold/40 shadow-xl p-6 max-w-5xl w-full mx-4"
-            onClick={(e) => e.stopPropagation()} // prevents closing when clicking inside
-          >
 
-            <WorldToCountryMap
-              onCountrySlected={onCountrySlected}
-              onStateSelected={onStateSelected}
-              setOpenMap={setOpenMap}
-              slectedCountry={selectedCountry ?? "world"}
-              slectedState={selectedState ?? ""}
-            />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
     </div>
   );
 }
