@@ -15,9 +15,10 @@ const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
 const USA_URL = '/us-states.json'
 
-export default function WorldToCountryMap({onCountrySlected, onStateSelected, slectedCountry, slectedState}: 
+export default function WorldToCountryMap({onCountrySlected, onStateSelected, setOpenMap, slectedCountry, slectedState}: 
   { onCountrySlected: (country: string) => void, 
     onStateSelected: (state: string) => void,
+    setOpenMap: (open: boolean) => void,
     slectedCountry: string,
     slectedState: string
   }) {
@@ -27,6 +28,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, sl
 
   const handleCountryClick = (country: string) => {
     if (country === 'Brazil' || country === 'United States of America') {
+      setHovered('')
       setIsZooming(true)
       setTimeout(() => {
         if (country === 'Brazil') onCountrySlected('brazil')
@@ -54,30 +56,29 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, sl
   return (
     <div className="position-absolute">
 
-      {/* Back Button */}
-      {slectedCountry !== 'world' && (
-        <motion.button
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          onClick={handleBack}
-          disabled={isZooming}
-          className="mb-6 px-6 py-3 bg-black/60 backdrop-blur-sm border border-gold text-gold rounded-xl hover:bg-gold hover:text-black transition-all duration-300 font-semibold disabled:opacity-50"
-        >
-          ← Back to World
-        </motion.button>
-      )}
+    {/* Back Button */}
+    {slectedCountry !== 'world' && (
+      <motion.button
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        onClick={handleBack}
+        disabled={isZooming}
+        className="absolute top-4 left-10 text-gold hover:text-white transition disabled:opacity-50 text-3xl"
+      >
+        ←
+      </motion.button>
+    )}
 
-      {/* Hovered Region Display */}
-      {hovered && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 px-4 py-2 bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-xl"
-        >
-          <p className="text-white text-sm font-medium">{hovered}</p>
-        </motion.div>
-      )}
+    {/* Close Button */}
+    <button
+      onClick={() => setOpenMap(false)}
+      className="absolute top-4 right-10 text-gold hover:text-white transition text-3xl"
+    >
+      ✕
+    </button>
+
+
 
       {/* Map Container */}
       <div className="">
@@ -168,7 +169,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, sl
                           onClick={() => onStateSelected(name)}
                           style={{
                             default: { 
-                              fill: '#1a1a1a', 
+                              fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
                               stroke: '#FFD700',
                               strokeWidth: 0.8,
                               outline: 'none',
@@ -258,20 +259,44 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, sl
           )}
         </AnimatePresence>
       </div>
+      
+      {/* Instruction Box */}
+      <div className="flex flex-col items-center justify-center gap-3 mt-5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="w-full max-w-md bg-black/60 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-3"
+        >
+          <p className="text-gold text-sm text-center">
+            {slectedCountry === 'world'
+              ? 'Brazil and USA are highlighted in gold — click to zoom in'
+              : 'Click on a region to select it'}
+          </p>
+        </motion.div>
 
-      {/* Instructions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 max-w-md bg-black/60 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-3"
-      >
-        <p className="text-gold text-sm text-center">
-          {slectedCountry === 'world' 
-            ? 'Brazil and USA are highlighted in gold - click to zoom in' 
-            : 'Click on a region to select it'}
-        </p>
-      </motion.div>
+        {/* Status Box */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="w-full max-w-md bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-xl px-4 py-2 text-center"
+        >
+          {slectedCountry === 'world' ? (
+            <p className="text-white text-sm font-medium">
+              Country Hover: {hovered || '—'}
+            </p>
+          ) : slectedState ? (
+            <p className="text-white text-sm font-medium">
+              Country: {slectedCountry} — State: {hovered || slectedState}
+            </p>
+          ) : (
+            <p className="text-white text-sm font-medium">
+              Country: {slectedCountry} — State: {hovered || '—'}
+            </p>
+          )}
+        </motion.div>
+      </div>
     </div>
   )
 }

@@ -24,6 +24,7 @@ export default function ChatPage() {
   const [selectedState, setState] = useState<string | null>(null);
 
 
+
   const params = useParams();
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -294,6 +295,7 @@ export default function ChatPage() {
           </form>
         </div>
       </div>
+      
     <AnimatePresence>
       {openMap && (
         <motion.div
@@ -304,8 +306,8 @@ export default function ChatPage() {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
             onClick={(e) => {
-    if (e.target === e.currentTarget) setOpenMap(false)
-  }}
+         if (e.target === e.currentTarget) setOpenMap(false)
+        }}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -315,16 +317,11 @@ export default function ChatPage() {
             className="relative bg-black/80 rounded-2xl border border-gold/40 shadow-xl p-6 max-w-5xl w-full mx-4"
             onClick={(e) => e.stopPropagation()} // prevents closing when clicking inside
           >
-            <button
-              onClick={() => setOpenMap(false)}
-              className="absolute top-4 right-4 text-gold hover:text-white transition"
-            >
-              ✕
-            </button>
 
             <WorldToCountryMap
               onCountrySlected={onCountrySlected}
               onStateSelected={onStateSelected}
+              setOpenMap={setOpenMap}
               slectedCountry={selectedCountry ?? "world"}
               slectedState={selectedState ?? ""}
             />
@@ -332,12 +329,12 @@ export default function ChatPage() {
         </motion.div>
       )}
     </AnimatePresence>
-<button
-  onClick={() => setOpenMap(true)}
-  className="fixed bottom-6 right-6 bg-gold text-black font-bold px-4 py-3 rounded-xl hover:bg-gold/90 transition-all shadow-lg z-40"
->
-  🌍 Choose Jurisdiction
-</button>
+    <button
+      onClick={() => setOpenMap(true)}
+      className="fixed bottom-6 right-6 bg-gold text-black font-bold px-4 py-3 rounded-xl hover:bg-gold/90 transition-all shadow-lg z-40"
+    >
+      🌍 Choose Jurisdiction
+    </button>
 
     </div>
   );
