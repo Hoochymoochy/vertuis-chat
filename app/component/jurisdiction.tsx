@@ -93,7 +93,12 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               }}
               className="w-full flex justify-center"
             >
-              <ComposableMap projection="geoMercator">
+              <ComposableMap 
+                projection="geoMercator"
+                projectionConfig={{ scale: 120, center: [0, 20] }}
+                width={800}
+                height={400}
+              >
                 <Geographies geography={WORLD_URL}>
                   {({ geographies }: any) =>
                     geographies.map((geo: any) => {
@@ -152,7 +157,9 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
             >
               <ComposableMap
                 projection="geoMercator"
-                projectionConfig={{ scale: 700, center: [-52, -15] }}
+                projectionConfig={{ scale: 650, center: [-52, -14] }}
+                width={800}
+                height={500}
               >
                 <Geographies geography={BRAZIL_URL}>
                   {({ geographies }: any) =>
@@ -210,8 +217,10 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               className="w-full flex justify-center"
             >
               <ComposableMap
-                projection="geoMercator"
-                projectionConfig={{ scale: 600, center: [-98, 38] }}
+                projection="geoAlbersUsa"
+                projectionConfig={{ scale: 800 }}
+                width={800}
+                height={500}
               >
                 <Geographies geography={USA_URL}>
                   {({ geographies }: any) =>
@@ -226,7 +235,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                           onClick={() => onStateSelected(name)}
                           style={{
                             default: { 
-                              fill: '#1a1a1a', 
+                              fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
                               stroke: '#FFD700',
                               strokeWidth: 0.8,
                               outline: 'none',
