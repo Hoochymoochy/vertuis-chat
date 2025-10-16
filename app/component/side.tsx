@@ -5,14 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import Profile from "@/app/component/profile";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
-import WorldToCountryMap from "@/app/component/jurisdiction";
 
 interface Chat {
   id: string;
   title: string;
 }
 
-export default function Side() {
+type SideProps = {
+  setOpenMap: (open: boolean) => void;
+  selectedCountry: string | null;
+  slectedState: string | null;
+};
+
+export default function Side({ setOpenMap, selectedCountry, slectedState }: SideProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const router = useRouter();
@@ -161,7 +166,39 @@ export default function Side() {
             </div>
 
             <div className="p-4 border-t border-gold/20">
-              Choose your jurisdiction
+              <motion.button
+                onClick={() => setOpenMap(true)}
+                className="w-full group relative overflow-hidden rounded-lg bg-gradient-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/10 to-transparent"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "100%" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-gold text-xs uppercase tracking-wider font-semibold">
+                      Jurisdiction
+                    </span>
+                  </div>
+                  <div className="text-white text-sm">
+                    <span className="text-gold/80">Country:</span> {selectedCountry || "Global"}
+                  </div>
+                  <div className="text-white text-sm">
+                    <span className="text-gold/80">State:</span> {slectedState || "N/A"}
+                  </div>
+                  <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">
+                    Click to change location →
+                  </div>
+                </div>
+              </motion.button>
             </div>
 
             {/* Footer with Profile */}

@@ -202,7 +202,7 @@ export default function ChatPage() {
     <div
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side />
+      <Side setOpenMap={setOpenMap} selectedCountry={selectedCountry} slectedState={selectedState} />
 
       {/* Logo - Fixed at top */}
       <div className="flex justify-center items-center pt-6 pb-4">
@@ -329,13 +329,6 @@ export default function ChatPage() {
         </motion.div>
       )}
     </AnimatePresence>
-    <button
-      onClick={() => setOpenMap(true)}
-      className="fixed bottom-6 right-6 bg-gold text-black font-bold px-4 py-3 rounded-xl hover:bg-gold/90 transition-all shadow-lg z-40"
-    >
-      🌍 Choose Jurisdiction
-    </button>
-
     </div>
   );
 }
