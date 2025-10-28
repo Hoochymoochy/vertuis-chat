@@ -1,10 +1,7 @@
 'use client'
 import { supabase } from '@/app/lib/supabaseClient'
-import { g } from 'framer-motion/client'
-import { get } from 'http'
 
 const getUserId = (): string | null => {
-  if (typeof window === 'undefined') return null
   return localStorage.getItem('user_id')
 }
 
@@ -66,18 +63,6 @@ export async function signInWithFacebook() {
   return user.data.user
 }
 
-export async function setLanguage(language: string) {
-  const { error } = await supabase
-    .from('user_data')
-    .update({ language })
-    .eq('user_id', getUserId())
-
-  if (error) {
-    console.error('Error updating language:', error)
-    throw error
-  }
-}
-
 export async function getLanguage() {
   const { data, error } = await supabase
     .from('user_data')
@@ -92,19 +77,6 @@ export async function getLanguage() {
 
   return data?.language || 'en'
 }
-
-export async function setCountry( country: string) {
-  const { error } = await supabase
-    .from('user_data')
-    .update({ country })
-    .eq('user_id', getUserId())
-
-  if (error) {
-    console.error('Error updating country:', error)
-    throw error
-  }
-}
-
 export async function getCountry() {
   const { data, error } = await supabase
     .from('user_data')
@@ -120,18 +92,6 @@ export async function getCountry() {
   return data?.country || null
 }
 
-export async function setState( state: string) {
-  const { error } = await supabase
-    .from('user_data')
-    .update({ state })
-    .eq('user_id', getUserId())
-
-  if (error) {
-    console.error('Error updating state:', error)
-    throw error
-  }
-}
-
 export async function getState() {
   const { data, error } = await supabase
     .from('user_data')
@@ -145,4 +105,62 @@ export async function getState() {
   }
 
   return data?.state || null
+}
+
+
+export async function setLanguage(language: string) {
+  const userId = getUserId()
+  if (!userId) throw new Error('No user ID found')
+
+  const { error } = await supabase
+    .from('user_data')
+    .upsert({ 
+      user_id: userId, 
+      language 
+    }, {
+      onConflict: 'user_id' // Specify the unique constraint column
+    })
+
+  if (error) {
+    console.error('Error updating language:', error)
+    throw error
+  }
+}
+
+export async function setCountry(country: string) {
+  const userId = getUserId()
+  if (!userId) throw new Error('No user ID found')
+
+  const { error } = await supabase
+    .from('user_data')
+    .upsert({ 
+      user_id: userId, 
+      country 
+    }, {
+      onConflict: 'user_id'
+    })
+
+  if (error) {
+    console.error('Error updating country:', error)
+    throw error
+  }
+}
+
+export async function setState(state: string) {
+  const userId = getUserId()
+  if (!userId) throw new Error('No user ID found')
+
+  const { error } = await supabase
+    .from('user_data')
+    .upsert({ 
+      user_id: userId, 
+      state 
+    }, {
+      onConflict: 'user_id'
+    })
+
+  if (error) {
+    console.error('Error updating state:', error)
+    throw error
+  }
 }

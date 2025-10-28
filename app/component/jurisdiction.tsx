@@ -13,7 +13,7 @@ const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
 const USA_URL = '/us-states.json'
 
-type MapView = 'world' | 'brazil' | 'usa'
+type MapView = 'world' | 'Brazil' | 'United States of America'
 
 interface WorldToCountryMapProps {
   setOpenMap: (open: boolean) => void
@@ -35,7 +35,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
       if (savedCountry && savedCountry !== 'World') {
         setSelectedCountry(savedCountry)
         // Only set view to country if it's brazil or usa
-        if (savedCountry === 'brazil' || savedCountry === 'usa') {
+        if (savedCountry === 'Brazil' || savedCountry === 'United States of America') {
           setCurrentView(savedCountry as MapView)
         }
       }
@@ -51,8 +51,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
 const handleCountryClick = async (countryName: string) => {
   if (isTransitioning) return;
   
-  const normalizedCountry = countryName === 'Brazil' ? 'brazil' : 
-                            countryName === 'United States of America' ? 'usa' : null;
+  const normalizedCountry = countryName === 'Brazil' ? 'Brazil' : 
+                            countryName === 'United States of America' ? 'United States of America' : null;
 
   if (!normalizedCountry) return;
 
@@ -119,8 +119,8 @@ const handleBackToWorld = async () => {
 
   // Helper to display country name properly
   const getDisplayCountryName = () => {
-    if (selectedCountry === 'brazil') return 'Brazil'
-    if (selectedCountry === 'usa') return 'USA'
+    if (selectedCountry === 'Brazil') return 'Brazil'
+    if (selectedCountry === 'United States of America') return 'United States of America'
     return selectedCountry
   }
 
@@ -233,7 +233,7 @@ const handleBackToWorld = async () => {
           )}
 
           {/* Brazil Map View */}
-          {currentView === 'brazil' && (
+          {currentView === 'Brazil' && (
             <motion.div
               key="brazil"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -296,7 +296,7 @@ const handleBackToWorld = async () => {
           )}
 
           {/* USA Map View */}
-          {currentView === 'usa' && (
+          {currentView === 'United States of America' && (
             <motion.div
               key="usa"
               initial={{ opacity: 0, scale: 0.8 }}

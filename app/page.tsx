@@ -16,7 +16,7 @@ export default function Home() {
   const [failed, setFailed] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const router = useRouter();
-  const [openMap, setOpenMap] = useState(true);
+  const [openMap, setOpenMap] = useState(false);
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };

@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [openMap, setOpenMap] = useState(true);
+  const [openMap, setOpenMap] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedState, setState] = useState<string | null>(null);
 
@@ -200,8 +200,8 @@ export default function ChatPage() {
     <div
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side setOpenMap={setOpenMap} selectedCountry={selectedCountry} slectedState={selectedState} />
-      <Map openMap={openMap} setOpenMap={setOpenMap} selectedCountry={selectedCountry as string} selectedState={selectedState as string} onCountrySlected={onCountrySlected} onStateSelected={onStateSelected} />
+      <Side setOpenMap={setOpenMap}/>
+      <Map openMap={openMap} setOpenMap={setOpenMap}/>
       {/* Logo - Fixed at top */}
       <div className="flex justify-center items-center pt-6 pb-4">
         <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">

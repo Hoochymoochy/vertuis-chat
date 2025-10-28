@@ -26,7 +26,7 @@ export default function Side({ setOpenMap }: SideProps) {
 
   const languages = [
     { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "pt-BR", name: "Português", flag: "🇧🇷" }
+    { code: "pt", name: "Português", flag: "🇧🇷" }
   ];
 
   // Get current language object
