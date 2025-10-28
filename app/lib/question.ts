@@ -1,10 +1,11 @@
 "use client";
+import { getLanguage, getCountry, getState } from "@/app/lib/user";
 
 export async function question(question: string, id: string, onToken: (token: string) => void) {
   const response = await fetch("http://localhost:4000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: question, id, lang: "pt" }),
+    body: JSON.stringify({ query: question, id, lang:  getLanguage(), country: getCountry(), state: getState() }),
   });
 
   if (!response.body) throw new Error("No response body");
