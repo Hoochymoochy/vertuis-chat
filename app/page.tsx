@@ -17,19 +17,9 @@ export default function Home() {
   const [messages, setMessages] = useState<any[]>([]);
   const router = useRouter();
   const [openMap, setOpenMap] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [selectedState, setState] = useState<string | null>(null);
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
-
-    const onCountrySlected = (country: string) => {
-    setSelectedCountry(country)
-  }
-
-  const onStateSelected = (state: string) => {
-    setState(state)
-  }
 
   // Check login
   useEffect(() => {
@@ -88,8 +78,8 @@ export default function Home() {
       layout
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side setOpenMap={setOpenMap} selectedCountry={selectedCountry} slectedState={selectedState} />
-      <Map openMap={openMap} setOpenMap={setOpenMap} selectedCountry={selectedCountry as string} selectedState={selectedState as string} onCountrySlected={onCountrySlected} onStateSelected={onStateSelected} />
+      <Side setOpenMap={setOpenMap}/>
+      <Map openMap={openMap} setOpenMap={setOpenMap}/>
 
       {/* Main Chat Area */}
       <motion.div

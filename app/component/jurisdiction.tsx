@@ -1,66 +1,139 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ComposableMap,
   Geographies,
   Geography,
 } from '@/app/component/SimpleMapClient'
-
+import { setCountry as saveCountry, setState as saveState, getCountry, getState } from "@/app/lib/user"
 
 const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
 const USA_URL = '/us-states.json'
 
-export default function WorldToCountryMap({onCountrySlected, onStateSelected, setOpenMap, slectedCountry, slectedState}: 
-  { onCountrySlected: (country: string) => void, 
-    onStateSelected: (state: string) => void,
-    setOpenMap: (open: boolean) => void,
-    slectedCountry: string,
-    slectedState: string
-  }) {
+type MapView = 'world' | 'brazil' | 'usa'
 
-  const [hovered, setHovered] = useState<string | null>(null)
-  const [isZooming, setIsZooming] = useState(false)
+interface WorldToCountryMapProps {
+  setOpenMap: (open: boolean) => void
+}
 
-  const handleCountryClick = (country: string) => {
-    if (country === 'Brazil' || country === 'United States of America') {
-      setHovered('')
-      setIsZooming(true)
-      setTimeout(() => {
-        if (country === 'Brazil') onCountrySlected('brazil')
-        if (country === 'United States of America') onCountrySlected('usa')
-        setIsZooming(false)
-      }, 400)
+export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
+  const [currentView, setCurrentView] = useState<MapView>('world')
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [selectedState, setSelectedState] = useState<string | null>(null)
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+
+  // Load saved country and state on mount
+  useEffect(() => {
+    const loadSavedSelection = async () => {
+      const savedCountry = await getCountry()
+      const savedState = await getState()
+      
+      if (savedCountry && savedCountry !== 'World') {
+        setSelectedCountry(savedCountry)
+        // Only set view to country if it's brazil or usa
+        if (savedCountry === 'brazil' || savedCountry === 'usa') {
+          setCurrentView(savedCountry as MapView)
+        }
+      }
+      
+      if (savedState && savedState !== 'N/A') {
+        setSelectedState(savedState)
+      }
     }
+    
+    loadSavedSelection()
+  }, [])
+
+const handleCountryClick = async (countryName: string) => {
+  if (isTransitioning) return;
+  
+  const normalizedCountry = countryName === 'Brazil' ? 'brazil' : 
+                            countryName === 'United States of America' ? 'usa' : null;
+
+  if (!normalizedCountry) return;
+
+  setIsTransitioning(true);
+  setHoveredRegion(null);
+
+  await saveCountry(normalizedCountry);
+  await saveState('N/A'); // Reset state
+  setSelectedCountry(normalizedCountry);
+  setSelectedState(null);
+
+  // 🪄 trigger sidebar update instantly
+  window.dispatchEvent(new Event('locationUpdated'));
+
+  setTimeout(() => {
+    setCurrentView(normalizedCountry as MapView);
+    setIsTransitioning(false);
+  }, 400);
+};
+
+
+const handleStateClick = async (stateName: string) => {
+  if (isTransitioning) return;
+  
+  await saveState(stateName);
+  setSelectedState(stateName);
+
+  // 🪄 trigger sidebar update instantly
+  window.dispatchEvent(new Event('locationUpdated'));
+
+  setTimeout(() => {
+    setOpenMap(false);
+  }, 300);
+};
+
+const handleBackToWorld = async () => {
+  if (isTransitioning) return;
+
+  setIsTransitioning(true);
+  setHoveredRegion(null);
+
+  await saveCountry('World');
+  await saveState('N/A');
+  setSelectedCountry(null);
+  setSelectedState(null);
+
+  // 🪄 trigger sidebar update instantly
+  window.dispatchEvent(new Event('locationUpdated'));
+
+  setTimeout(() => {
+    setCurrentView('world');
+    setIsTransitioning(false);
+  }, 400);
+};
+
+  const getCountryFillColor = (countryName: string) => {
+    const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
+    return isClickable ? '#FFD700' : '#1a1a1a'
   }
 
-  const handleBack = () => {
-    setIsZooming(true)
-    setTimeout(() => {
-      onCountrySlected('world')
-      setIsZooming(false)
-    }, 400)
+  const getStateFillColor = (stateName: string) => {
+    return selectedState === stateName ? '#FFD700' : '#1a1a1a'
   }
 
-  const getCountryFill = (name: string) => {
-    if (name === 'Brazil' || name === 'United States of America') {
-      return '#FFD700' // Gold for clickable countries
-    }
-    return '#1a1a1a' // Dark for others
+  // Helper to display country name properly
+  const getDisplayCountryName = () => {
+    if (selectedCountry === 'brazil') return 'Brazil'
+    if (selectedCountry === 'usa') return 'USA'
+    return selectedCountry
   }
 
   return (
     <div className="relative">
-      {/* Back Button */}
-      {slectedCountry !== 'world' && (
+      {/* Back Button - Only show when viewing a country */}
+      {currentView !== 'world' && (
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -10 }}
-          onClick={handleBack}
-          disabled={isZooming}
+          onClick={handleBackToWorld}
+          disabled={isTransitioning}
           className="absolute top-4 left-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-4 py-2 hover:bg-black/70 hover:border-gold/50 transition-all disabled:opacity-50 group"
           whileHover={{ scale: 1.05, x: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -74,7 +147,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               ←
             </motion.span>
             <span className="text-gold text-sm font-medium group-hover:text-white transition-colors">
-              Back
+              Back to World
             </span>
           </div>
         </motion.button>
@@ -95,7 +168,8 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
       {/* Map Container */}
       <div className="">
         <AnimatePresence mode="wait">
-          {slectedCountry === 'world' && (
+          {/* World Map View */}
+          {currentView === 'world' && (
             <motion.div
               key="world"
               initial={{ opacity: 0, scale: 1.2 }}
@@ -116,18 +190,19 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                 <Geographies geography={WORLD_URL}>
                   {({ geographies }: any) =>
                     geographies.map((geo: any) => {
-                      const name = geo.properties.name
-                      const isClickable = name === 'Brazil' || name === 'United States of America'
+                      const countryName = geo.properties.name
+                      const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
+                      
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
-                          onMouseEnter={() => setHovered(name)}
-                          onMouseLeave={() => setHovered(null)}
-                          onClick={() => handleCountryClick(name)}
+                          onMouseEnter={() => setHoveredRegion(countryName)}
+                          onMouseLeave={() => setHoveredRegion(null)}
+                          onClick={() => handleCountryClick(countryName)}
                           style={{
                             default: {
-                              fill: getCountryFill(name),
+                              fill: getCountryFillColor(countryName),
                               stroke: isClickable ? '#FFD700' : '#444',
                               strokeWidth: isClickable ? 1 : 0.5,
                               outline: 'none',
@@ -157,7 +232,8 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
             </motion.div>
           )}
 
-          {slectedCountry === 'brazil' && (
+          {/* Brazil Map View */}
+          {currentView === 'brazil' && (
             <motion.div
               key="brazil"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -178,17 +254,18 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                 <Geographies geography={BRAZIL_URL}>
                   {({ geographies }: any) =>
                     geographies.map((geo: any) => {
-                      const name = geo.properties.name
+                      const stateName = geo.properties.name
+                      
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
-                          onMouseEnter={() => setHovered(name)}
-                          onMouseLeave={() => setHovered(null)}
-                          onClick={() => onStateSelected(name)}
+                          onMouseEnter={() => setHoveredRegion(stateName)}
+                          onMouseLeave={() => setHoveredRegion(null)}
+                          onClick={() => handleStateClick(stateName)}
                           style={{
                             default: { 
-                              fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
+                              fill: getStateFillColor(stateName), 
                               stroke: '#555',
                               strokeWidth: 0.8,
                               outline: 'none',
@@ -218,7 +295,8 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
             </motion.div>
           )}
 
-          {slectedCountry === 'usa' && (
+          {/* USA Map View */}
+          {currentView === 'usa' && (
             <motion.div
               key="usa"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -239,17 +317,18 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
                 <Geographies geography={USA_URL}>
                   {({ geographies }: any) =>
                     geographies.map((geo: any) => {
-                      const name = geo.properties.name
+                      const stateName = geo.properties.name
+                      
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
-                          onMouseEnter={() => setHovered(name)}
-                          onMouseLeave={() => setHovered(null)}
-                          onClick={() => onStateSelected(name)}
+                          onMouseEnter={() => setHoveredRegion(stateName)}
+                          onMouseLeave={() => setHoveredRegion(null)}
+                          onClick={() => handleStateClick(stateName)}
                           style={{
                             default: { 
-                              fill: slectedState === name ? '#FFD700' : '#1a1a1a', 
+                              fill: getStateFillColor(stateName), 
                               stroke: '#555',
                               strokeWidth: 0.8,
                               outline: 'none',
@@ -306,7 +385,7 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               </svg>
             </motion.div>
             <p className="text-gold/90 text-sm leading-relaxed">
-              {slectedCountry === 'world'
+              {currentView === 'world'
                 ? 'Brazil and USA are highlighted in gold — click to zoom in and explore states'
                 : 'Click on any state to select it as your jurisdiction'}
             </p>
@@ -326,14 +405,14 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
           <div className="relative">
-            {slectedCountry === 'world' ? (
+            {currentView === 'world' ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Hovering:</span>
-                  <span className="text-white text-sm font-medium">{hovered || '—'}</span>
+                  <span className="text-white text-sm font-medium">{hoveredRegion || '—'}</span>
                 </div>
                 <motion.div
-                  animate={{ opacity: hovered ? 1 : 0.3 }}
+                  animate={{ opacity: hoveredRegion ? 1 : 0.3 }}
                   className="w-2 h-2 rounded-full bg-gold"
                 />
               </div>
@@ -341,14 +420,14 @@ export default function WorldToCountryMap({onCountrySlected, onStateSelected, se
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Country:</span>
-                  <span className="text-white text-sm font-medium capitalize">{slectedCountry}</span>
+                  <span className="text-white text-sm font-medium">{getDisplayCountryName()}</span>
                 </div>
                 <div className="h-px bg-gold/20" />
                 <div className="flex items-center justify-between">
                   <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">
-                    {hovered ? 'Hovering:' : slectedState ? 'Selected:' : 'State:'}
+                    {hoveredRegion ? 'Hovering:' : selectedState ? 'Selected:' : 'State:'}
                   </span>
-                  <span className="text-white text-sm font-medium">{hovered || slectedState || '—'}</span>
+                  <span className="text-white text-sm font-medium">{hoveredRegion || selectedState || '—'}</span>
                 </div>
               </div>
             )}

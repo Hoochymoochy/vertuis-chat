@@ -4,7 +4,7 @@ export async function question(question: string, id: string, onToken: (token: st
   const response = await fetch("http://localhost:4000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: question, id }),
+    body: JSON.stringify({ query: question, id, lang: "pt" }),
   });
 
   if (!response.body) throw new Error("No response body");

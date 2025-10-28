@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Profile from "@/app/component/profile";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
+import { setLanguage, getCountry, getState, getLanguage } from "@/app/lib/user";
 
 interface Chat {
   id: string;
@@ -13,24 +13,83 @@ interface Chat {
 
 type SideProps = {
   setOpenMap: (open: boolean) => void;
-  selectedCountry: string | null;
-  slectedState: string | null;
 };
 
-export default function Side({ setOpenMap, selectedCountry, slectedState }: SideProps) {
+export default function Side({ setOpenMap }: SideProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [lang, setSelectedLang] = useState("en");
   const router = useRouter();
+  const [country, setSelectedCountry] = useState<string | null>(null);
+  const [state, setSelectedState] = useState<string | null>(null);
+
+  const languages = [
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "pt-BR", name: "Português", flag: "🇧🇷" }
+  ];
+
+  // Get current language object
+  const currentLanguage = languages.find(l => l.code === lang) || languages[0];
   
   useEffect(() => {
     const fetchChats = async () => {
       const user_id = localStorage.getItem("user_id");
       const data = await getAllChat(user_id ?? "");
-      console.log(data);
       setChats(data);
     };
     fetchChats();
   }, []);
+
+  // Fixed: Properly fetch and set data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [fetchedCountry, fetchedState, fetchedLang] = await Promise.all([
+          getCountry(),
+          getState(),
+          getLanguage()
+        ]);
+        
+        setSelectedLang(fetchedLang ?? "en");
+        setSelectedCountry(fetchedCountry ?? "World");
+        setSelectedState(fetchedState ?? "N/A");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        // Set defaults on error
+        setSelectedLang("en");
+        setSelectedCountry("World");
+        setSelectedState("N/A");
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  // Add listener for when map selection changes
+  useEffect(() => {
+    const handleStorageChange = async () => {
+      const [fetchedCountry, fetchedState] = await Promise.all([
+        getCountry(),
+        getState()
+      ]);
+      setSelectedCountry(fetchedCountry ?? "World");
+      setSelectedState(fetchedState ?? "N/A");
+    };
+
+    // Listen for custom event when map updates
+    window.addEventListener('locationUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('locationUpdated', handleStorageChange);
+    };
+  }, []);
+
+  const handleLanguageChange = (langCode: string) => {
+    setSelectedLang(langCode);
+    setLanguage(langCode);
+    setIsLangOpen(false);
+  };
 
   const newChat = () => {
     router.push("/");
@@ -108,20 +167,6 @@ export default function Side({ setOpenMap, selectedCountry, slectedState }: Side
               </motion.button>
             </div>
 
-            {/* Search */}
-            {/* <div className="p-4 border-b border-gold/20">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search chats..."
-                  className="w-full px-4 py-2 pl-10 rounded-lg bg-black/40 border border-gold/20 text-white placeholder-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/30 text-sm"
-                />
-                <svg className="absolute left-3 top-2.5 w-4 h-4 text-gold/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div> */}
-
             {/* Chats List */}
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gold/30 scrollbar-track-transparent hover:scrollbar-thumb-gold/50">
               <div className="p-4">
@@ -189,10 +234,10 @@ export default function Side({ setOpenMap, selectedCountry, slectedState }: Side
                     </span>
                   </div>
                   <div className="text-white text-sm">
-                    <span className="text-gold/80">Country:</span> {selectedCountry || "Global"}
+                    <span className="text-gold/80">Country:</span> {country || "Global"}
                   </div>
                   <div className="text-white text-sm">
-                    <span className="text-gold/80">State:</span> {slectedState || "N/A"}
+                    <span className="text-gold/80">State:</span> {state || "N/A"}
                   </div>
                   <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">
                     Click to change location →
@@ -201,9 +246,92 @@ export default function Side({ setOpenMap, selectedCountry, slectedState }: Side
               </motion.button>
             </div>
 
-            {/* Footer with Profile */}
+            {/* Footer with Language Selector and Logout */}
             <div className="p-4 border-t border-gold/20 space-y-3">
-              <Profile />
+              {/* Language Selector */}
+              <div className="relative">
+                <motion.button
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                  className="w-full group relative overflow-hidden rounded-lg bg-gradient-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-2.5 transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <motion.svg
+                        className="w-4 h-4 text-gold"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        whileHover={{ rotate: 15 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                      </motion.svg>
+                      <span className="text-white text-sm font-medium">
+                        {currentLanguage.flag} {currentLanguage.name}
+                      </span>
+                    </div>
+                    <motion.svg
+                      className="w-4 h-4 text-gold"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      animate={{ rotate: isLangOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </motion.svg>
+                  </div>
+                </motion.button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {isLangOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute bottom-full left-0 right-0 mb-2 bg-black/90 backdrop-blur-lg border border-gold/30 rounded-lg overflow-hidden shadow-xl"
+                    >
+                      {languages.map((language, index) => (
+                        <motion.button
+                          key={language.code}
+                          onClick={() => handleLanguageChange(language.code)}
+                          className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center gap-3 ${
+                            lang === language.code
+                              ? "bg-gold/20 text-gold"
+                              : "text-white hover:bg-gold/10"
+                          }`}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          whileHover={{ x: 4 }}
+                        >
+                          <span className="text-2xl">{language.flag}</span>
+                          <span className="text-sm font-medium">{language.name}</span>
+                          {lang === language.code && (
+                            <motion.svg
+                              className="w-4 h-4 ml-auto"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </motion.svg>
+                          )}
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Logout Button */}
               <motion.button
                 onClick={handleLogout}
                 className="w-full group relative overflow-hidden rounded-lg bg-gradient-to-r from-red-950/40 to-red-900/40 hover:from-red-900/60 hover:to-red-800/60 border border-red-500/30 hover:border-red-500/50 px-4 py-2.5 transition-all duration-300"
@@ -233,8 +361,6 @@ export default function Side({ setOpenMap, selectedCountry, slectedState }: Side
                 </div>
               </motion.button>
             </div>
-
-            
           </motion.div>
         )}
       </AnimatePresence>

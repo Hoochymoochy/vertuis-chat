@@ -4,13 +4,9 @@ import WorldToCountryMap from "./jurisdiction"
 type MapProps = {
     openMap: boolean;
     setOpenMap: (open: boolean) => void;
-    selectedCountry: string;
-    selectedState: string;
-    onCountrySlected: (country: string) => void;
-    onStateSelected: (state: string) => void;
 };
 
-export default function Map({openMap, setOpenMap, selectedCountry, selectedState, onCountrySlected, onStateSelected}: MapProps) {
+export default function Map({openMap, setOpenMap}: MapProps) {
   if (!openMap) {
     return null
 }
@@ -38,11 +34,8 @@ export default function Map({openMap, setOpenMap, selectedCountry, selectedState
           >
 
             <WorldToCountryMap
-              onCountrySlected={onCountrySlected}
-              onStateSelected={onStateSelected}
               setOpenMap={setOpenMap}
-              slectedCountry={selectedCountry ?? "world"}
-              slectedState={selectedState ?? ""}
+
             />
           </motion.div>
         </motion.div>
