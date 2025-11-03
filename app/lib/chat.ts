@@ -139,10 +139,10 @@ export const getLatestChat = async (user_id: string): Promise<Chat | null> => {
   return data as Chat
 }
 
-export const giveFeedback = async (feedback: string, message_id: string) =>{
+export const giveFeedback = async (message_id: string, type: string, message: string, reason?: string) =>{
     const { data, error } = await supabase
     .from('messages')
-    .update({ feedback })
+    .update({ feedback: type, feedback_message: message, feedback_reason: reason })
     .eq('id', message_id)
 
   if (error) {

@@ -185,7 +185,7 @@ export default function ChatPage() {
                     </motion.p>
                   </div>
                 ) : (
-                  <ChatBubble message={msg.message} isLast={index === messages.length - 1} />
+                  <ChatBubble id={msg.id} message={msg.message} isLast={index === messages.length - 1} />
                 )}
               </motion.div>
             ))}

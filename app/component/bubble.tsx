@@ -3,12 +3,20 @@
 import React, { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
-import { motion } from "framer-motion"
+import { giveFeedback } from "@/app/lib/chat"
 
-// Mock feedback function for demo
-const getFeedback = async (type: string, message: string, reason?: string) => {
-  console.log("Feedback:", type, message, reason)
-  return Promise.resolve()
+// Core feedback logic — properly awaits the backend call
+const getFeedback = async (
+  message_id: string,
+  type: "up" | "down",
+  message: string,
+  reason?: string
+) => {
+  try {
+    await giveFeedback(message_id, type, message, reason)
+  } catch (err) {
+    console.error("Feedback submission failed:", err)
+  }
 }
 
 const NEGATIVE_REASONS = [
@@ -16,21 +24,23 @@ const NEGATIVE_REASONS = [
   "Outdated law",
   "Unclear explanation",
   "Missing citation",
-  "Inaccurate information"
+  "Inaccurate information",
 ]
 
 const POSITIVE_REASONS = [
   "Perfect answer",
   "Clear explanation",
   "Helpful citations",
-  "Comprehensive"
+  "Comprehensive",
 ]
 
 export default function ChatBubble({
+  id, // 👈 you’ll need to pass this down from the chat loop
   message,
   isLast = false,
   isStreaming = false,
 }: {
+  id: string
   message: string
   isLast?: boolean
   isStreaming?: boolean
@@ -47,31 +57,24 @@ export default function ChatBubble({
   }
 
   const handleReasonSelect = async (reason: string) => {
-    if (isSubmitting) return
-    
+    if (!feedback || isSubmitting) return
     setIsSubmitting(true)
     setSelectedReason(reason)
-    
+
     try {
-      await getFeedback(feedback!, message, reason)
-      setTimeout(() => setShowReasons(false), 1500)
-    } catch (err) {
-      console.error("Feedback failed:", err)
+      await getFeedback(id, feedback, message, reason)
+      setTimeout(() => setShowReasons(false), 1200)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleSkipReason = async () => {
-    if (isSubmitting) return
-    
+    if (!feedback || isSubmitting) return
     setIsSubmitting(true)
-    
     try {
-      await getFeedback(feedback!, message)
+      await getFeedback(id, feedback, message)
       setShowReasons(false)
-    } catch (err) {
-      console.error("Feedback failed:", err)
     } finally {
       setIsSubmitting(false)
     }
@@ -83,11 +86,17 @@ export default function ChatBubble({
     setSelectedReason(null)
   }
 
+  // URL → Markdown link converter
+  const linkify = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    return text.replace(urlRegex, (url) => `[${url}](${url})`)
+  }
+
   const reasons = feedback === "down" ? NEGATIVE_REASONS : POSITIVE_REASONS
 
   return (
     <div className="flex flex-col items-start space-y-3">
-      {/* Message Bubble */}
+      {/* 💬 Chat message bubble */}
       <div className="bg-black/60 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg max-w-xl">
         <ReactMarkdown
           components={{
@@ -127,14 +136,13 @@ export default function ChatBubble({
             ),
           }}
         >
-          {message || "I'm ready to help you with anything you need!"}
+          {linkify(message || "I'm ready to help you with anything you need!")}
         </ReactMarkdown>
       </div>
 
-      {/* Feedback Section */}
+      {/* ⚡ Feedback UI */}
       {isLast && (
         <div className="flex flex-col items-start space-y-2 pl-2">
-          {/* Thumbs Up/Down Buttons */}
           {!selectedReason && (
             <div className="flex items-center gap-2">
               <button
@@ -147,7 +155,6 @@ export default function ChatBubble({
                     ? "opacity-30 cursor-not-allowed"
                     : "hover:bg-gold/20 text-white/70 hover:text-gold hover:scale-105"
                 }`}
-                aria-label="Good response"
               >
                 <ThumbsUp size={16} fill={feedback === "up" ? "currentColor" : "none"} />
               </button>
@@ -161,16 +168,14 @@ export default function ChatBubble({
                     ? "opacity-30 cursor-not-allowed"
                     : "hover:bg-red-500/20 text-white/70 hover:text-red-400 hover:scale-105"
                 }`}
-                aria-label="Bad response"
               >
                 <ThumbsDown size={16} fill={feedback === "down" ? "currentColor" : "none"} />
               </button>
-              
+
               {feedback && showReasons && (
                 <button
                   onClick={handleCancel}
                   className="p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white/70 transition-all ml-1"
-                  aria-label="Cancel feedback"
                 >
                   <X size={16} />
                 </button>
@@ -178,7 +183,6 @@ export default function ChatBubble({
             </div>
           )}
 
-          {/* Reason Selection */}
           {showReasons && !selectedReason && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="bg-black/80 backdrop-blur-sm border border-gold/20 rounded-xl p-3 shadow-xl">
@@ -212,7 +216,6 @@ export default function ChatBubble({
             </div>
           )}
 
-          {/* Confirmation Message */}
           {selectedReason && (
             <div className="animate-in fade-in duration-300">
               <div className="bg-gold/10 border border-gold/30 rounded-lg px-3 py-2">
