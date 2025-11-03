@@ -1,11 +1,25 @@
 "use client";
 import { getLanguage, getCountry, getState } from "@/app/lib/user";
+import { supabase } from "./supabaseClient";
+import { get } from "http";
 
 export async function question(question: string, id: string, onToken: (token: string) => void) {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) throw error;
+        if (!user) return;
+
+  const [lang, country, state] = await Promise.all([
+  getLanguage(user.id),
+  getCountry(user.id),
+  getState(user.id)
+]);
+
+const body = JSON.stringify({ query: question, id, lang, country, state });
+
   const response = await fetch("http://localhost:4000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: question, id, lang:  getLanguage(), country: getCountry(), state: getState() }),
+    body,
   });
 
   if (!response.body) throw new Error("No response body");

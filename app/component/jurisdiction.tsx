@@ -8,6 +8,8 @@ import {
   Geography,
 } from '@/app/component/SimpleMapClient'
 import { setCountry as saveCountry, setState as saveState, getCountry, getState } from "@/app/lib/user"
+import { supabase } from '../lib/supabaseClient'
+import { u } from 'framer-motion/client'
 
 const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
@@ -25,12 +27,17 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
   const [selectedState, setSelectedState] = useState<string | null>(null)
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
-
+  const [userId, setUserId] = useState<string | null>(null)
   // Load saved country and state on mount
   useEffect(() => {
     const loadSavedSelection = async () => {
-      const savedCountry = await getCountry()
-      const savedState = await getState()
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      if (!user) return;
+      
+      setUserId(user.id);
+      const savedCountry = await getCountry(user.id)
+      const savedState = await getState(user.id)
       
       if (savedCountry && savedCountry !== 'World') {
         setSelectedCountry(savedCountry)
@@ -48,6 +55,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
     loadSavedSelection()
   }, [])
 
+
+
 const handleCountryClick = async (countryName: string) => {
   if (isTransitioning) return;
   
@@ -59,8 +68,8 @@ const handleCountryClick = async (countryName: string) => {
   setIsTransitioning(true);
   setHoveredRegion(null);
 
-  await saveCountry(normalizedCountry);
-  await saveState('N/A'); // Reset state
+  await saveCountry(userId??"", normalizedCountry);
+  await saveState(userId??"", 'N/A'); // Reset state
   setSelectedCountry(normalizedCountry);
   setSelectedState(null);
 
@@ -77,7 +86,7 @@ const handleCountryClick = async (countryName: string) => {
 const handleStateClick = async (stateName: string) => {
   if (isTransitioning) return;
   
-  await saveState(stateName);
+  await saveState(userId??"", stateName);
   setSelectedState(stateName);
 
   // 🪄 trigger sidebar update instantly
@@ -94,8 +103,8 @@ const handleBackToWorld = async () => {
   setIsTransitioning(true);
   setHoveredRegion(null);
 
-  await saveCountry('World');
-  await saveState('N/A');
+  await saveCountry(userId??"", 'World');
+  await saveState(userId??"", 'N/A');
   setSelectedCountry(null);
   setSelectedState(null);
 
