@@ -17,12 +17,12 @@ export default function RegisterPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [verificationSent, setVerificationSent] = useState(false);
 
-  interface SignUpResponse {
-    id: string | undefined;
-    email: string | undefined;
-    session?: any;
-    user?: any;
-  }
+interface SignUpResponse {
+  id?: string;
+  email?: string;
+  session?: any;
+  user?: any;
+}
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

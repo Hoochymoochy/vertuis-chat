@@ -8,6 +8,9 @@ import Side from "@/app/component/side";
 import { addChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
+import useUser from "@/app/hooks/useUser";
+import { supabase } from "./lib/supabaseClient";
+
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
@@ -21,15 +24,14 @@ export default function Home() {
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
 
+  const { user, loading } = useUser();
+
+
   // Check login
   useEffect(() => {
     const checkLogin = async () => {
-      const user_id = localStorage.getItem("user_id");
-      if (!user_id) {
-        router.push("/login");
-        return;
-      }
-      setUserId(user_id);
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) setUserId(data.session.user.id);
     };
     checkLogin();
   }, [router]);
