@@ -7,27 +7,65 @@ const getUserId = (): string | null => {
 
 // Sign up a user
 export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password })
-  if (error) throw error
-
-  return {
-    id: data.user?.id,
-    email: data.user?.email
-  }
-}
-
-// Sign in a user
-export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
+  const { data, error } = await supabase.auth.signUp({ 
+    email, 
+    password,
+    options: {
+      emailRedirectTo: `${window.location.origin}/auth/callback`
+    }
   })
   if (error) throw error
 
   return {
     id: data.user?.id,
-    email: data.user?.email
+    email: data.user?.email,
+    session: data.session,
+    user: data.user
   }
+}
+
+// Sign in a user
+export async function signIn(email: string, password: string) {
+  console.log('Attempting login for:', email); // Debug
+  
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+  
+  console.log('Login response:', { data, error }); // Debug
+  
+  if (error) {
+    console.error('Login error details:', error); // Debug
+    throw error;
+  }
+
+  return {
+    id: data.user?.id,
+    email: data.user?.email,
+    session: data.session,
+    user: data.user
+  }
+}
+
+
+// Send password reset email
+export async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+  
+  if (error) throw error;
+}
+
+// Update password (called after user clicks reset link)
+export async function updatePassword(newPassword: string) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+  
+  if (error) throw error;
+  return data;
 }
 
 // Get currently logged-in user
@@ -44,7 +82,9 @@ export async function getUser() {
 export async function signInWithGoogle() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/' },
+  options: {
+      redirectTo: `${window.location.origin}/auth/callback`
+    }
   })
   if (error) throw error
 

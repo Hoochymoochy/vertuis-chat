@@ -138,3 +138,15 @@ export const getLatestChat = async (user_id: string): Promise<Chat | null> => {
   }
   return data as Chat
 }
+
+export const giveFeedback = async (feedback: string, message_id: string) =>{
+    const { data, error } = await supabase
+    .from('messages')
+    .update({ feedback })
+    .eq('id', message_id)
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // No rows returned
+    throw error
+  }
+}
