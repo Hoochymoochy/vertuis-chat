@@ -16,7 +16,7 @@ export async function question(question: string, id: string, onToken: (token: st
 
 const body = JSON.stringify({ query: question, id, lang, country, state });
 
-  const response = await fetch("http://localhost:4000/ask", {
+  const response = await fetch("https://7348fiweigfefv-4000.proxy.runpod.net/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,

@@ -54,7 +54,7 @@ export default function Home() {
     setMessages([userMsg]);
 
     try {
-      const healthRes = await fetch("http://localhost:4000/health");
+      const healthRes = await fetch("https://7348fiweigfefv-4000.proxy.runpod.net/health");
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
