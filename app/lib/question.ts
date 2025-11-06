@@ -1,7 +1,8 @@
 "use client";
 import { getLanguage, getCountry, getState } from "@/app/lib/user";
 import { supabase } from "./supabaseClient";
-import { get } from "http";
+
+const backendUrl = process.env.backend_url || "http://localhost:4000";
 
 export async function question(question: string, id: string, onToken: (token: string) => void) {
         const { data: { user }, error } = await supabase.auth.getUser();
@@ -16,7 +17,7 @@ export async function question(question: string, id: string, onToken: (token: st
 
 const body = JSON.stringify({ query: question, id, lang, country, state });
 
-  const response = await fetch("https://7348fiweigfefv-4000.proxy.runpod.net/ask", {
+  const response = await fetch(`${backendUrl}/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,

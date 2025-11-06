@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
-import ChatBubble from "@/app/component/bubble";
 import Image from "next/image";
 import Side from "@/app/component/side";
 import { addChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
-import useUser from "@/app/hooks/useUser";
 import { supabase } from "./lib/supabaseClient";
+
+const backendUrl = process.env.backend_url || "http://localhost:4000";
+
 
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,9 +24,6 @@ export default function Home() {
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
-
-  const { user, loading } = useUser();
-
 
   // Check login
   useEffect(() => {
@@ -54,7 +52,7 @@ export default function Home() {
     setMessages([userMsg]);
 
     try {
-      const healthRes = await fetch("https://7348fiweigfefv-4000.proxy.runpod.net/health");
+      const healthRes = await fetch(`${backendUrl}/health`);
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
