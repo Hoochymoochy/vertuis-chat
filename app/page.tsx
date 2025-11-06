@@ -30,6 +30,8 @@ export default function Home() {
     const checkLogin = async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session?.user) setUserId(data.session.user.id);
+      else setUserId(null);
+      if (!data.session?.user) router.push("/login");
     };
     checkLogin();
   }, [router]);

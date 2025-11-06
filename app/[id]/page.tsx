@@ -38,6 +38,9 @@ export default function ChatPage() {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       setUser(data.session?.user ?? null);
+      if (!data.session?.user) router.push("/login");
+      else if (!chatId) router.push("/");
+      else if (!isInitialized) router.push("/");
     };
     getSession();
   }, [supabase, router]);
