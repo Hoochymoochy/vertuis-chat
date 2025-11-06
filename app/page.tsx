@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
 
-const backendUrl = process.env.BACKEND_URL ;
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 
 export default function Home() {
