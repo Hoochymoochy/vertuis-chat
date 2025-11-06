@@ -2,7 +2,7 @@
 import { getLanguage, getCountry, getState } from "@/app/lib/user";
 import { supabase } from "./supabaseClient";
 
-const backendUrl = process.env.backend_url || "http://localhost:4000";
+const backendUrl = process.env.BACKEND_URL;
 
 export async function question(question: string, id: string, onToken: (token: string) => void) {
         const { data: { user }, error } = await supabase.auth.getUser();
