@@ -57,7 +57,7 @@ useEffect(() => {
   checkLogin();
   
   return () => { mounted = false; };
-}, []); // Run only once on mount
+}, []); 
 
   // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

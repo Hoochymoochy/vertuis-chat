@@ -7,7 +7,7 @@ export async function signUp(email: string, password: string) {
     email, 
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback`
+      emailRedirectTo: `https://vertuis-chat.vercel.app/auth/callback`
     }
   })
 

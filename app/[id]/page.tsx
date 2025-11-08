@@ -58,6 +58,7 @@ useEffect(() => {
       if (data.session?.user) {
         setUser(data.session.user);
       } else {
+        console.log(data);
         router.push("/login");
       }
     } catch (error) {
