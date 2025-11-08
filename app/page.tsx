@@ -24,17 +24,40 @@ export default function Home() {
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      router.push('/login');
+    } else if (event === 'SIGNED_IN' && session) {
+      setUserId(session.user.id);
+    }
+  });
 
+  return () => subscription.unsubscribe();
+}, [router, supabase]);
   // Check login
-  useEffect(() => {
-    const checkLogin = async () => {
+useEffect(() => {
+  let mounted = true;
+  
+  const checkLogin = async () => {
+    try {
       const { data } = await supabase.auth.getSession();
-      if (data.session?.user) setUserId(data.session.user.id);
-      else setUserId(null);
-      if (!data.session?.user) router.push("/login");
-    };
-    checkLogin();
-  }, [router]);
+      if (!mounted) return;
+      
+      if (data.session?.user) {
+        setUserId(data.session.user.id);
+      } else {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+    }
+  };
+  
+  checkLogin();
+  
+  return () => { mounted = false; };
+}, []); // Run only once on mount
 
   // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

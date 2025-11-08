@@ -33,17 +33,42 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Add this in both pages
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      router.push('/login');
+    } else if (event === 'SIGNED_IN' && session) {
+      setUser(session.user.id);
+    }
+  });
+
+  return () => subscription.unsubscribe();
+}, [router, supabase]);
+
   // ⚙️ Check Supabase auth session
-  useEffect(() => {
-    const getSession = async () => {
+useEffect(() => {
+  let mounted = true;
+  
+  const getSession = async () => {
+    try {
       const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
-      if (!data.session?.user) router.push("/login");
-      else if (!chatId) router.push("/");
-      else if (!isInitialized) router.push("/");
-    };
-    getSession();
-  }, [supabase, router]);
+      if (!mounted) return;
+      
+      if (data.session?.user) {
+        setUser(data.session.user);
+      } else {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Session check failed:", error);
+    }
+  };
+  
+  getSession();
+  
+  return () => { mounted = false; };
+}, []); // Run only once
 
   // 💬 Init chat from params + Supabase fetch
   useEffect(() => {
