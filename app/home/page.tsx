@@ -96,128 +96,102 @@ export default function Home() {
         }
       `}</style>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#1a1410]/80 backdrop-blur-sm border-b border-[#d4af37]/20 transition-all duration-300">
-        <a
-          onClick={() => scrollToSection("top")}
-          className="cursor-pointer text-sm font-light tracking-widest text-[#d4af37] hover:text-[#d4af37]/80 transition-all duration-300 hover:scale-110"
-        >
-          VERITUS
-        </a>
+{/* Navigation */}
+<nav
+  className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 
+  bg-[#0a0a0a]/60 backdrop-blur-md border-b border-[#d4af37]/10 
+  transition-all duration-500 ${
+    scrollY > 100 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6 pointer-events-none'
+  }`}
+>
+  <a
+    onClick={() => scrollToSection("top")}
+    className="cursor-pointer text-sm font-light tracking-widest text-[#d4af37] hover:text-[#d4af37]/80 transition-all duration-300 hover:scale-110"
+  >
+    VERITUS
+  </a>
 
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden text-[#d4af37]/70 hover:text-[#d4af37] transition-all duration-300 hover:rotate-90"
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-          <div className="hidden md:flex gap-12 text-xs tracking-widest">
-            <button onClick={() => scrollToSection("about")} className="text-white/70 hover:text-[#d4af37] transition duration-300 hover:scale-110">
-              ABOUT
-            </button>
-            <button onClick={() => scrollToSection("features")} className="text-white/70 hover:text-[#d4af37] transition duration-300 hover:scale-110">
-              FEATURES
-            </button>
-            <button onClick={() => scrollToSection("contact")} className="text-white/70 hover:text-[#d4af37] transition duration-300 hover:scale-110">
-              CONTACT
-            </button>
-          </div>
+  <div className="hidden md:flex gap-10 text-xs tracking-widest">
+    <button onClick={() => scrollToSection("about")} className="text-white/70 hover:text-[#d4af37] transition duration-300">
+      ABOUT
+    </button>
+    <button onClick={() => scrollToSection("features")} className="text-white/70 hover:text-[#d4af37] transition duration-300">
+      FEATURES
+    </button>
+    <button onClick={() => scrollToSection("contact")} className="text-white/70 hover:text-[#d4af37] transition duration-300">
+      CONTACT
+    </button>
+  </div>
+</nav>
 
-        {isMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-[#1a1410]/95 backdrop-blur-md border-b border-[#d4af37]/20 md:hidden animate-fadeIn">
-            <div className="flex flex-col gap-4 px-6 py-4 text-xs tracking-widest">
-              <button
-                onClick={() => scrollToSection("about")}
-                className="text-white/70 hover:text-[#d4af37] transition hover:translate-x-2"
-              >
-                ABOUT
-              </button>
-              <button
-                onClick={() => scrollToSection("features")}
-                className="text-white/70 hover:text-[#d4af37] transition hover:translate-x-2"
-              >
-                FEATURES
-              </button>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className="text-white/70 hover:text-[#d4af37] transition hover:translate-x-2"
-              >
-                CONTACT
-              </button>
-            </div>
-          </div>
-        )}
-      </nav>
-
-
-      {/* Panel 1: Logo Full View */}
-      <section className="h-screen w-full flex flex-col items-center justify-center bg-black text-white relative overflow-hidden">
-        <div 
-          className="relative z-10 animate-fadeInUp"
-          style={{
-            opacity: Math.max(0, 1 - scrollY / 500),
-            transform: `translateY(${scrollY * 0.5}px)`
-          }}
-        >
-          <Image
-            src="/icon.png"
-            alt="Veritus Logo"
-            width={600}
-            height={120}
-            className="animate-fadeIn"
-          />
-          <p className="text-gray-400 text-sm uppercase tracking-widest mt-8 text-center animate-pulse">
-            Scroll to discover
-          </p>
-        </div>
-      </section>
 
 {/* Panel 2: Brand Story */}
 <section
   id="about"
-  className="h-[66vh] w-full flex flex-col items-center justify-center bg-black text-center text-white px-6"
+  className="relative h-screen w-full flex flex-col items-center justify-center text-center text-white overflow-hidden"
 >
+  {/* Soft gold background gradient */}
+  <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0806] to-black opacity-90" />
+  {/* Floating gold particles (subtle) */}
+  <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 animate-[pulse_6s_ease-in-out_infinite] bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.08)_0%,transparent_70%)]" />
+  </div>
+
   <div
-    className={`transition-all duration-1000 ${
-      visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+    className={`relative z-10 transition-all duration-1000 ${
+      visibleSections.has("about")
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 translate-y-10"
     }`}
   >
-    <h2 className="text-4xl md:text-6xl font-light leading-tight mb-6">
-      <span className="text-gold inline-block hover:scale-110 transition-transform duration-300">Veritus</span>
+    <h2 className="text-5xl md:text-7xl font-light mb-6 tracking-tight">
+      <span className="text-[#d4af37] glow-gold inline-block hover:scale-105 transition-transform duration-300">
+        Veritus
+      </span>
       <br />
-      AI You Can Swear By
+      <span className="text-white/90">AI You Can Swear By</span>
     </h2>
 
     <p
-      className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed mb-8 transition-all duration-700 delay-200"
+      className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed mb-8"
       style={{
-        opacity: visibleSections.has('about') ? 1 : 0,
-        transform: visibleSections.has('about') ? 'translateY(0)' : 'translateY(20px)',
+        opacity: visibleSections.has("about") ? 1 : 0,
+        transform: visibleSections.has("about")
+          ? "translateY(0)"
+          : "translateY(20px)",
+        transition: "all 0.8s ease 0.3s",
       }}
     >
-      Law shouldn't be a guessing game. Every day, lawyers waste hours verifying
+      Law shouldn’t be a guessing game. Every day, lawyers waste hours verifying
       citations, chasing amendments, and second-guessing if AI might be right.
       Veritus ends that.
     </p>
 
     <p
-      className="text-gold text-base md:text-lg font-light transition-all duration-700 delay-400"
+      className="text-[#d4af37] text-base md:text-lg font-light"
       style={{
-        opacity: visibleSections.has('about') ? 1 : 0,
-        transform: visibleSections.has('about') ? 'translateY(0)' : 'translateY(20px)',
+        opacity: visibleSections.has("about") ? 1 : 0,
+        transform: visibleSections.has("about")
+          ? "translateY(0)"
+          : "translateY(20px)",
+        transition: "all 0.8s ease 0.6s",
       }}
     >
       The next era of legal integrity starts here.
     </p>
   </div>
+
+  <p className="text-gray-500 text-sm uppercase tracking-widest mt-8 animate-pulse z-10">
+    Scroll to discover
+  </p>
 </section>
+
 
 
 {/* Panel 3: The Why - Hero Features */}
 <section
   id="features"
-  className="min-h-[66vh] w-full flex flex-col items-center justify-center bg-black text-white px-8 py-20"
+  className="min-h-screen w-full flex flex-col items-center justify-center bg-black text-white px-8 py-20"
 >
   <h2
     className={`text-4xl md:text-6xl font-light text-center mb-16 transition-all duration-1000 ${
@@ -307,16 +281,7 @@ export default function Home() {
 
             {/* Right Side: Visual */}
             <div className={`flex items-center justify-center transition-all duration-1000 ${visibleSections.has('global') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
-              <svg viewBox="0 0 200 200" className="w-64 h-64 text-gold opacity-70">
-                <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="1" className="animate-rotate-slow origin-center" />
-                <line x1="100" y1="20" x2="100" y2="180" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
-                <line x1="20" y1="100" x2="180" y2="100" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
-                <g opacity="0.6" className="animate-float">
-                  <polygon points="100,40 120,60 110,85 90,85 80,60" fill="currentColor" />
-                  <polygon points="100,40 140,50 135,80 105,75" fill="currentColor" />
-                  <polygon points="100,40 80,50 75,80 95,75" fill="currentColor" />
-                </g>
-              </svg>
+              <img src="/world.png" alt="Global Reach" className="w-full max-w-3xl" />
             </div>
           </div>
         </section>
