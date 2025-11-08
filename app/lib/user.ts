@@ -52,7 +52,7 @@ export async function signIn(email: string, password: string) {
 // Send password reset email
 export async function resetPassword(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: `https://vertuis-chat.vercel.app/reset-password`,
   })
   if (error) throw error
 }
