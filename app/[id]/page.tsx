@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/app/lib/supabaseClient";
 import Image from "next/image";
 import ChatBubble from "@/app/component/bubble";
 import Side from "@/app/component/side";
@@ -12,7 +12,6 @@ import question from "@/app/lib/question";
 import { addMessage, getAllMessage } from "@/app/lib/chat";
 
 export default function ChatPage() {
-  const supabase = createClientComponentClient();
   const router = useRouter();
   const params = useParams();
 
@@ -24,86 +23,95 @@ export default function ChatPage() {
   const [failed, setFailed] = useState(false);
   const [openMap, setOpenMap] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasProcessedFirstMessage = useRef(false);
 
-  // 🧠 Auto-scroll
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Add this in both pages
-useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') {
-      router.push('/login');
-    } else if (event === 'SIGNED_IN' && session) {
-      setUser(session.user.id);
-    }
-  });
-
-  return () => subscription.unsubscribe();
-}, [router, supabase]);
-
-  // ⚙️ Check Supabase auth session
-useEffect(() => {
-  let mounted = true;
-  
-  const getSession = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
+  // Check authentication and redirect if needed
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (data.session?.user) {
-        setUser(data.session.user);
+      if (session?.user) {
+        setUser(session.user);
       } else {
-        console.log(data);
         router.push("/login");
       }
-    } catch (error) {
-      console.error("Session check failed:", error);
-    }
-  };
-  
-  getSession();
-  
-  return () => { mounted = false; };
-}, []); // Run only once
+      setLoading(false);
+    };
 
-  // 💬 Init chat from params + Supabase fetch
+    checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else if (_event === 'SIGNED_OUT') {
+        setUser(null);
+        router.push("/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  // Initialize chat and handle first message
   useEffect(() => {
-    const init = async () => {
+    if (loading || !user || hasProcessedFirstMessage.current) return;
+
+    const initChat = async () => {
       const currentChatId = params.id as string;
-      if (!currentChatId || hasProcessedFirstMessage.current) return;
+      if (!currentChatId) return;
 
       setChatId(currentChatId);
-      const data = await getAllMessage(currentChatId);
-      setMessages(data || []);
-
+      
+      // Fetch existing messages
+      const existingMessages = await getAllMessage(currentChatId);
+      
+      // Check for first message from localStorage
       const firstMsg = localStorage.getItem("first_message");
-      if (data.length === 0 && firstMsg && !hasProcessedFirstMessage.current) {
+      
+      if (existingMessages.length === 0 && firstMsg) {
         hasProcessedFirstMessage.current = true;
+        
+        // Add user message
         await addMessage(currentChatId, "user", firstMsg);
         setMessages([{ sender: "user", message: firstMsg, id: Date.now() }]);
+        
+        // Trigger AI response
         await triggerAIResponse(firstMsg, currentChatId);
         localStorage.removeItem("first_message");
+      } else {
+        // Load existing messages
+        setMessages(existingMessages || []);
       }
 
       setIsInitialized(true);
     };
 
-    init();
-  }, [params.id]);
+    initChat();
+  }, [params.id, user, loading]);
 
-  // 🔥 Listen for realtime message updates from Supabase
+  // Listen for realtime message updates
   useEffect(() => {
     if (!chatId) return;
+
     const channel = supabase
       .channel(`chat_${chatId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "messages", filter: `chat_id=eq.${chatId}` },
+        { 
+          event: "*", 
+          schema: "public", 
+          table: "messages", 
+          filter: `chat_id=eq.${chatId}` 
+        },
         async () => {
           const updated = await getAllMessage(chatId);
           setMessages(updated);
@@ -114,14 +122,15 @@ useEffect(() => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [chatId, supabase]);
+  }, [chatId]);
 
-  // ⚙️ AI streaming logic
+  // Handle AI response with streaming
   const triggerAIResponse = async (msg: string, chatId: string) => {
     setIsLoading(true);
     setFailed(false);
     let aiMessage = "";
 
+    // Show loading indicator
     const loadingMsg = { sender: "ai", message: "...", id: "ai-loading" };
     setMessages((prev) => [...prev, loadingMsg]);
 
@@ -129,66 +138,90 @@ useEffect(() => {
       await question(msg, chatId, (token: string) => {
         aiMessage += token;
         setMessages((prev) => {
-          const withoutLoading = prev.filter((m) => m.id !== "ai-loading" && m.id !== "ai-temp");
-          return [...withoutLoading, { sender: "ai", message: aiMessage, id: "ai-temp" }];
+          const withoutLoading = prev.filter(
+            (m) => m.id !== "ai-loading" && m.id !== "ai-temp"
+          );
+          return [
+            ...withoutLoading,
+            { sender: "ai", message: aiMessage, id: "ai-temp" }
+          ];
         });
       });
 
+      // Save complete AI message
       await addMessage(chatId, "ai", aiMessage);
       const finalId = Date.now();
       setMessages((prev) => {
-        const withoutTemp = prev.filter((m) => m.id !== "ai-temp" && m.id !== "ai-loading");
-        return [...withoutTemp, { sender: "ai", message: aiMessage, id: finalId }];
+        const withoutTemp = prev.filter(
+          (m) => m.id !== "ai-temp" && m.id !== "ai-loading"
+        );
+        return [
+          ...withoutTemp,
+          { sender: "ai", message: aiMessage, id: finalId }
+        ];
       });
     } catch (err) {
       console.error("AI response failed:", err);
       setFailed(true);
-      setMessages((prev) => prev.filter((m) => m.id !== "ai-temp" && m.id !== "ai-loading"));
+      setMessages((prev) => 
+        prev.filter((m) => m.id !== "ai-temp" && m.id !== "ai-loading")
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 🚀 Send Message
+  // Handle message submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || !chatId || isLoading) return;
 
     const userMessage = message;
     setMessage("");
-    setIsLoading(true);
-    setFailed(false);
 
     try {
+      // Add user message
       await addMessage(chatId, "user", userMessage);
-      setMessages((prev) => [...prev, { sender: "user", message: userMessage, id: Date.now() }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "user", message: userMessage, id: Date.now() }
+      ]);
+
+      // Trigger AI response
       await triggerAIResponse(userMessage, chatId);
     } catch (err) {
       console.error("Failed to send message:", err);
       setFailed(true);
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // 🌀 Loading Screen
-  if (!isInitialized)
+  // Loading screen
+  if (!isInitialized) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-marble bg-cover bg-center">
-        <motion.div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+        <motion.div 
+          className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" 
+        />
       </div>
     );
+  }
 
   return (
     <div className="bg-marble bg-cover bg-center min-h-screen w-full flex flex-col px-4 py-6 relative">
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
+      {/* Header */}
       <div className="flex justify-center items-center pt-6 pb-4">
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">Veritus</h1>
+        <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">
+          Veritus
+        </h1>
       </div>
 
+      {/* Main Chat Area */}
       <div className="flex-grow flex flex-col items-center w-full pb-12">
+        {/* Messages Container */}
         <div className="flex-1 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((msg, index) => (
@@ -197,7 +230,9 @@ useEffect(() => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 {msg.sender === "user" ? (
                   <div className="max-w-xs bg-gold/20 border border-gold/30 rounded-2xl px-4 py-3">
@@ -214,7 +249,12 @@ useEffect(() => {
                     </motion.p>
                   </div>
                 ) : (
-                  <ChatBubble id={msg.id} message={msg.message} isLast={index === messages.length - 1} />
+                  <ChatBubble
+                    id={msg.id}
+                    message={msg.message}
+                    isLast={index === messages.length - 1}
+                    isStreaming={msg.id === "ai-temp"}
+                  />
                 )}
               </motion.div>
             ))}
@@ -222,12 +262,16 @@ useEffect(() => {
           </div>
         </div>
 
+        {/* Error Message */}
         {failed && (
           <div className="max-w-xs bg-red-500/20 border border-red-500/30 rounded-2xl px-4 py-3 mb-4">
-            <p className="text-red-200 text-sm">Failed to send message. Please try again.</p>
+            <p className="text-red-200 text-sm">
+              Failed to send message. Please try again.
+            </p>
           </div>
         )}
 
+        {/* Input Form */}
         <div className="w-full max-w-sm z-20 mt-auto">
           <form onSubmit={handleSubmit} className="relative flex gap-2 items-center">
             <input

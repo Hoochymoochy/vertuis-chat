@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
 import { giveFeedback } from "@/app/lib/chat"
@@ -35,7 +35,7 @@ const POSITIVE_REASONS = [
 ]
 
 export default function ChatBubble({
-  id, // 👈 you’ll need to pass this down from the chat loop
+  id,
   message,
   isLast = false,
   isStreaming = false,
@@ -49,6 +49,21 @@ export default function ChatBubble({
   const [showReasons, setShowReasons] = useState(false)
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [displayMessage, setDisplayMessage] = useState(message)
+  const bubbleRef = useRef<HTMLDivElement>(null)
+
+  // Smoothly update message during streaming
+  useEffect(() => {
+    if (isStreaming) {
+      // Use requestAnimationFrame for smooth updates
+      const timeoutId = setTimeout(() => {
+        setDisplayMessage(message)
+      }, 0)
+      return () => clearTimeout(timeoutId)
+    } else {
+      setDisplayMessage(message)
+    }
+  }, [message, isStreaming])
 
   const handleInitialFeedback = (type: "up" | "down") => {
     if (feedback) return
@@ -96,52 +111,61 @@ export default function ChatBubble({
 
   return (
     <div className="flex flex-col items-start space-y-3">
-      {/* 💬 Chat message bubble */}
-      <div className="bg-black/60 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg max-w-xl">
-        <ReactMarkdown
-          components={{
-            a: ({ node, ...props }) => (
-              <a
-                {...props}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gold underline hover:text-gold/80 transition-colors"
-              />
-            ),
-            p: ({ children }) => (
-              <p className="text-white text-sm leading-relaxed mb-2 last:mb-0">
-                {children}
-              </p>
-            ),
-            ul: ({ children }) => (
-              <ul className="text-white text-sm space-y-1 ml-4 mb-2 list-disc">
-                {children}
-              </ul>
-            ),
-            ol: ({ children }) => (
-              <ol className="text-white text-sm space-y-1 ml-4 mb-2 list-decimal">
-                {children}
-              </ol>
-            ),
-            li: ({ children }) => (
-              <li className="text-white text-sm">{children}</li>
-            ),
-            strong: ({ children }) => (
-              <strong className="text-gold font-semibold">{children}</strong>
-            ),
-            code: ({ children }) => (
-              <code className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-mono">
-                {children}
-              </code>
-            ),
-          }}
-        >
-          {linkify(message || "I'm ready to help you with anything you need!")}
-        </ReactMarkdown>
+      {/* 💬 Chat message bubble with smooth transitions */}
+      <div
+        ref={bubbleRef}
+        className="bg-black/60 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg max-w-xl w-auto transition-all duration-100 ease-out"
+        style={{
+          minWidth: '100px',
+          maxWidth: '100%',
+        }}
+      >
+        <div className="overflow-hidden">
+          <ReactMarkdown
+            components={{
+              a: ({ node, ...props }) => (
+                <a
+                  {...props}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold underline hover:text-gold/80 transition-colors"
+                />
+              ),
+              p: ({ children }) => (
+                <p className="text-white text-sm leading-relaxed mb-2 last:mb-0">
+                  {children}
+                </p>
+              ),
+              ul: ({ children }) => (
+                <ul className="text-white text-sm space-y-1 ml-4 mb-2 list-disc">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="text-white text-sm space-y-1 ml-4 mb-2 list-decimal">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="text-white text-sm">{children}</li>
+              ),
+              strong: ({ children }) => (
+                <strong className="text-gold font-semibold">{children}</strong>
+              ),
+              code: ({ children }) => (
+                <code className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-mono">
+                  {children}
+                </code>
+              ),
+            }}
+          >
+            {linkify(displayMessage || "I'm ready to help you with anything you need!")}
+          </ReactMarkdown>
+        </div>
       </div>
 
-      {/* ⚡ Feedback UI */}
-      {isLast && (
+      {/* ⚡ Feedback UI - only show when not streaming */}
+      {isLast && !isStreaming && (
         <div className="flex flex-col items-start space-y-2 pl-2">
           {!selectedReason && (
             <div className="flex items-center gap-2">
