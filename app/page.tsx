@@ -156,34 +156,6 @@ useEffect(() => {
           )}
         </AnimatePresence>
 
-        {/* Messages */}
-        <AnimatePresence>
-          {isSubmitted && (
-            <motion.div
-              layout
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ ...easeOutFade, delay: 0.1 }}
-              className="flex-1 w-full max-w-4xl mx-auto pt-8 pb-24 overflow-y-auto"
-            >
-              <motion.div layout className="space-y-4">
-                {messages.map((msg, index) => (
-                  <motion.div
-                    key={msg.id || index}
-                    layout
-                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3">
-                      <p className="text-white text-sm">{msg.message}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Input */}
         <motion.div layout transition={smoothSpring} className="w-full max-w-sm z-20">
           <form onSubmit={handleSubmit} className="relative">

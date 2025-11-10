@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -28,6 +29,13 @@ interface SignUpResponse {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
     try {
       const { user, session }: SignUpResponse = await signUp(email, password);
@@ -241,7 +249,7 @@ interface SignUpResponse {
         </motion.div>
 
         <motion.div 
-          className="w-full mb-6 relative"
+          className="w-full mb-4 relative"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
@@ -268,13 +276,41 @@ interface SignUpResponse {
           />
         </motion.div>
 
+        <motion.div 
+          className="w-full mb-6 relative"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onFocus={() => setFocusedField("confirmPassword")}
+            onBlur={() => setFocusedField(null)}
+            required
+            minLength={6}
+            className="w-full px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold/60 border border-gold/30 focus:outline-none focus:border-gold transition-all duration-300"
+          />
+          <motion.div
+            className="absolute inset-0 rounded-xl border-2 border-gold pointer-events-none"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ 
+              opacity: focusedField === "confirmPassword" ? 1 : 0,
+              scale: focusedField === "confirmPassword" ? 1 : 0.95
+            }}
+            transition={{ duration: 0.2 }}
+          />
+        </motion.div>
+
         <motion.button
           type="submit"
           disabled={loading}
           className="w-full text-gold font-bold py-3 rounded-xl border border-gold hover:bg-gold/20 transition-all duration-300 relative overflow-hidden group mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
           whileHover={{ scale: loading ? 1 : 1.02 }}
           whileTap={{ scale: loading ? 1 : 0.98 }}
         >
@@ -308,7 +344,7 @@ interface SignUpResponse {
           className="w-full flex items-center gap-3 mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
         >
           <div className="flex-1 h-px bg-gold/20" />
           <p className="text-white/60 text-sm">Or sign up with</p>
@@ -322,7 +358,7 @@ interface SignUpResponse {
           className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gold/30 rounded-xl hover:bg-gold/10 hover:border-gold transition-all duration-300 text-white mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
           whileHover={{ scale: loading ? 1 : 1.03, y: loading ? 0 : -2 }}
           whileTap={{ scale: loading ? 1 : 0.97 }}
         >
@@ -334,7 +370,7 @@ interface SignUpResponse {
           className="text-white/70 text-sm mt-4 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.9 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
         >
           Already have an account?{" "}
           <motion.a 

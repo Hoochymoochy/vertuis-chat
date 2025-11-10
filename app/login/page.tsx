@@ -329,7 +329,7 @@ export default function LoginPage() {
           </motion.a>
         </motion.p>
 
-        <motion.div 
+        {/* <motion.div 
           className=" flex justify-end mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -342,7 +342,7 @@ export default function LoginPage() {
           >
             Forgot password?
           </motion.a>
-        </motion.div>
+        </motion.div> */}
         
       </motion.form>
     </div>
