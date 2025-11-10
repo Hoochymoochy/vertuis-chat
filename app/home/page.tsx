@@ -194,17 +194,10 @@ export default function Home() {
       {/* Hero Section */}
       <section
         id="hero"
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
       >
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-[#1a1410] to-black">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d4af37] rounded-full filter blur-[120px] animate-pulse" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#d4af37] rounded-full filter blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
-        </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 text-center space-y-12">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 text-center space-y-12 bg-black/80 backdrop-blur-xl border border-[#d4af37]/20">
           <div className="space-y-6 animate-fadeInUp">
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold tracking-tight">
               <span className="text-gradient">VERITUS</span>
@@ -237,7 +230,7 @@ export default function Home() {
 
           <button
             onClick={() => scrollToSection('about')}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2 text-[#d4af37]/50 hover:text-[#d4af37] transition-all duration-300 animate-float"
+            className=" text-[#d4af37]/50 hover:text-[#d4af37] transition-all duration-300 animate-float"
           >
             <ChevronDown size={40} />
           </button>
@@ -253,7 +246,7 @@ export default function Home() {
         <div 
           className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1564410267841-e6a4c7c1f0a5?w=1920&q=80')",
+            backgroundImage: "url('/marble.png')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -272,40 +265,35 @@ export default function Home() {
             <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 text-left">
+          {/* Cards Grid */}
+          <div className="grid md:grid-cols-3 gap-8 text-left items-stretch">
             {[
               {
                 title: "The Problem",
-                content: "Every day, legal professionals waste hours verifying citations, chasing amendments, and second-guessing AI hallucinations."
+                content:
+                  "Every day, legal professionals waste hours verifying citations, chasing amendments, and second guessing AI hallucinations."
               },
               {
                 title: "The Solution",
-                content: "Veritus eliminates uncertainty with source-backed answers, real-time legal updates, and zero tolerance for hallucinations."
+                content:
+                  "Veritus eliminates uncertainty with source-backed answers, real-time legal updates, and zero tolerance for hallucinations."
               },
               {
                 title: "The Future",
-                content: "A new era where lawyers trust their AI completely, focusing on strategy instead of fact-checking."
+                content:
+                  "A new era where lawyers trust their AI completely, focusing on strategy instead of fact-checking."
               }
             ].map((item, i) => (
               <div
                 key={i}
-                className="relative overflow-hidden group"
+                className="relative overflow-hidden group flex flex-col"
                 style={{
                   transitionDelay: `${i * 200}ms`
                 }}
               >
-                {/* Marble card background */}
-                <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                  style={{
-                    backgroundImage: "url('https://images.unsplash.com/photo-1564410267841-e6a4c7c1f0a5?w=800&q=80')",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
-                />
-                <div className="relative glass-effect p-8 space-y-4 hover:border-[#d4af37]/50 transition-all duration-500">
+                <div className="relative glass-effect p-8 space-y-4 hover:border-[#d4af37]/50 transition-all duration-500 flex flex-col flex-grow">
                   <h3 className="text-xl font-serif text-[#d4af37]">{item.title}</h3>
-                  <p className="text-white/70 leading-relaxed">{item.content}</p>
+                  <p className="text-white/70 leading-relaxed flex-grow">{item.content}</p>
                 </div>
               </div>
             ))}
@@ -316,6 +304,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+
 
       {/* Features Section */}
       <section
@@ -342,17 +331,17 @@ export default function Home() {
               {
                 title: 'Source-Backed Chat',
                 desc: 'Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.',
-                icon: '⚖️',
+                icon: '/icons/scale2.png',
               },
               {
                 title: 'Document Analysis',
                 desc: 'Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context.',
-                icon: '📋',
+                icon: '/icons/doc2.png',
               },
               {
                 title: 'Jurisdiction Sync',
                 desc: 'Real-time updates to federal, state, and regional law. Never miss an amendment or new precedent again.',
-                icon: '🌐',
+                icon: '/icons/globe2.png',
               },
             ].map((feature, i) => (
               <div
@@ -362,9 +351,13 @@ export default function Home() {
                   transitionDelay: `${i * 150}ms`
                 }}
               >
-                <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                  {feature.icon}
-                </div>
+              <div className="w-24 h-24 mb-6 relative">
+                <img
+                  src={feature.icon}
+                  alt={feature.title}
+                  className="object-contain w-full h-full"
+                />
+              </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-serif text-[#d4af37]">
                     {feature.title}
@@ -434,14 +427,11 @@ export default function Home() {
           </div>
 
           <div className="flex items-center justify-center order-1 lg:order-2">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#d4af37]/20 blur-3xl rounded-full" />
-              <img 
-                src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&q=80" 
-                alt="Global Network" 
-                className="relative w-full max-w-lg rounded-full animate-float opacity-90"
-              />
-            </div>
+            <img
+              src="/world.png"
+              alt="Global"
+              className="object-contain w-full h-full"
+            />
           </div>
         </div>
       </section>
