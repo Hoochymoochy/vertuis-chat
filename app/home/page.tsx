@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { Menu, X, ChevronDown } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [email, setEmail] = useState("")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState(new Set())
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -42,9 +44,12 @@ export default function Home() {
     }
   }
 
-  const handleRoute = (path) => {
-    console.log(`Navigating to: ${path}`)
+  const handleRoute = (path: string) => {
+    router.push(path)
+    setIsMenuOpen(false)
   }
+  
+
 
   return (
     <div className="relative bg-black text-white overflow-x-hidden">
@@ -276,12 +281,12 @@ export default function Home() {
               {
                 title: "The Solution",
                 content:
-                  "Veritus eliminates uncertainty with source-backed answers, real-time legal updates, and zero tolerance for hallucinations."
+                  "Veritus eliminates uncertainty with source backed answers, real time legal updates, and zero tolerance for hallucinations."
               },
               {
                 title: "The Future",
                 content:
-                  "A new era where lawyers trust their AI completely, focusing on strategy instead of fact-checking."
+                  "A new era where lawyers trust their AI completely, focusing on strategy instead of fact checking."
               }
             ].map((item, i) => (
               <div
@@ -335,12 +340,12 @@ export default function Home() {
               },
               {
                 title: 'Document Analysis',
-                desc: 'Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context.',
+                desc: 'Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context (coming soon).',
                 icon: '/icons/doc2.png',
               },
               {
                 title: 'Jurisdiction Sync',
-                desc: 'Real-time updates to federal, state, and regional law. Never miss an amendment or new precedent again.',
+                desc: 'Real time updates to federal, state, and regional law (coming soon). Never miss an amendment or new precedent again.',
                 icon: '/icons/globe2.png',
               },
             ].map((feature, i) => (
@@ -393,7 +398,7 @@ export default function Home() {
             </div>
 
             <p className="text-lg text-white/70 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              We're mastering Utah law first—every statute, every case, every update. 
+              We're mastering Federal law first. Then every statute, every case, every update. 
               Then expanding nationwide with the same uncompromising precision.
             </p>
 
@@ -401,9 +406,9 @@ export default function Home() {
               <p className="text-[#d4af37] font-medium text-lg">Coverage Roadmap</p>
               <div className="space-y-4">
                 {[
-                  { text: "Utah State & Federal Law", status: "Live" },
-                  { text: "All 50 States", status: "Q2 2025" },
-                  { text: "International Markets", status: "2026" }
+                  { text: "Brazil Laws and Regulations", status: "Live" },
+                  { text: "Us and Canada", status: "Q2 2025" },
+                  { text: "Rest of the World", status: "2026" }
                 ].map((item, i) => (
                   <div
                     key={i}
@@ -448,7 +453,7 @@ export default function Home() {
         }`}>
           <div className="space-y-8">
             <h2 className="text-5xl md:text-7xl font-serif font-semibold leading-tight">
-              Join the <span className="text-gradient">Revolution</span>
+              Join the <span className="text-gradient">Future of Law</span>
             </h2>
             <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
@@ -524,9 +529,9 @@ export default function Home() {
           <p className="font-serif text-[#d4af37]">VERITUS</p>
           <p>© 2025 Veritus AI. Legal intelligence redefined.</p>
           <div className="flex gap-6">
-            <button className="hover:text-[#d4af37] transition-colors duration-300">Privacy</button>
-            <button className="hover:text-[#d4af37] transition-colors duration-300">Terms</button>
-            <button className="hover:text-[#d4af37] transition-colors duration-300">Contact</button>
+            <button onClick={()=> handleRoute("/privacy")} className="hover:text-[#d4af37] transition-colors duration-300">Privacy</button>
+            <button onClick={()=> handleRoute("/terms")} className="hover:text-[#d4af37] transition-colors duration-300">Terms</button>
+            <button onClick={()=> handleRoute("/contact")} className="hover:text-[#d4af37] transition-colors duration-300">Contact</button>
           </div>
         </div>
       </footer>
