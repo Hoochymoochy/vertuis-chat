@@ -11,7 +11,6 @@ import { supabase } from "./lib/supabaseClient";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-
 export default function Home() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
@@ -19,52 +18,62 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
-  const router = useRouter();
   const [openMap, setOpenMap] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
   const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
-useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') {
-      router.push('/login');
-    } else if (event === 'SIGNED_IN' && session) {
-      setUserId(session.user.id);
-    }
-  });
 
-  return () => subscription.unsubscribe();
-}, [router, supabase]);
-  // Check login
-useEffect(() => {
-  let mounted = true;
-  
-  const checkLogin = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
-      
-      if (data.session?.user) {
-        setUserId(data.session.user.id);
-      } else {
-        router.push("/login");
+  // Auth listener
+  useEffect(() => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_OUT") {
+          router.push("/login");
+        } else if (event === "SIGNED_IN" && session) {
+          setUserId(session.user.id);
+        }
       }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-    }
-  };
-  
-  checkLogin();
-  
-  return () => { mounted = false; };
-}, []); 
+    );
 
-  // Handle input change
+    return () => {
+      subscription?.subscription?.unsubscribe?.();
+    };
+  }, [router]);
+
+  // Initial login check
+  useEffect(() => {
+    let mounted = true;
+
+    const checkLogin = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!mounted) return;
+
+        if (data.session?.user) {
+          setUserId(data.session.user.id);
+        } else {
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      } finally {
+        if (mounted) setIsCheckingAuth(false);
+      }
+    };
+
+    checkLogin();
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
-  // Send a message
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!message.trim() || !userId || isLoading) return;
@@ -72,7 +81,6 @@ useEffect(() => {
     setIsSubmitted(true);
     setIsLoading(true);
 
-    // Add user message to local state for animation
     const userMsg = { sender: "user", message: message, id: Date.now() };
     setMessages([userMsg]);
 
@@ -81,13 +89,9 @@ useEffect(() => {
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
-      // Create the chat
       const { id } = await addChat(userId, message.slice(0, 50));
-
-      // Store first message for the chat page to handle
       localStorage.setItem("first_message", message);
 
-      // Small delay to show the animation before routing
       setTimeout(() => {
         router.push(`/${id}`);
       }, 300);
@@ -98,13 +102,24 @@ useEffect(() => {
     }
   };
 
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner />
+          <p className="text-gold text-sm">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       layout
       className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
     >
-      <Side setOpenMap={setOpenMap}/>
-      <Map openMap={openMap} setOpenMap={setOpenMap}/>
+      <Side setOpenMap={setOpenMap} />
+      <Map openMap={openMap} setOpenMap={setOpenMap} />
 
       {/* Main Chat Area */}
       <motion.div
@@ -166,11 +181,11 @@ useEffect(() => {
                 value={message}
                 disabled={isLoading}
                 className="flex-1 px-4 py-3 rounded-xl 
-                bg-gold/10 text-white placeholder-gold/60 
-                border border-gold/40 
-                focus:outline-none focus:ring-2 focus:ring-gold 
-                transition backdrop-blur-sm 
-                disabled:opacity-50"
+                  bg-gold/10 text-white placeholder-gold/60 
+                  border border-gold/40 
+                  focus:outline-none focus:ring-2 focus:ring-gold 
+                  transition backdrop-blur-sm 
+                  disabled:opacity-50"
                 onChange={handleInputChange}
               />
               <button
