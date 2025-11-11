@@ -36,7 +36,7 @@ export default function Home() {
     return () => observer.disconnect()
   }, [])
 
-  const scrollToSection = (id) => {
+  const scrollToSection = (id: string) => {
     const section = document.getElementById(id)
     if (section) {
       section.scrollIntoView({ behavior: "smooth" })
