@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
   const [needsVerification, setNeedsVerification] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -154,7 +153,8 @@ export default function LoginPage() {
 
   // Login form
   return (
-    <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
+      <div className="absolute inset-0 bg-black/50" />
       <motion.div
         className="absolute inset-0 bg-gradient-radial from-gold/5 via-transparent to-transparent"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -164,7 +164,7 @@ export default function LoginPage() {
 
       <motion.form
         onSubmit={handleLogin}
-        className="bg-black/60 backdrop-blur-md p-8 rounded-2xl border border-gold/30 w-full max-w-sm m-auto flex flex-col items-center shadow-xl relative z-10"
+        className="glass-effect bg-black/60 backdrop-blur-md p-8 border border-gold/30 w-full max-w-md m-auto flex flex-col items-center shadow-xl relative z-10"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ 
@@ -174,7 +174,7 @@ export default function LoginPage() {
         }}
       >
         <motion.h1 
-          className="text-3xl font-bold text-white mb-6"
+          className="text-3xl font-serif text-gold mb-4 text-center"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -207,24 +207,13 @@ export default function LoginPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onFocus={() => setFocusedField("email")}
-            onBlur={() => setFocusedField(null)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold/60 border border-gold/30 focus:outline-none focus:border-gold transition-all duration-300"
-          />
-          <motion.div
-            className="absolute inset-0 rounded-xl border-2 border-gold pointer-events-none"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ 
-              opacity: focusedField === "email" ? 1 : 0,
-              scale: focusedField === "email" ? 1 : 0.95
-            }}
-            transition={{ duration: 0.2 }}
+            className="flex w-full px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
           />
         </motion.div>
 
         <motion.div 
-          className="w-full mb-6 relative"
+          className="w-full mb-4 relative"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
@@ -234,26 +223,15 @@ export default function LoginPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setFocusedField("password")}
-            onBlur={() => setFocusedField(null)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold/60 border border-gold/30 focus:outline-none focus:border-gold transition-all duration-300"
-          />
-          <motion.div
-            className="absolute inset-0 rounded-xl border-2 border-gold pointer-events-none"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ 
-              opacity: focusedField === "password" ? 1 : 0,
-              scale: focusedField === "password" ? 1 : 0.95
-            }}
-            transition={{ duration: 0.2 }}
+            className="flex w-full px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
           />
         </motion.div>
 
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full text-gold font-bold py-3 rounded-xl border border-gold hover:bg-gold/20 transition-all duration-300 relative overflow-hidden group mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 font-medium relative flex items-center justify-center gap-2 border border-[#d4af37] focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300 hover:scale-105 bg-[#d4af37] text-black hover:bg-[#f4e5b8] hover:shadow-2xl hover:shadow-[#d4af37]/50 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
@@ -261,12 +239,12 @@ export default function LoginPage() {
           whileTap={{ scale: loading ? 1 : 0.98 }}
         >
           <motion.div
-            className="absolute inset-0 bg-gold/10"
+            className="absolute inset-0"
             initial={{ x: "-100%" }}
             whileHover={{ x: "100%" }}
             transition={{ duration: 0.6 }}
           />
-          <span className="relative z-10 text-gold">
+          <span className="relative z-10">
             {loading ? (
               <motion.span
                 initial={{ opacity: 0 }}
@@ -292,16 +270,16 @@ export default function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          <div className="flex-1 h-px bg-gold/20" />
+          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
           <p className="text-white/60 text-sm">Or login with</p>
-          <div className="flex-1 h-px bg-gold/20" />
+          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
         </motion.div>
 
         <motion.button
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gold/30 rounded-xl hover:bg-gold/10 hover:border-gold transition-all duration-300 text-white mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 font-medium transition-all duration-300 hover:scale-105 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10 flex flex-row items-center justify-center gap-2 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
