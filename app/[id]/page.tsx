@@ -45,6 +45,7 @@ export default function ChatPage() {
       } else {
         router.push("/login");
       }
+      setIsInitialized(true);
       setLoading(false);
     };
 
