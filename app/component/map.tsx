@@ -35,7 +35,6 @@ export default function Map({openMap, setOpenMap}: MapProps) {
 
             <WorldToCountryMap
               setOpenMap={setOpenMap}
-
             />
           </motion.div>
         </motion.div>

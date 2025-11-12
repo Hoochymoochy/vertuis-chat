@@ -9,7 +9,7 @@ import {
 } from '@/app/component/SimpleMapClient'
 import { setCountry as saveCountry, setState as saveState, getCountry, getState } from "@/app/lib/user"
 import { supabase } from '../lib/supabaseClient'
-import { u } from 'framer-motion/client'
+import { getOnbaording, setOnbaording } from '@/app/lib/user'
 
 const WORLD_URL = '/countries-110m.json'
 const BRAZIL_URL = '/brazil-states.geojson'
@@ -21,6 +21,17 @@ interface WorldToCountryMapProps {
   setOpenMap: (open: boolean) => void
 }
 
+// Disabled Brazil states
+const DISABLED_BRAZIL_STATES = [
+  'Acre',
+  'Alagoas', 
+  'Amapá',
+  'Ceará',
+  'Minas Gerais',
+  'Piauí',
+  'Santa Catarina'
+]
+
 export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
   const [currentView, setCurrentView] = useState<MapView>('world')
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
@@ -28,6 +39,9 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [isOnboarding, setIsOnboarding] = useState(false)
+  const [hasSelectedCountry, setHasSelectedCountry] = useState(false)
+
   // Load saved country and state on mount
   useEffect(() => {
     const loadSavedSelection = async () => {
@@ -36,12 +50,19 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
       if (!user) return;
       
       setUserId(user.id);
+      const onboarded = await getOnbaording(user.id)
+      
+      // If not onboarded, this is their first time
+      if (!onboarded) {
+        setIsOnboarding(true)
+        return
+      }
+      
       const savedCountry = await getCountry(user.id)
       const savedState = await getState(user.id)
       
       if (savedCountry && savedCountry !== 'World') {
         setSelectedCountry(savedCountry)
-        // Only set view to country if it's brazil or usa
         if (savedCountry === 'Brazil' || savedCountry === 'United States of America') {
           setCurrentView(savedCountry as MapView)
         }
@@ -55,67 +76,91 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
     loadSavedSelection()
   }, [])
 
+  const handleCountryClick = async (countryName: string) => {
+    if (isTransitioning) return;
+    
+    const normalizedCountry = countryName === 'Brazil' ? 'Brazil' : 
+                              countryName === 'United States of America' ? 'United States of America' : null;
+
+    if (!normalizedCountry) return;
+
+    setIsTransitioning(true);
+    setHoveredRegion(null);
+
+    await saveCountry(userId??"", normalizedCountry);
+    await saveState(userId??"", 'N/A');
+    setSelectedCountry(normalizedCountry);
+    setSelectedState(null);
+    setHasSelectedCountry(true);
+
+        // Complete onboarding if this is first time
+    if (isOnboarding) {
+      await setOnbaording(userId??"", true);
+      setIsOnboarding(false);
+    }
+
+    window.dispatchEvent(new Event('locationUpdated'));
+
+    setTimeout(() => {
+      setCurrentView(normalizedCountry as MapView);
+      setIsTransitioning(false);
+    }, 400);
+  };
+
+  const handleStateClick = async (stateName: string) => {
+    if (isTransitioning) return;
+    
+    // Check if state is disabled
+    if (DISABLED_BRAZIL_STATES.includes(stateName)) return;
+    
+    await saveState(userId??"", stateName);
+    setSelectedState(stateName);
+
+    window.dispatchEvent(new Event('locationUpdated'));
+
+    setTimeout(() => {
+      setOpenMap(false);
+    }, 300);
+  };
+
+  const handleContinueWithFederal = async () => {
+    if (!userId) return;
+    
+    // Save USA as country with federal level
+    await saveCountry(userId, 'United States of America');
+    await saveState(userId, 'Federal');
+    
+    // Complete onboarding
+    if (isOnboarding) {
+      await setOnbaording(userId, true);
+      setIsOnboarding(false);
+    }
+
+    window.dispatchEvent(new Event('locationUpdated'));
+
+    setTimeout(() => {
+      setOpenMap(false);
+    }, 300);
+  };
+
+  const handleBackToWorld = async () => {
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+    setHoveredRegion(null);
 
 
-const handleCountryClick = async (countryName: string) => {
-  if (isTransitioning) return;
-  
-  const normalizedCountry = countryName === 'Brazil' ? 'Brazil' : 
-                            countryName === 'United States of America' ? 'United States of America' : null;
+    setSelectedCountry(null);
+    setSelectedState(null);
+    setHasSelectedCountry(false);
 
-  if (!normalizedCountry) return;
+    window.dispatchEvent(new Event('locationUpdated'));
 
-  setIsTransitioning(true);
-  setHoveredRegion(null);
-
-  await saveCountry(userId??"", normalizedCountry);
-  await saveState(userId??"", 'N/A'); // Reset state
-  setSelectedCountry(normalizedCountry);
-  setSelectedState(null);
-
-  // 🪄 trigger sidebar update instantly
-  window.dispatchEvent(new Event('locationUpdated'));
-
-  setTimeout(() => {
-    setCurrentView(normalizedCountry as MapView);
-    setIsTransitioning(false);
-  }, 400);
-};
-
-
-const handleStateClick = async (stateName: string) => {
-  if (isTransitioning) return;
-  
-  await saveState(userId??"", stateName);
-  setSelectedState(stateName);
-
-  // 🪄 trigger sidebar update instantly
-  window.dispatchEvent(new Event('locationUpdated'));
-
-  setTimeout(() => {
-    setOpenMap(false);
-  }, 300);
-};
-
-const handleBackToWorld = async () => {
-  if (isTransitioning) return;
-
-  setIsTransitioning(true);
-  setHoveredRegion(null);
-
-  await saveCountry(userId??"", 'World');
-  await saveState(userId??"", 'N/A');
-  setSelectedCountry(null);
-  setSelectedState(null);
-
-  // 🪄 trigger sidebar update instantly
-  window.dispatchEvent(new Event('locationUpdated'));
-
-  setTimeout(() => {
-    setCurrentView('world');
-    setIsTransitioning(false);
-  }, 400);
-};
+    setTimeout(() => {
+      setCurrentView('world');
+      setIsTransitioning(false);
+    }, 400);
+  };
 
   const getCountryFillColor = (countryName: string) => {
     const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
@@ -123,19 +168,23 @@ const handleBackToWorld = async () => {
   }
 
   const getStateFillColor = (stateName: string) => {
+    if (DISABLED_BRAZIL_STATES.includes(stateName)) {
+      return '#0a0a0a' // Darker gray for disabled
+    }
     return selectedState === stateName ? '#FFD700' : '#1a1a1a'
   }
 
-  // Helper to display country name properly
   const getDisplayCountryName = () => {
     if (selectedCountry === 'Brazil') return 'Brazil'
     if (selectedCountry === 'United States of America') return 'United States of America'
     return selectedCountry
   }
 
+  const canCloseMap = !isOnboarding || hasSelectedCountry;
+
   return (
     <div className="relative">
-      {/* Back Button - Only show when viewing a country */}
+      {/* Back Button */}
       {currentView !== 'world' && (
         <motion.button
           initial={{ opacity: 0, x: -10 }}
@@ -162,17 +211,60 @@ const handleBackToWorld = async () => {
         </motion.button>
       )}
 
-      {/* Close Button */}
+      {/* Close Button - Only enabled after onboarding */}
       <motion.button
-        onClick={() => setOpenMap(false)}
-        className="absolute top-4 right-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-3 py-2 hover:bg-black/70 hover:border-red-500/50 transition-all group"
-        whileHover={{ scale: 1.05, rotate: 90 }}
-        whileTap={{ scale: 0.95 }}
+        onClick={() => canCloseMap && setOpenMap(false)}
+        disabled={!canCloseMap}
+        className={`absolute top-4 right-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-3 py-2 transition-all group ${
+          canCloseMap 
+            ? 'hover:bg-black/70 hover:border-red-500/50 cursor-pointer' 
+            : 'opacity-30 cursor-not-allowed'
+        }`}
+        whileHover={canCloseMap ? { scale: 1.05, rotate: 90 } : {}}
+        whileTap={canCloseMap ? { scale: 0.95 } : {}}
       >
-        <span className="text-gold text-xl group-hover:text-red-400 transition-colors">
+        <span className={`text-xl transition-colors ${
+          canCloseMap ? 'text-gold group-hover:text-red-400' : 'text-gray-500'
+        }`}>
           ✕
         </span>
       </motion.button>
+
+      {/* USA Federal Banner */}
+      <AnimatePresence>
+        {currentView === 'United States of America' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-20 left-1/2 transform -translate-x-1/2 z-20 w-full max-w-2xl px-4"
+          >
+            <div className="bg-gradient-to-r from-gold/20 via-gold/30 to-gold/20 backdrop-blur-xl border-2 border-gold/50 rounded-2xl p-4 shadow-2xl">
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-white text-lg font-semibold">
+                    State-level data coming soon
+                  </p>
+                </div>
+                <p className="text-gold/90 text-sm text-center">
+                  Federal law is currently available. State-specific legislation will be added soon.
+                </p>
+                <motion.button
+                  onClick={handleContinueWithFederal}
+                  className="mt-2 bg-gold hover:bg-gold/90 text-black font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Continue with Federal Law
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Map Container */}
       <div className="">
@@ -264,35 +356,39 @@ const handleBackToWorld = async () => {
                   {({ geographies }: any) =>
                     geographies.map((geo: any) => {
                       const stateName = geo.properties.name
+                      const isDisabled = DISABLED_BRAZIL_STATES.includes(stateName)
                       
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
-                          onMouseEnter={() => setHoveredRegion(stateName)}
+                          onMouseEnter={() => !isDisabled && setHoveredRegion(stateName)}
                           onMouseLeave={() => setHoveredRegion(null)}
-                          onClick={() => handleStateClick(stateName)}
+                          onClick={() => !isDisabled && handleStateClick(stateName)}
                           style={{
                             default: { 
                               fill: getStateFillColor(stateName), 
-                              stroke: '#555',
+                              stroke: isDisabled ? '#333' : '#555',
                               strokeWidth: 0.8,
                               outline: 'none',
                               transition: 'all 0.3s ease',
+                              opacity: isDisabled ? 0.3 : 1,
                             },
                             hover: {
-                              fill: '#FFD700',
-                              stroke: '#FFA500',
-                              strokeWidth: 1.2,
+                              fill: isDisabled ? '#0a0a0a' : '#FFD700',
+                              stroke: isDisabled ? '#333' : '#FFA500',
+                              strokeWidth: isDisabled ? 0.8 : 1.2,
                               outline: 'none',
-                              cursor: 'pointer',
-                              filter: 'brightness(1.1)',
+                              cursor: isDisabled ? 'not-allowed' : 'pointer',
+                              filter: isDisabled ? 'none' : 'brightness(1.1)',
+                              opacity: isDisabled ? 0.3 : 1,
                             },
                             pressed: { 
-                              fill: '#FFA500', 
-                              stroke: '#FF8C00',
-                              strokeWidth: 1.2,
-                              outline: 'none' 
+                              fill: isDisabled ? '#0a0a0a' : '#FFA500', 
+                              stroke: isDisabled ? '#333' : '#FF8C00',
+                              strokeWidth: isDisabled ? 0.8 : 1.2,
+                              outline: 'none',
+                              opacity: isDisabled ? 0.3 : 1,
                             },
                           }}
                         />
@@ -332,30 +428,29 @@ const handleBackToWorld = async () => {
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
-                          onMouseEnter={() => setHoveredRegion(stateName)}
-                          onMouseLeave={() => setHoveredRegion(null)}
-                          onClick={() => handleStateClick(stateName)}
                           style={{
                             default: { 
-                              fill: getStateFillColor(stateName), 
-                              stroke: '#555',
+                              fill: '#0a0a0a', 
+                              stroke: '#333',
                               strokeWidth: 0.8,
                               outline: 'none',
                               transition: 'all 0.3s ease',
+                              opacity: 0.4,
                             },
                             hover: {
-                              fill: '#FFD700',
-                              stroke: '#FFA500',
-                              strokeWidth: 1.2,
+                              fill: '#0a0a0a',
+                              stroke: '#333',
+                              strokeWidth: 0.8,
                               outline: 'none',
-                              cursor: 'pointer',
-                              filter: 'brightness(1.1)',
+                              cursor: 'not-allowed',
+                              opacity: 0.4,
                             },
                             pressed: { 
-                              fill: '#FFA500', 
-                              stroke: '#FF8C00',
-                              strokeWidth: 1.2,
-                              outline: 'none' 
+                              fill: '#0a0a0a', 
+                              stroke: '#333',
+                              strokeWidth: 0.8,
+                              outline: 'none',
+                              opacity: 0.4,
                             },
                           }}
                         />
@@ -371,35 +466,67 @@ const handleBackToWorld = async () => {
       
       {/* Info Cards */}
       <div className="flex flex-col items-center justify-center gap-3 mt-5">
-        {/* Instruction Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="w-full max-w-md bg-black/60 backdrop-blur-lg border border-gold/30 rounded-xl px-5 py-3.5 relative overflow-hidden group"
-        >
+        {/* Onboarding Instruction */}
+        {isOnboarding && !hasSelectedCountry && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent"
-            initial={{ x: "-100%" }}
-            animate={{ x: "100%" }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="relative flex items-start gap-3">
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md bg-gradient-to-r from-gold/30 to-gold/20 backdrop-blur-lg border-2 border-gold/50 rounded-xl px-5 py-4 relative overflow-hidden"
+          >
             <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <svg className="w-5 h-5 text-gold mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </motion.div>
-            <p className="text-gold/90 text-sm leading-relaxed">
-              {currentView === 'world'
-                ? 'Brazil and USA are highlighted in gold — click to zoom in and explore states'
-                : 'Click on any state to select it as your jurisdiction'}
-            </p>
-          </div>
-        </motion.div>
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              animate={{ x: ["-100%", "100%"] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+            <div className="relative flex items-center justify-center gap-3">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </motion.div>
+              <p className="text-white text-base font-semibold">
+                Please select a country to get started
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Instruction Card */}
+        {!isOnboarding && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="w-full max-w-md bg-black/60 backdrop-blur-lg border border-gold/30 rounded-xl px-5 py-3.5 relative overflow-hidden group"
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent"
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+            <div className="relative flex items-start gap-3">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <svg className="w-5 h-5 text-gold mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </motion.div>
+              <p className="text-gold/90 text-sm leading-relaxed">
+                {currentView === 'world'
+                  ? 'Brazil and USA are highlighted in gold — click to zoom in and explore'
+                  : currentView === 'Brazil'
+                  ? 'Click on any available state (grayed out states coming soon)'
+                  : 'Click "Continue with Federal Law" to proceed'}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Status Card */}
         <motion.div

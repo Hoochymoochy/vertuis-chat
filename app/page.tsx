@@ -8,6 +8,7 @@ import { addChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
+import { getOnbaording } from "./lib/user";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,6 +21,7 @@ export default function Home() {
   const [messages, setMessages] = useState<any[]>([]);
   const [openMap, setOpenMap] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   const router = useRouter();
 
@@ -43,32 +45,45 @@ export default function Home() {
     };
   }, [router]);
 
-  // Initial login check
+  // Initial login check & onboarding
   useEffect(() => {
     let mounted = true;
-
     const checkLogin = async () => {
       try {
         const { data } = await supabase.auth.getSession();
         if (!mounted) return;
 
         if (data.session?.user) {
-          setUserId(data.session.user.id);
+          const user = data.session.user;
+          setUserId(user.id);
+
+          const onboarded = await getOnbaording(user.id);
+          if (!onboarded) {
+            setNeedsOnboarding(true);
+            setOpenMap(true); // Force open map for first-time users
+          }
         } else {
           router.push("/login");
         }
-      } catch (error) {
-        console.error("Auth check failed:", error);
+      } catch (err) {
+        console.error("Auth check failed:", err);
       } finally {
         if (mounted) setIsCheckingAuth(false);
       }
     };
-
     checkLogin();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; }
   }, [router]);
+
+  // Listen for location updates (when onboarding completes)
+  useEffect(() => {
+    const handleLocationUpdate = () => {
+      setNeedsOnboarding(false);
+    };
+    
+    window.addEventListener('locationUpdated', handleLocationUpdate);
+    return () => window.removeEventListener('locationUpdated', handleLocationUpdate);
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
@@ -121,12 +136,41 @@ export default function Home() {
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
+      {/* Onboarding Overlay - Blocks interaction until complete */}
+      <AnimatePresence>
+        {needsOnboarding && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm z-30 flex items-center justify-center pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-gradient-to-br from-gold/20 to-gold/10 border-2 border-gold/40 rounded-2xl p-8 max-w-md text-center shadow-2xl"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-gold/30 border-t-gold"
+              />
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Veritus!</h2>
+              <p className="text-gold/80 text-sm">
+                Select your jurisdiction from the map to get started
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Chat Area */}
       <motion.div
         layout
         className={`flex-grow flex flex-col items-center w-full ${
           isSubmitted ? "justify-end pb-12" : "justify-center"
-        }`}
+        } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
       >
         {/* Logo */}
         <motion.div
@@ -179,7 +223,7 @@ export default function Home() {
                 type="text"
                 placeholder="Start chat..."
                 value={message}
-                disabled={isLoading}
+                disabled={isLoading || needsOnboarding}
                 className="flex-1 px-4 py-3 rounded-xl 
                   bg-gold/10 text-white placeholder-gold/60 
                   border border-gold/40 
@@ -190,7 +234,7 @@ export default function Home() {
               />
               <button
                 type="submit"
-                disabled={isLoading || !message.trim()}
+                disabled={isLoading || !message.trim() || needsOnboarding}
                 className="bg-gold hover:bg-gold/80 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 aria-label="Send message"
               >
@@ -214,7 +258,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={easeOutFade}
-            className="text-center mt-10"
+            className={`text-center mt-10 ${needsOnboarding ? 'opacity-50' : ''}`}
           >
             <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
               AI You Can Swear By

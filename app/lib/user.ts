@@ -147,3 +147,22 @@ export async function setState(userId: string, state: string) {
     .upsert({ user_id: userId, state }, { onConflict: 'user_id' })
   if (error) throw error
 }
+
+export async function getOnbaording(userId: string) {
+  if(!userId) throw new Error('No user ID found')
+  const { data, error } = await supabase
+    .from('user_data')
+    .select('onboarding')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) throw error
+  return data?.onboarding
+}
+
+export async function setOnbaording(userId: string, onboarding: boolean) {
+  if(!userId) throw new Error('No user ID found')
+  const { error } = await supabase
+    .from('user_data')
+    .upsert({ user_id: userId, onboarding: onboarding }, { onConflict: 'user_id' })
+  if (error) throw error
+}
