@@ -48,84 +48,9 @@ export default function Home() {
     router.push(path)
     setIsMenuOpen(false)
   }
-  
-
 
   return (
     <div className="relative bg-black text-white overflow-x-hidden">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
-        
-        body {
-          font-family: 'Inter', sans-serif;
-        }
-        
-        .font-serif {
-          font-family: 'Playfair Display', serif;
-        }
-        
-        @keyframes fadeInUp {
-          from { 
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        
-        @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
-        }
-        
-        @keyframes pulse-glow {
-          0%, 100% { 
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-          }
-          50% { 
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
-          }
-        }
-        
-        .animate-fadeInUp {
-          animation: fadeInUp 1s ease-out forwards;
-        }
-        
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-        
-        .animate-shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(212, 175, 55, 0.1),
-            transparent
-          );
-          background-size: 1000px 100%;
-          animation: shimmer 3s infinite;
-        }
-        
-        .text-gradient {
-          background: linear-gradient(135deg, #d4af37 0%, #f4e5b8 50%, #d4af37 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        
-        .glass-effect {
-          background: rgba(0, 0, 0, 0.6);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-      `}</style>
 
       {/* Navigation */}
       <nav
