@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
 import { getOnbaording } from "./lib/user";
+import Spinner from "@/app/component/spinner";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -131,8 +132,9 @@ export default function Home() {
   return (
     <motion.div
       layout
-      className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
     >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
@@ -168,7 +170,7 @@ export default function Home() {
       {/* Main Chat Area */}
       <motion.div
         layout
-        className={`flex-grow flex flex-col items-center w-full ${
+        className={`relative flex flex-col items-center w-full ${
           isSubmitted ? "justify-end pb-12" : "justify-center"
         } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
       >
@@ -271,11 +273,3 @@ export default function Home() {
   );
 }
 
-function Spinner() {
-  return (
-    <motion.div
-      className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin"
-      aria-label="Loading"
-    />
-  );
-}
