@@ -13,7 +13,7 @@ import Spinner from "@/app/component/spinner";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default function Home() {
+export default function Chat() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
@@ -132,66 +132,75 @@ export default function Home() {
   return (
     <motion.div
       layout
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      {/* Frosted overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+      />
+
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
-      {/* Onboarding Overlay - Blocks interaction until complete */}
+      {/* Onboarding overlay */}
       <AnimatePresence>
         {needsOnboarding && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm z-30 flex items-center justify-center pointer-events-none"
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 bg-black/70 backdrop-blur-md z-30 flex items-center justify-center"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-gradient-to-br from-gold/20 to-gold/10 border-2 border-gold/40 rounded-2xl p-8 max-w-md text-center shadow-2xl"
+              transition={{ type: 'spring', stiffness: 150, damping: 18 }}
+              className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 rounded-3xl p-8 max-w-md text-center shadow-2xl"
             >
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-gold/30 border-t-gold"
+                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+                className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]"
               />
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Veritus!</h2>
+              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Veritus</h2>
               <p className="text-gold/80 text-sm">
-                Select your jurisdiction from the map to get started
+                Select your jurisdiction on the map to begin your oath.
               </p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main Chat Area */}
+      {/* Main Chat Zone */}
       <motion.div
         layout
-        className={`relative flex flex-col items-center w-full ${
-          isSubmitted ? "justify-end pb-12" : "justify-center"
+        className={`relative flex flex-col items-center w-full transition-all duration-500 ${
+          isSubmitted ? 'justify-end pb-16' : 'justify-center'
         } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
       >
         {/* Logo */}
         <motion.div
           layout
-          animate={{ y: isSubmitted ? "-100%" : 0 }}
+          animate={{ y: isSubmitted ? '-100%' : 0 }}
           transition={smoothSpring}
-          className="flex justify-center items-center z-10 mb-4"
+          className="flex items-center justify-center mb-6"
         >
           <motion.h1
             layout
             animate={{ scale: isSubmitted ? 0.9 : 1 }}
             transition={smoothSpring}
-            className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide"
+            className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]"
           >
-            Veritus
+            <span className="text-gradient">VERITUS</span>
           </motion.h1>
         </motion.div>
 
-        {/* Floating Error */}
+        {/* Error Toast */}
         <AnimatePresence>
           {failed && (
             <motion.div
@@ -199,53 +208,54 @@ export default function Home() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
               className="flex justify-center items-center mb-4"
             >
               <motion.div
                 layout
-                initial={{ scale: 0.9 }}
+                initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className="max-w-xs bg-gold/20 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
+                transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                className="max-w-xs bg-gold/15 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
               >
                 <p className="text-white text-sm text-center">
-                  Failed to send message. Please try again.
+                  Message failed — try again, counselor.
                 </p>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input */}
-        <motion.div layout transition={smoothSpring} className="w-full max-w-sm z-20">
+        {/* Input Bar */}
+        <motion.div layout transition={smoothSpring} className="w-full max-w-md z-20">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Start chat..."
+            <div className="flex items-end gap-3">
+              <textarea
+                placeholder="Ask a question, cite a law, or make your case..."
                 value={message}
                 disabled={isLoading || needsOnboarding}
-                className="flex-1 px-4 py-3 rounded-xl 
-                  bg-gold/10 text-white placeholder-gold/60 
-                  border border-gold/40 
-                  focus:outline-none focus:ring-2 focus:ring-gold 
-                  transition backdrop-blur-sm 
-                  disabled:opacity-50"
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                rows={1}
+                className="w-full resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
               />
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
                 type="submit"
                 disabled={isLoading || !message.trim() || needsOnboarding}
-                className="bg-gold hover:bg-gold/80 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Send message"
               >
                 {isLoading ? (
                   <Spinner />
                 ) : (
-                  <Image src="/upload.png" alt="Send" width={24} height={24} />
+                  <Image src="/up-arrow.png" alt="Send" width={25} height={20} />
                 )}
-              </button>
+              </motion.button>
             </div>
           </form>
         </motion.div>
@@ -259,13 +269,13 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
-            transition={easeOutFade}
-            className={`text-center mt-10 ${needsOnboarding ? 'opacity-50' : ''}`}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className={`z-30 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
           >
-            <p className="text-gold text-base sm:text-lg font-medium uppercase tracking-widest">
+            <p className="text-gold text-lg sm:text-xl font-medium uppercase tracking-widest">
               AI You Can Swear By
             </p>
-            <p className="text-white text-xs italic mt-1">(Not legal advice)</p>
+            <p className="text-white/70 text-xs italic">(Not legal advice)</p>
           </motion.div>
         )}
       </AnimatePresence>
