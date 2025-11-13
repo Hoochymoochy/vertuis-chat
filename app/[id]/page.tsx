@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, smoothSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import Image from "next/image";
@@ -251,6 +251,10 @@ export default function ChatPage() {
       console.error("Failed to send message:", err);
       setFailed(true);
     }
+  };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(event.target.value);
   };
 
   if (!isInitialized) {
