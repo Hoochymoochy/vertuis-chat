@@ -86,7 +86,7 @@ export default function Chat() {
     return () => window.removeEventListener('locationUpdated', handleLocationUpdate);
   }, []);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   };
 
