@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, smoothSpring } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import Side from "@/app/component/side";
 import Map from "@/app/component/map";
 import question from "@/app/lib/question";
 import { addMessage, getAllMessage } from "@/app/lib/chat";
+import Spinner from "@/app/component/spinner";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -263,17 +264,18 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="bg-marble bg-cover bg-center min-h-screen w-full flex flex-col px-4 py-6 relative">
+    <div className="bg-[url('/marble.jpg')] bg-cover bg-center min-h-screen w-full flex flex-col px-4 py-6 relative">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
-      <div className="flex justify-center items-center pt-6 pb-4">
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-white tracking-wide">
-          Veritus
+      <div className=" relative flex justify-center items-center pt-6 pb-4">
+        <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]">
+            <span className="text-gradient">VERITUS</span>
         </h1>
       </div>
 
-      <div className="flex-grow flex flex-col items-center w-full pb-12">
+      <div className=" relative flex-grow flex flex-col items-center w-full pb-12">
         <div className="flex-1 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((msg, index) => (
@@ -287,7 +289,7 @@ export default function ChatPage() {
                 }`}
               >
                 {msg.sender === "user" ? (
-                  <div className="max-w-xs bg-gold/20 border border-gold/30 rounded-2xl px-4 py-3">
+                  <div className="max-w-xs bg-gold/20 border border-gold/3 px-4 py-3">
                     <p className="text-white text-sm">{msg.message}</p>
                   </div>
                 ) : msg.message === "..." ? (
@@ -322,27 +324,35 @@ export default function ChatPage() {
           </div>
         )}
 
-        <div className="w-full max-w-sm z-20 mt-auto">
-          <form onSubmit={handleSubmit} className="relative flex gap-2 items-center">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 rounded-xl bg-black/60 text-white placeholder-gold border border-gold focus:outline-none focus:ring-2 focus:ring-gold transition disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !message.trim()}
-              className="bg-gold hover:bg-gold/80 p-2 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Image src="/upload.png" alt="Send" width={24} height={24} />
-              )}
-            </button>
+        {/* Input Bar */}
+        <div className="w-full max-w-md z-20">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="flex items-end gap-3">
+              <textarea
+                placeholder="Ask a question, cite a law, or make your case..."
+                value={message}
+                disabled={isLoading}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                rows={1}
+                className="w-full resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !message.trim()}
+                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Send message"
+              >
+                {isLoading ? (
+                  <Spinner />
+                ) : (
+                  <Image src="/up-arrow.png" alt="Send" width={25} height={20} />
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

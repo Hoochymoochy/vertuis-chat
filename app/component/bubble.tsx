@@ -114,7 +114,7 @@ export default function ChatBubble({
       {/* 💬 Chat message bubble with smooth transitions */}
       <div
         ref={bubbleRef}
-        className="bg-black/60 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg max-w-xl w-auto transition-all duration-100 ease-out"
+        className="bg-black/60 border border-gold/30 px-4 py-3 shadow-lg max-w-xl w-auto transition-all duration-100 ease-out"
         style={{
           minWidth: '100px',
           maxWidth: '100%',
@@ -172,7 +172,7 @@ export default function ChatBubble({
               <button
                 onClick={() => handleInitialFeedback("up")}
                 disabled={feedback !== null}
-                className={`p-1.5 rounded-full transition-all ${
+                className={`p-1.5 transition-all ${
                   feedback === "up"
                     ? "bg-gold/30 text-gold scale-110"
                     : feedback === "down"
@@ -185,7 +185,7 @@ export default function ChatBubble({
               <button
                 onClick={() => handleInitialFeedback("down")}
                 disabled={feedback !== null}
-                className={`p-1.5 rounded-full transition-all ${
+                className={`p-1.5 transition-all ${
                   feedback === "down"
                     ? "bg-red-500/30 text-red-400 scale-110"
                     : feedback === "up"
@@ -199,7 +199,7 @@ export default function ChatBubble({
               {feedback && showReasons && (
                 <button
                   onClick={handleCancel}
-                  className="p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white/70 transition-all ml-1"
+                  className="p-1.5 hover:bg-white/10 text-white/50 hover:text-white/70 transition-all ml-1"
                 >
                   <X size={16} />
                 </button>
@@ -209,7 +209,7 @@ export default function ChatBubble({
 
           {showReasons && !selectedReason && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-              <div className="bg-black/80 backdrop-blur-sm border border-gold/20 rounded-xl p-3 shadow-xl">
+              <div className="bg-black/80 backdrop-blur-sm border border-gold/20 p-3 shadow-xl">
                 <p className="text-white/70 text-xs mb-2">
                   {feedback === "up" ? "What made this helpful?" : "What went wrong?"} (optional)
                 </p>
@@ -219,7 +219,7 @@ export default function ChatBubble({
                       key={reason}
                       onClick={() => handleReasonSelect(reason)}
                       disabled={isSubmitting}
-                      className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
+                      className={`px-3 py-1.5 text-xs transition-all ${
                         feedback === "up"
                           ? "bg-gold/10 text-gold border border-gold/30 hover:bg-gold/20 hover:scale-105"
                           : "bg-red-500/10 text-red-300 border border-red-500/30 hover:bg-red-500/20 hover:scale-105"
