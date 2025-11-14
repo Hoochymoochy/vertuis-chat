@@ -33,8 +33,13 @@ export default function ChatPage() {
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  requestAnimationFrame(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+    });
   }, [messages]);
+
 
   // Check authentication and redirect if needed
   useEffect(() => {
@@ -268,7 +273,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="bg-[url('/marble.jpg')] bg-cover bg-center min-h-screen w-full flex flex-col px-4 py-6 relative">
+    <div className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
@@ -279,8 +284,8 @@ export default function ChatPage() {
         </h1>
       </div>
 
-      <div className=" relative flex-grow flex flex-col items-center w-full pb-12">
-        <div className="flex-1 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
+      <div className=" relative flex-grow flex flex-col items-center w-full pb-12" ref={messagesEndRef}>
+        <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((msg, index) => (
               <motion.div
@@ -316,7 +321,7 @@ export default function ChatPage() {
                 )}
               </motion.div>
             ))}
-            <div ref={messagesEndRef} />
+            <div />
           </div>
         </div>
 
@@ -364,7 +369,7 @@ export default function ChatPage() {
               </button>
             </div>
           </form>
-        </div>
+        </div >
       </div>
     </div>
   );
