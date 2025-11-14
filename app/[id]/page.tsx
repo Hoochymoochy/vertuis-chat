@@ -29,9 +29,16 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasProcessedFirstMessage = useRef(false);
   const isProcessingAI = useRef(false);
-  const pendingMessages = useRef<Set<string>>(new Set());
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check authentication and redirect if needed
+  // Improved auto-scroll with better timing
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -59,11 +66,11 @@ export default function ChatPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  // Setup realtime listener
+  // Setup realtime listener with improved deduplication
   useEffect(() => {
     if (!chatId) return;
 
-    // Initial load - but skip if we're processing first message
+    // Load initial messages only once
     if (!hasProcessedFirstMessage.current) {
       getAllMessage(chatId).then(msgs => {
         setMessages(msgs || []);
@@ -89,33 +96,26 @@ export default function ChatPage() {
           };
 
           setMessages((prev) => {
-            // Check if this exact message (by ID) already exists
-            const exists = prev.some(m => m.id === payload.new.id);
-            if (exists) return prev;
+            // Don't add if message with same DB ID exists
+            if (prev.some(m => m.id === newMsg.id)) {
+              return prev;
+            }
             
-            // Remove any pending temp message with same content AND sender
+            // Remove temp messages with matching content AND sender
             const filtered = prev.filter(m => {
-              const isTempMessage = m.id?.startsWith('temp-');
-              const sameContent = m.message === newMsg.message;
-              const sameSender = m.sender === newMsg.sender;
+              const isTemp = String(m.id).startsWith('temp-');
+              const matchesContent = m.message === newMsg.message;
+              const matchesSender = m.sender === newMsg.sender;
               
-              // Remove if it's a temp message with matching content and sender
-              if (isTempMessage && sameContent && sameSender) {
-                return false;
-              }
-              return true;
+              // Keep everything except matching temp messages
+              return !(isTemp && matchesContent && matchesSender);
             });
             
-            // Add new message and sort by timestamp
-            const updated = [...filtered, newMsg].sort((a, b) => 
+            // Add new message and sort chronologically
+            return [...filtered, newMsg].sort((a, b) => 
               new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
             );
-            
-            return updated;
           });
-
-          // Remove from pending set
-          pendingMessages.current.delete(payload.new.message);
         }
       )
       .subscribe();
@@ -135,17 +135,16 @@ export default function ChatPage() {
 
       setChatId(currentChatId);
       
-      // Handle first message if exists
       const firstMsg = localStorage.getItem("first_message");
       
       if (firstMsg) {
         hasProcessedFirstMessage.current = true;
         localStorage.removeItem("first_message");
         
-        // Wait a bit for realtime to be ready
-        await new Promise(r => setTimeout(r, 300));
+        // Wait for realtime to be ready
+        await new Promise(r => setTimeout(r, 400));
         
-        // Add user message immediately to UI
+        // Add temp user message
         const tempUserMsg = {
           id: `temp-user-${Date.now()}`,
           sender: "user",
@@ -153,23 +152,21 @@ export default function ChatPage() {
           created_at: new Date().toISOString()
         };
         
-        setMessages(prev => [...prev, tempUserMsg]);
-        pendingMessages.current.add(firstMsg);
+        setMessages([tempUserMsg]);
         
-        setIsInitialized(true);
-
-        // Save to DB (realtime will replace temp)
+        // Save to DB
         await addMessage(currentChatId, "user", firstMsg);
         
-        // Small delay before AI response
-        await new Promise(r => setTimeout(r, 300));
+        // Wait for DB insert to complete
+        await new Promise(r => setTimeout(r, 500));
         
         // Trigger AI response
         await triggerAIResponse(firstMsg, currentChatId);
       }
     };
+    
     initChat();
-  }, [params.id, user, loading]);
+  }, [params.id, user, loading, isInitialized]);
 
   // Handle AI response with streaming
   const triggerAIResponse = async (msg: string, chatId: string) => {
@@ -179,45 +176,50 @@ export default function ChatPage() {
     setIsLoading(true);
     setFailed(false);
     let aiMessage = "";
+    const streamingId = `temp-ai-${Date.now()}`;
 
     // Show loading indicator
-    setMessages((prev) => [...prev, { sender: "ai", message: "...", id: "ai-loading" }]);
+    setMessages((prev) => [...prev, { 
+      sender: "ai", 
+      message: "...", 
+      id: streamingId,
+      created_at: new Date().toISOString()
+    }]);
 
     try {
       // Stream the response
       await question(msg, chatId, (token: string) => {
         aiMessage += token;
         setMessages((prev) => {
-          const withoutTemp = prev.filter(
-            (m) => m.id !== "ai-loading" && m.id !== "ai-streaming"
-          );
-          return [
-            ...withoutTemp,
-            { 
+          // Remove loading message, keep streaming message
+          const withoutLoading = prev.filter(m => m.message !== "..." || m.id !== streamingId);
+          
+          // Update or add streaming message
+          const hasStreaming = withoutLoading.some(m => m.id === streamingId);
+          if (hasStreaming) {
+            return withoutLoading.map(m => 
+              m.id === streamingId 
+                ? { ...m, message: aiMessage }
+                : m
+            );
+          } else {
+            return [...withoutLoading, { 
               sender: "ai", 
               message: aiMessage, 
-              id: "ai-streaming",
+              id: streamingId,
               created_at: new Date().toISOString()
-            }
-          ];
+            }];
+          }
         });
       });
 
-      // Mark as pending
-      pendingMessages.current.add(aiMessage);
-
-      // Save complete AI message to DB
+      // Save complete AI message to DB (realtime will replace streaming message)
       await addMessage(chatId, "ai", aiMessage);
-
-      // Keep streaming message visible until realtime confirms
-      // Realtime listener will replace it with the persisted version
 
     } catch (err) {
       console.error("AI response failed:", err);
       setFailed(true);
-      setMessages((prev) => 
-        prev.filter((m) => m.id !== "ai-streaming" && m.id !== "ai-loading")
-      );
+      setMessages((prev) => prev.filter((m) => m.id !== streamingId));
     } finally {
       setIsLoading(false);
       isProcessingAI.current = false;
@@ -229,25 +231,25 @@ export default function ChatPage() {
     e.preventDefault();
     if (!message.trim() || !chatId || isLoading) return;
 
-    const userMessage = message;
+    const userMessage = message.trim();
     setMessage("");
 
     try {
-      // Add message immediately to UI with temp ID
+      // Add temp message to UI
+      const tempId = `temp-user-${Date.now()}`;
       const tempMsg = {
-        id: `temp-user-${Date.now()}`,
+        id: tempId,
         sender: "user",
         message: userMessage,
         created_at: new Date().toISOString()
       };
       setMessages(prev => [...prev, tempMsg]);
-      pendingMessages.current.add(userMessage);
       
-      // Save to DB (realtime will replace temp message)
+      // Save to DB (realtime will replace temp)
       await addMessage(chatId, "user", userMessage);
       
-      // Small delay before AI response
-      await new Promise(r => setTimeout(r, 300));
+      // Wait for DB insert
+      await new Promise(r => setTimeout(r, 400));
       
       // Trigger AI response
       await triggerAIResponse(userMessage, chatId);
@@ -257,7 +259,7 @@ export default function ChatPage() {
     }
   };
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   };
 
@@ -277,13 +279,13 @@ export default function ChatPage() {
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
-      <div className=" relative flex justify-center items-center pt-6 pb-4">
+      <div className="relative flex justify-center items-center pt-6 pb-4">
         <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]">
-            <span className="text-gradient">VERITUS</span>
+          <span className="text-gradient">VERITUS</span>
         </h1>
       </div>
 
-      <div className=" relative flex-grow flex flex-col items-center w-full pb-12">
+      <div className="relative flex-grow flex flex-col items-center w-full pb-12">
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((msg, index) => (
@@ -297,7 +299,7 @@ export default function ChatPage() {
                 }`}
               >
                 {msg.sender === "user" ? (
-                  <div className="max-w-xs bg-gold/20 border border-gold/3 px-4 py-3">
+                  <div className="max-w-xs bg-gold/20 border border-gold/30 px-4 py-3 rounded-lg">
                     <p className="text-white text-sm">{msg.message}</p>
                   </div>
                 ) : msg.message === "..." ? (
@@ -315,7 +317,7 @@ export default function ChatPage() {
                     id={msg.id}
                     message={msg.message}
                     isLast={index === messages.length - 1}
-                    isStreaming={msg.id === "ai-streaming"}
+                    isStreaming={String(msg.id).startsWith('temp-ai-')}
                   />
                 )}
               </motion.div>
@@ -351,12 +353,12 @@ export default function ChatPage() {
                   e.target.style.height = `${e.target.scrollHeight}px`;
                 }}
                 rows={1}
-                className="w-full resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
+                className="w-full resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
               />
               <button
                 type="submit"
                 disabled={isLoading || !message.trim()}
-                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gold/25 transition-colors"
                 aria-label="Send message"
               >
                 {isLoading ? (
@@ -367,8 +369,9 @@ export default function ChatPage() {
               </button>
             </div>
           </form>
-        </div >
+        </div>
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
