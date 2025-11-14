@@ -195,8 +195,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
       {/* Map Container */}
       <div className="">
         <AnimatePresence mode="wait">
-          {/* World Map View */}
-          {currentView === 'world' && (
+        {/* World Map View */}
+        {currentView === 'world' && (
             <motion.div
               key="world"
               initial={{ opacity: 0, scale: 1.2 }}
@@ -257,7 +257,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 </Geographies>
               </ComposableMap>
             </motion.div>
-          )}
+        )}
 
         {/* Brazil Map View */}
         {currentView === 'Brazil' && (
@@ -320,7 +320,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           </motion.div>
         )}
 
-
         {/* USA Map View */}
         {currentView === 'United States of America' && (
           <motion.div
@@ -380,7 +379,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             </ComposableMap>
           </motion.div>
         )}
-
         </AnimatePresence>
       </div>
       
@@ -439,10 +437,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               </motion.div>
               <p className="text-gold/90 text-sm leading-relaxed">
                 {currentView === 'world'
-                  ? 'Brazil and USA are highlighted in gold — click to zoom in and explore'
-                  : currentView === 'Brazil'
-                  ? 'Click on any available state (grayed out states coming soon)'
-                  : 'Click "Continue with Federal Law" to proceed'}
+                  ? 'Choose a country to get started'
+                  : 'Federal data is active. Select a state to help us prioritize which regions to expand first'}
               </p>
             </div>
           </motion.div>
