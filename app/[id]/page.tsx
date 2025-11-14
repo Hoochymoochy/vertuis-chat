@@ -336,6 +336,12 @@ export default function ChatPage() {
                 placeholder="Ask a question, cite a law, or make your case..."
                 value={message}
                 disabled={isLoading}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
                 onChange={(e) => {
                   handleInputChange(e);
                   e.target.style.height = 'auto';
