@@ -27,7 +27,6 @@ export default function Chat() {
   const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
-  const easeOutFade: Transition = { duration: 0.6, ease: "easeOut" };
 
   // Auth listener
   useEffect(() => {
@@ -160,7 +159,7 @@ export default function Chat() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ type: 'spring', stiffness: 150, damping: 18 }}
-              className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 rounded-3xl p-8 max-w-md text-center shadow-2xl"
+              className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 p-8 max-w-md text-center shadow-2xl"
             >
               <motion.div
                 animate={{ rotate: 360 }}
@@ -270,7 +269,7 @@ export default function Chat() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className={`z-30 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
+            className={`z-20 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
           >
             <p className="text-gold text-lg sm:text-xl font-medium uppercase tracking-widest">
               AI You Can Swear By

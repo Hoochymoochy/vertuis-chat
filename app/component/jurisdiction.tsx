@@ -20,18 +20,6 @@ type MapView = 'world' | 'Brazil' | 'United States of America'
 interface WorldToCountryMapProps {
   setOpenMap: (open: boolean) => void
 }
-
-// Disabled Brazil states
-const DISABLED_BRAZIL_STATES = [
-  'Acre',
-  'Alagoas', 
-  'Amapá',
-  'Ceará',
-  'Minas Gerais',
-  'Piauí',
-  'Santa Catarina'
-]
-
 export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
   const [currentView, setCurrentView] = useState<MapView>('world')
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
@@ -110,31 +98,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
   const handleStateClick = async (stateName: string) => {
     if (isTransitioning) return;
     
-    // Check if state is disabled
-    if (DISABLED_BRAZIL_STATES.includes(stateName)) return;
-    
     await saveState(userId??"", stateName);
     setSelectedState(stateName);
-
-    window.dispatchEvent(new Event('locationUpdated'));
-
-    setTimeout(() => {
-      setOpenMap(false);
-    }, 300);
-  };
-
-  const handleContinueWithFederal = async () => {
-    if (!userId) return;
-    
-    // Save USA as country with federal level
-    await saveCountry(userId, 'United States of America');
-    await saveState(userId, 'Federal');
-    
-    // Complete onboarding
-    if (isOnboarding) {
-      await setOnbaording(userId, true);
-      setIsOnboarding(false);
-    }
 
     window.dispatchEvent(new Event('locationUpdated'));
 
@@ -168,9 +133,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
   }
 
   const getStateFillColor = (stateName: string) => {
-    if (DISABLED_BRAZIL_STATES.includes(stateName)) {
-      return '#0a0a0a' // Darker gray for disabled
-    }
     return selectedState === stateName ? '#FFD700' : '#1a1a1a'
   }
 
@@ -192,7 +154,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           exit={{ opacity: 0, x: -10 }}
           onClick={handleBackToWorld}
           disabled={isTransitioning}
-          className="absolute top-4 left-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-4 py-2 hover:bg-black/70 hover:border-gold/50 transition-all disabled:opacity-50 group"
+          className="absolute top-1 left-1 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 px-4 py-2 hover:bg-black/70 hover:border-gold/50 transition-all disabled:opacity-50 group"
           whileHover={{ scale: 1.05, x: -2 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -215,7 +177,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
       <motion.button
         onClick={() => canCloseMap && setOpenMap(false)}
         disabled={!canCloseMap}
-        className={`absolute top-4 right-10 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 rounded-lg px-3 py-2 transition-all group ${
+        className={`absolute top-1 right-1 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 px-3 py-2 transition-all group ${
           canCloseMap 
             ? 'hover:bg-black/70 hover:border-red-500/50 cursor-pointer' 
             : 'opacity-30 cursor-not-allowed'
@@ -229,42 +191,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           ✕
         </span>
       </motion.button>
-
-      {/* USA Federal Banner */}
-      <AnimatePresence>
-        {currentView === 'United States of America' && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-20 left-1/2 transform -translate-x-1/2 z-20 w-full max-w-2xl px-4"
-          >
-            <div className="bg-gradient-to-r from-gold/20 via-gold/30 to-gold/20 backdrop-blur-xl border-2 border-gold/50 rounded-2xl p-4 shadow-2xl">
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-white text-lg font-semibold">
-                    State-level data coming soon
-                  </p>
-                </div>
-                <p className="text-gold/90 text-sm text-center">
-                  Federal law is currently available. State-specific legislation will be added soon.
-                </p>
-                <motion.button
-                  onClick={handleContinueWithFederal}
-                  className="mt-2 bg-gold hover:bg-gold/90 text-black font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Continue with Federal Law
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Map Container */}
       <div className="">
@@ -333,134 +259,128 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             </motion.div>
           )}
 
-          {/* Brazil Map View */}
-          {currentView === 'Brazil' && (
-            <motion.div
-              key="brazil"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              transition={{ 
-                duration: 0.8, 
-                ease: [0.43, 0.13, 0.23, 0.96]
-              }}
-              className="w-full flex justify-center"
+        {/* Brazil Map View */}
+        {currentView === 'Brazil' && (
+          <motion.div
+            key="brazil"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+            className="w-full flex justify-center"
+          >
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{ scale: 650, center: [-52, -14] }}
+              width={800}
+              height={500}
             >
-              <ComposableMap
-                projection="geoMercator"
-                projectionConfig={{ scale: 650, center: [-52, -14] }}
-                width={800}
-                height={500}
-              >
-                <Geographies geography={BRAZIL_URL}>
-                  {({ geographies }: any) =>
-                    geographies.map((geo: any) => {
-                      const stateName = geo.properties.name
-                      const isDisabled = DISABLED_BRAZIL_STATES.includes(stateName)
-                      
-                      return (
-                        <Geography
-                          key={geo.rsmKey}
-                          geography={geo}
-                          onMouseEnter={() => !isDisabled && setHoveredRegion(stateName)}
-                          onMouseLeave={() => setHoveredRegion(null)}
-                          onClick={() => !isDisabled && handleStateClick(stateName)}
-                          style={{
-                            default: { 
-                              fill: getStateFillColor(stateName), 
-                              stroke: isDisabled ? '#333' : '#555',
-                              strokeWidth: 0.8,
-                              outline: 'none',
-                              transition: 'all 0.3s ease',
-                              opacity: isDisabled ? 0.3 : 1,
-                            },
-                            hover: {
-                              fill: isDisabled ? '#0a0a0a' : '#FFD700',
-                              stroke: isDisabled ? '#333' : '#FFA500',
-                              strokeWidth: isDisabled ? 0.8 : 1.2,
-                              outline: 'none',
-                              cursor: isDisabled ? 'not-allowed' : 'pointer',
-                              filter: isDisabled ? 'none' : 'brightness(1.1)',
-                              opacity: isDisabled ? 0.3 : 1,
-                            },
-                            pressed: { 
-                              fill: isDisabled ? '#0a0a0a' : '#FFA500', 
-                              stroke: isDisabled ? '#333' : '#FF8C00',
-                              strokeWidth: isDisabled ? 0.8 : 1.2,
-                              outline: 'none',
-                              opacity: isDisabled ? 0.3 : 1,
-                            },
-                          }}
-                        />
-                      )
-                    })
-                  }
-                </Geographies>
-              </ComposableMap>
-            </motion.div>
-          )}
+          <Geographies geography={BRAZIL_URL}>
+            {({ geographies }: any) =>
+              geographies.map((geo: any) => {
+                const stateName = geo.properties.name
 
-          {/* USA Map View */}
-          {currentView === 'United States of America' && (
-            <motion.div
-              key="usa"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              transition={{ 
-                duration: 0.8, 
-                ease: [0.43, 0.13, 0.23, 0.96]
-              }}
-              className="w-full flex justify-center"
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    onMouseEnter={() => setHoveredRegion(stateName)}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={() => handleStateClick(stateName)}
+                    style={{
+                      default: {
+                        fill: getStateFillColor(stateName),
+                        stroke: '#555',
+                        strokeWidth: 0.8,
+                        outline: 'none',
+                        transition: 'all 0.3s ease'
+                      },
+                      hover: {
+                        fill: '#FFD700',
+                        stroke: '#FFA500',
+                        strokeWidth: 1.2,
+                        outline: 'none',
+                        cursor: 'pointer',
+                        filter: 'brightness(1.1)'
+                      },
+                      pressed: {
+                        fill: '#FFA500',
+                        stroke: '#FF8C00',
+                        strokeWidth: 1.2,
+                        outline: 'none'
+                      }
+                    }}
+                  />
+                )
+              })
+            }
+          </Geographies>
+
+            </ComposableMap>
+          </motion.div>
+        )}
+
+
+        {/* USA Map View */}
+        {currentView === 'United States of America' && (
+          <motion.div
+            key="usa"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+            className="w-full flex justify-center"
+          >
+            <ComposableMap
+              projection="geoAlbersUsa"
+              projectionConfig={{ scale: 800 }}
+              width={800}
+              height={500}
             >
-              <ComposableMap
-                projection="geoAlbersUsa"
-                projectionConfig={{ scale: 800 }}
-                width={800}
-                height={500}
-              >
-                <Geographies geography={USA_URL}>
-                  {({ geographies }: any) =>
-                    geographies.map((geo: any) => {
-                      const stateName = geo.properties.name
-                      
-                      return (
-                        <Geography
-                          key={geo.rsmKey}
-                          geography={geo}
-                          style={{
-                            default: { 
-                              fill: '#0a0a0a', 
-                              stroke: '#333',
-                              strokeWidth: 0.8,
-                              outline: 'none',
-                              transition: 'all 0.3s ease',
-                              opacity: 0.4,
-                            },
-                            hover: {
-                              fill: '#0a0a0a',
-                              stroke: '#333',
-                              strokeWidth: 0.8,
-                              outline: 'none',
-                              cursor: 'not-allowed',
-                              opacity: 0.4,
-                            },
-                            pressed: { 
-                              fill: '#0a0a0a', 
-                              stroke: '#333',
-                              strokeWidth: 0.8,
-                              outline: 'none',
-                              opacity: 0.4,
-                            },
-                          }}
-                        />
-                      )
-                    })
-                  }
-                </Geographies>
-              </ComposableMap>
-            </motion.div>
-          )}
+              <Geographies geography={USA_URL}>
+                {({ geographies }: any) =>
+                  geographies.map((geo: any) => {
+                    const stateName = geo.properties.name
+
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onMouseEnter={() => setHoveredRegion(stateName)}
+                        onMouseLeave={() => setHoveredRegion(null)}
+                        onClick={() => handleStateClick(stateName)}
+                        style={{
+                          default: {
+                            fill: getStateFillColor(stateName),
+                            stroke: '#555',
+                            strokeWidth: 0.8,
+                            outline: 'none',
+                            transition: 'all 0.3s ease'
+                          },
+                          hover: {
+                            fill: '#FFD700',
+                            stroke: '#FFA500',
+                            strokeWidth: 1.2,
+                            outline: 'none',
+                            cursor: 'pointer',
+                            filter: 'brightness(1.1)'
+                          },
+                          pressed: {
+                            fill: '#FFA500',
+                            stroke: '#FF8C00',
+                            strokeWidth: 1.2,
+                            outline: 'none'
+                          }
+                        }}
+                      />
+                    )
+                  })
+                }
+              </Geographies>
+            </ComposableMap>
+          </motion.div>
+        )}
+
         </AnimatePresence>
       </div>
       
@@ -471,7 +391,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-gradient-to-r from-gold/30 to-gold/20 backdrop-blur-lg border-2 border-gold/50 rounded-xl px-5 py-4 relative overflow-hidden"
+            className="w-full max-w-md bg-gradient-to-r from-gold/30 to-gold/20 backdrop-blur-lg border-2 border-gold/50 px-5 py-4 relative overflow-hidden"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -500,7 +420,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="w-full max-w-md bg-black/60 backdrop-blur-lg border border-gold/30 rounded-xl px-5 py-3.5 relative overflow-hidden group"
+            className="w-full max-w-md bg-black/60 backdrop-blur-lg border border-gold/30 px-5 py-3.5 relative overflow-hidden group"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent"
@@ -533,7 +453,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="w-full max-w-md bg-gradient-to-r from-gold/20 to-gold/10 backdrop-blur-lg border border-gold/40 rounded-xl px-5 py-3 relative overflow-hidden"
+          className="w-full max-w-md bg-gradient-to-r from-gold/20 to-gold/10 backdrop-blur-lg border border-gold/40 px-5 py-3 relative overflow-hidden"
         >
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
