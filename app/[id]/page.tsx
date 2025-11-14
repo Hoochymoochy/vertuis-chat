@@ -31,16 +31,6 @@ export default function ChatPage() {
   const isProcessingAI = useRef(false);
   const pendingMessages = useRef<Set<string>>(new Set());
 
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-  requestAnimationFrame(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-    });
-  }, [messages]);
-
-
   // Check authentication and redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
@@ -73,10 +63,12 @@ export default function ChatPage() {
   useEffect(() => {
     if (!chatId) return;
 
-    // Initial load
-    getAllMessage(chatId).then(msgs => {
-      setMessages(msgs || []);
-    });
+    // Initial load - but skip if we're processing first message
+    if (!hasProcessedFirstMessage.current) {
+      getAllMessage(chatId).then(msgs => {
+        setMessages(msgs || []);
+      });
+    }
 
     const channel = supabase
       .channel(`chat_${chatId}`)
@@ -97,22 +89,29 @@ export default function ChatPage() {
           };
 
           setMessages((prev) => {
-            // Check if this message already exists
+            // Check if this exact message (by ID) already exists
             const exists = prev.some(m => m.id === payload.new.id);
             if (exists) return prev;
             
-            // Remove any pending temp message with same content
+            // Remove any pending temp message with same content AND sender
             const filtered = prev.filter(m => {
-              if (m.id?.startsWith('temp-') && m.message === newMsg.message && m.sender === newMsg.sender) {
+              const isTempMessage = m.id?.startsWith('temp-');
+              const sameContent = m.message === newMsg.message;
+              const sameSender = m.sender === newMsg.sender;
+              
+              // Remove if it's a temp message with matching content and sender
+              if (isTempMessage && sameContent && sameSender) {
                 return false;
               }
               return true;
             });
             
             // Add new message and sort by timestamp
-            return [...filtered, newMsg].sort((a, b) => 
+            const updated = [...filtered, newMsg].sort((a, b) => 
               new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
             );
+            
+            return updated;
           });
 
           // Remove from pending set
@@ -128,7 +127,7 @@ export default function ChatPage() {
 
   // Initialize chat and handle first message
   useEffect(() => {
-    if (loading || !user || hasProcessedFirstMessage.current) return;
+    if (loading || !user || !isInitialized || hasProcessedFirstMessage.current) return;
 
     const initChat = async () => {
       const currentChatId = params.id as string;
@@ -284,7 +283,7 @@ export default function ChatPage() {
         </h1>
       </div>
 
-      <div className=" relative flex-grow flex flex-col items-center w-full pb-12" ref={messagesEndRef}>
+      <div className=" relative flex-grow flex flex-col items-center w-full pb-12">
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((msg, index) => (
@@ -321,7 +320,6 @@ export default function ChatPage() {
                 )}
               </motion.div>
             ))}
-            <div />
           </div>
         </div>
 
