@@ -10,7 +10,7 @@ import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
 import { getOnbaording } from "./lib/user";
 import Spinner from "@/app/component/spinner";
-import { uploadFile } from "./lib/file-upload";
+import { uploadFileSSE } from "./lib/file-upload";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -114,7 +114,10 @@ export default function Chat() {
       let fileSummary = "";
       if (file) {
         try {
-          fileSummary = await uploadFile(file, userId, "pt"); // TODO: add lang from side
+          await uploadFileSSE(file, userId, "pt", (token: string) => {
+            fileSummary += token;
+          });
+
         } catch (err) {
           console.error("File summary failed:", err);
           // Don't hard-fail the whole submit; just warn
@@ -122,27 +125,28 @@ export default function Chat() {
         }
       }
 
-      // 3) Construct final message
-      const finalMessage = fileSummary
-        ? `${message}\n\n(File Summary):\n${fileSummary}`
-        : message;
+      // // 3) Construct final message
+      // const finalMessage = fileSummary
+      //   ? `${message}\n\n(File Summary):\n${fileSummary}`
+      //   : message;
 
-      const userMsg = {
-        sender: "user",
-        message: finalMessage,
-        id: Date.now(),
-      };
-      setMessages([userMsg]);
+      // const userMsg = {
+      //   sender: "user",
+      //   message: finalMessage,
+      //   id: Date.now(),
+      // };
+      // setMessages([userMsg]);
 
-      // 4) Create chat row
-      const chatTitle = finalMessage.slice(0, 50);
-      const { id } = await addChat(userId, chatTitle);
+      // // 4) Create chat row
+      // const chatTitle = finalMessage.slice(0, 50);
+      // const { id } = await addChat(userId, chatTitle);
 
-      // 5) Store final message as first_message
-      localStorage.setItem("first_message", finalMessage);
+      // // 5) Store final message as first_message
+      // localStorage.setItem("first_message", finalMessage);
 
-      // 6) Redirect
-      router.push(`/${id}`);
+      // // 6) Redirect
+      // router.push(`/${id}`);
+      console.log(fileSummary);
     } catch (err) {
       console.error("Failed to start chat:", err);
       setFailed(true);

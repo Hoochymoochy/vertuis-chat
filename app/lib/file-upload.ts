@@ -1,17 +1,39 @@
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function uploadFile(file: string | Blob, userId: string, lang: string) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("userId", userId);
-  formData.append("lang", lang);
+export const uploadFileSSE = async (
+  file: string | Blob,
+  userId: string,
+  lang: string,
+  onToken: (token: string) => void
+): Promise<void> => {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("user_id", userId);
+  form.append("lang", lang);
 
   const res = await fetch(`${backendUrl}/summarize-file`, {
     method: "POST",
-    body: formData
+    body: form,
   });
 
-  const data = await res.json();
-  return data.summary; // <-- string
-}
+  if (!res.ok) throw new Error("upload failed");
+  if (!res.body) throw new Error("empty body");
 
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    const text = decoder.decode(value);
+
+    text
+      .split("\n\n")
+      .filter((line) => line.startsWith("data: "))
+      .forEach((line) => {
+        const json = JSON.parse(line.replace("data: ", ""));
+        onToken(json.token);
+      });
+  }
+};
