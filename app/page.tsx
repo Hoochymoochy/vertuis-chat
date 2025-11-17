@@ -10,6 +10,7 @@ import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
 import { getOnbaording } from "./lib/user";
 import Spinner from "@/app/component/spinner";
+import { uploadFile } from "./lib/file-upload";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -95,37 +96,60 @@ export default function Chat() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!message.trim() || !userId || isLoading) return;
+
+    // Need either text or file to start
+    if ((!message.trim() && !file) || !userId || isLoading) return;
 
     setIsSubmitted(true);
     setIsLoading(true);
-
-    const userMsg = { sender: "user", message: message, id: Date.now() };
-    setMessages([userMsg]);
+    setFailed(false);
 
     try {
+      // 1) Backend health check
       const healthRes = await fetch(`${backendUrl}/health`);
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
-      const { id } = await addChat(userId, message.slice(0, 50));
-      localStorage.setItem("first_message", message);
-
-      // TODO: Upload file if present
+      // 2) If there's a file → summarize it before continuing
+      let fileSummary = "";
       if (file) {
-        // Add your file upload logic here
-        console.log("File to upload:", file);
+        try {
+          fileSummary = await uploadFile(file, userId, "pt"); // TODO: add lang from side
+        } catch (err) {
+          console.error("File summary failed:", err);
+          // Don't hard-fail the whole submit; just warn
+          fileSummary = "[File uploaded but summary unavailable]";
+        }
       }
 
-      setTimeout(() => {
-        router.push(`/${id}`);
-      }, 300);
+      // 3) Construct final message
+      const finalMessage = fileSummary
+        ? `${message}\n\n(File Summary):\n${fileSummary}`
+        : message;
+
+      const userMsg = {
+        sender: "user",
+        message: finalMessage,
+        id: Date.now(),
+      };
+      setMessages([userMsg]);
+
+      // 4) Create chat row
+      const chatTitle = finalMessage.slice(0, 50);
+      const { id } = await addChat(userId, chatTitle);
+
+      // 5) Store final message as first_message
+      localStorage.setItem("first_message", finalMessage);
+
+      // 6) Redirect
+      router.push(`/${id}`);
     } catch (err) {
       console.error("Failed to start chat:", err);
       setFailed(true);
       setIsLoading(false);
     }
   };
+
 
   const onDragEnter = (e: React.DragEvent) => {
     e.preventDefault();

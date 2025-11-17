@@ -1,35 +1,17 @@
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export const sendFile = async (file: string | Blob, onToken: (arg0: any) => void) => {
-  const form = new FormData();
-  form.append("file", file);
-  form.append("chat_id", "abc123");
-  form.append("lang", "en");
+export async function uploadFile(file: string | Blob, userId: string, lang: string) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("userId", userId);
+  formData.append("lang", lang);
 
-  const res = await fetch(`${backendUrl}/upload-summary`, {
+  const res = await fetch(`${backendUrl}/summarize-file`, {
     method: "POST",
-    body: form,
+    body: formData
   });
 
-  if (!res.ok) throw new Error("upload failed");
+  const data = await res.json();
+  return data.summary; // <-- string
+}
 
-  // Start reading SSE
-  if (!res.body) throw new Error("body wsa empty");
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-
-    const chunk = decoder.decode(value);
-
-    chunk
-      .split("\n\n")
-      .filter((line) => line.startsWith("data: "))
-      .forEach((line) => {
-        const json = JSON.parse(line.replace("data: ", ""));
-        onToken(json.token);
-      });
-  }
-};
