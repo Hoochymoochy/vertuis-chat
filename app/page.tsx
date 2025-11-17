@@ -23,6 +23,10 @@ export default function Chat() {
   const [openMap, setOpenMap] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [dragEvent, setDragEvent] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [dragCounter, setDragCounter] = useState(0);
 
   const router = useRouter();
 
@@ -60,7 +64,7 @@ export default function Chat() {
           const onboarded = await getOnbaording(user.id);
           if (!onboarded) {
             setNeedsOnboarding(true);
-            setOpenMap(true); // Force open map for first-time users
+            setOpenMap(true);
           }
         } else {
           router.push("/login");
@@ -75,7 +79,7 @@ export default function Chat() {
     return () => { mounted = false; }
   }, [router]);
 
-  // Listen for location updates (when onboarding completes)
+  // Listen for location updates
   useEffect(() => {
     const handleLocationUpdate = () => {
       setNeedsOnboarding(false);
@@ -107,6 +111,12 @@ export default function Chat() {
       const { id } = await addChat(userId, message.slice(0, 50));
       localStorage.setItem("first_message", message);
 
+      // TODO: Upload file if present
+      if (file) {
+        // Add your file upload logic here
+        console.log("File to upload:", file);
+      }
+
       setTimeout(() => {
         router.push(`/${id}`);
       }, 300);
@@ -114,6 +124,57 @@ export default function Chat() {
       console.error("Failed to start chat:", err);
       setFailed(true);
       setIsLoading(false);
+    }
+  };
+
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => prev + 1);
+    setDragEvent(true);
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => {
+      const newCount = prev - 1;
+      if (newCount === 0) {
+        setDragEvent(false);
+      }
+      return newCount;
+    });
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(0);
+    setDragEvent(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFile = e.dataTransfer.files[0];
+      setFile(droppedFile);
+      console.log("File dropped:", droppedFile);
+      e.dataTransfer.clearData();
+    }
+  };
+
+  const removeFile = () => {
+    setFile(null);
+    setUploadProgress(0);
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      console.log("File selected:", selectedFile);
     }
   };
 
@@ -132,6 +193,10 @@ export default function Chat() {
     <motion.div
       layout
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
       {/* Frosted overlay */}
       <motion.div
@@ -174,6 +239,19 @@ export default function Chat() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Drag and Drop Overlay */}
+      {dragEvent && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-30 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 p-8 max-w-md text-center shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]" />
+            <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Drag and Drop</h2>
+            <p className="text-gold/80 text-sm">
+              Drop your file to upload.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Chat Zone */}
       <motion.div
@@ -226,41 +304,108 @@ export default function Chat() {
         </AnimatePresence>
 
         {/* Input Bar */}
-        <motion.div layout transition={smoothSpring} className="w-full max-w-md z-20">
+        <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-end gap-3">
-              <textarea
-                placeholder="Ask a question, cite a law, or make your case..."
-                value={message}
-                disabled={isLoading || needsOnboarding}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                onChange={(e) => {
-                  handleInputChange(e);
-                  e.target.style.height = "auto";
-                  e.target.style.height = `${e.target.scrollHeight}px`;
-                }}
-                rows={1}
-                className="w-full resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
-              />
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.05 }}
-                type="submit"
-                disabled={isLoading || !message.trim() || needsOnboarding}
-                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Send message"
-              >
-                {isLoading ? (
-                  <Spinner />
-                ) : (
-                  <Image src="/up-arrow.png" alt="Send" width={25} height={20} />
-                )}
-              </motion.button>
+            <div className="relative bg-gold/15 backdrop-blur-md border border-gold/30 rounded-3xl shadow-lg overflow-hidden">
+              {/* File Preview Inside Input */}
+              {file && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-4 pt-3 pb-2 border-b border-gold/20"
+                >
+                  <div className="flex items-center gap-2 bg-gold/10 rounded-lg px-3 py-2">
+                    <div className="flex-shrink-0 w-8 h-8 bg-gold/20 rounded-lg flex items-center justify-center">
+                      <span className="text-gold text-xs">📄</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-xs font-medium truncate">
+                        {file.name}
+                      </p>
+                      <p className="text-gold/60 text-[10px]">
+                        {(file.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                    <button
+                      onClick={removeFile}
+                      type="button"
+                      className="flex-shrink-0 w-5 h-5 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold/70 hover:text-gold transition-colors text-xs"
+                      aria-label="Remove file"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {uploadProgress > 0 && (
+                    <div className="w-full bg-gold/20 rounded-full h-1 mt-2">
+                      <div
+                        className="bg-gold h-1 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Textarea and Button Row */}
+              <div className="flex justify-center items-center p-3">
+                {/* File Upload Button */}
+                <label className="flex-shrink-0 cursor-pointer">
+                  <input
+                    type="file"
+                    onChange={handleFileInput}
+                    className="hidden"
+                    disabled={isLoading || needsOnboarding}
+                    accept=".pdf,.docx,.txt"
+                  />
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    className={`w-8 h-8 flex items-center justify-center bg-gold/20 hover:bg-gold/30 rounded-lg transition-colors ${
+                      isLoading || needsOnboarding ? 'opacity-40 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <span className="text-gold text-lg font-light">+</span>
+                  </motion.div>
+                </label>
+
+                <textarea
+                  placeholder="Ask a question, cite a law, or make your case..."
+                  value={message}
+                  disabled={isLoading || needsOnboarding}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    e.target.style.height = "auto";
+                    const newHeight = Math.min(e.target.scrollHeight, 200);
+                    e.target.style.height = `${newHeight}px`;
+                  }}
+                  rows={1}
+                  style={{ maxHeight: "200px" }}
+                  className="flex-1 resize-none overflow-y-auto bg-transparent border-none px-2 py-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-all placeholder:text-gold/40 text-white text-[15px] "
+                />
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: 1.05 }}
+                  type="submit"
+                  disabled={isLoading || !message.trim() || needsOnboarding}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
+                  aria-label="Send message"
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    <Image src="/up-arrow.png" alt="Send" width={16} height={16} className="opacity-90" />
+                  )}
+                </motion.button>
+              </div>
             </div>
           </form>
         </motion.div>
@@ -287,4 +432,3 @@ export default function Chat() {
     </motion.div>
   );
 }
-
