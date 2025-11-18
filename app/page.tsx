@@ -28,7 +28,8 @@ export default function Chat() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragCounter, setDragCounter] = useState(0);
-
+  const [fileOptions, setFileOptions] = useState(false);
+  const [fileThere, setFileThere] = useState(false);
   const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
@@ -110,36 +111,17 @@ export default function Chat() {
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
-      // 2) If there's a file → summarize it before continuing
-      let fileSummary = "";
-      if (file) {
-        try {
-          fileSummary = await uploadFile(file, userId, "pt"); // TODO: add lang from side
-        } catch (err) {
-          console.error("File summary failed:", err);
-          // Don't hard-fail the whole submit; just warn
-          fileSummary = "[File uploaded but summary unavailable]";
-        }
-      }
-
-      // 3) Construct final message
-      const finalMessage = fileSummary
-        ? `${message}\n\n(File Summary):\n${fileSummary}`
-        : message;
 
       const userMsg = {
         sender: "user",
-        message: finalMessage,
+        message: message,
         id: Date.now(),
       };
       setMessages([userMsg]);
 
       // 4) Create chat row
-      const chatTitle = finalMessage.slice(0, 50);
+      const chatTitle = message.slice(0, 50);
       const { id } = await addChat(userId, chatTitle);
-
-      // 5) Store final message as first_message
-      localStorage.setItem("first_message", finalMessage);
 
       // 6) Redirect
       router.push(`/${id}`);
@@ -147,6 +129,14 @@ export default function Chat() {
       console.error("Failed to start chat:", err);
       setFailed(true);
       setIsLoading(false);
+    }
+  };
+
+    const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setFileThere(true);
     }
   };
 
@@ -192,15 +182,16 @@ export default function Chat() {
   const removeFile = () => {
     setFile(null);
     setUploadProgress(0);
+    setFileThere(false);
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      console.log("File selected:", selectedFile);
-    }
-  };
+  const openFileOptions = () => {
+    setFileOptions(true);
+  }
+
+  const closeFileOptions = () => {
+    setFileOptions(false);
+  }
 
   if (isCheckingAuth) {
     return (
@@ -280,7 +271,7 @@ export default function Chat() {
       {/* Main Chat Zone */}
       <motion.div
         layout
-        className={`relative flex flex-col items-center w-full transition-all duration-500 ${
+        className={`relative flex flex-col items-center w-full transition-all duration-500 relative ${
           isSubmitted ? 'justify-end pb-16' : 'justify-center'
         } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
       >
@@ -328,7 +319,7 @@ export default function Chat() {
         </AnimatePresence>
 
         {/* Input Bar */}
-        <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4">
+        <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4 relative">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative bg-gold/15 backdrop-blur-md border border-gold/30 rounded-3xl shadow-lg overflow-hidden">
               {/* File Preview Inside Input */}
@@ -372,31 +363,29 @@ export default function Chat() {
               )}
 
               {/* Textarea and Button Row */}
-              <div className="flex justify-center items-center p-3">
-                {/* File Upload Button */}
-                <label className="flex-shrink-0 cursor-pointer">
-                  <input
-                    type="file"
-                    onChange={handleFileInput}
-                    className="hidden"
-                    disabled={isLoading || needsOnboarding}
-                    accept=".pdf,.docx,.txt"
-                  />
-                  <motion.div
+              <div className="flex justify-center items-center p-3 relative">
+                {/* File Upload */}
+                <div className="flex-shrink-0 relative">
+                  <motion.button
                     whileTap={{ scale: 0.9 }}
                     whileHover={{ scale: 1.05 }}
-                    className={`w-8 h-8 flex items-center justify-center bg-gold/20 hover:bg-gold/30 rounded-lg transition-colors ${
-                      isLoading || needsOnboarding ? 'opacity-40 cursor-not-allowed' : ''
-                    }`}
+                    onClick={openFileOptions}
+                    type="button"
+                    className={`
+                      w-8 h-8 flex items-center justify-center 
+                      bg-gold/20 hover:bg-gold/30 
+                      rounded-lg transition-colors
+                      ${isLoading || needsOnboarding ? 'opacity-40 cursor-not-allowed' : ''}
+                    `}
                   >
                     <span className="text-gold text-lg font-light">+</span>
-                  </motion.div>
-                </label>
+                  </motion.button>
+                </div>
 
                 <textarea
-                  placeholder="Ask a question, cite a law, or make your case..."
+                  placeholder= {file ? "Press enter to start summarizing" : "Ask a question, cite a law, or make your case..."}
                   value={message}
-                  disabled={isLoading || needsOnboarding}
+                  disabled={isLoading || needsOnboarding || (file !== null)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -413,11 +402,12 @@ export default function Chat() {
                   style={{ maxHeight: "200px" }}
                   className="flex-1 resize-none overflow-y-auto bg-transparent border-none px-2 py-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-all placeholder:text-gold/40 text-white text-[15px] "
                 />
+
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.05 }}
                   type="submit"
-                  disabled={isLoading || !message.trim() || needsOnboarding}
+                  disabled={isLoading || !message.trim() && !file || needsOnboarding }
                   className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
                   aria-label="Send message"
                 >
@@ -432,6 +422,62 @@ export default function Chat() {
               </div>
             </div>
           </form>
+
+          {/* File Options Dropdown (Positioned under + button) */}
+          <AnimatePresence>
+            {fileOptions && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ type: "spring", stiffness: 180, damping: 16 }}
+                className="
+                  absolute 
+                  mb-2 
+                  z-50
+                  bg-gold/10 
+                  border border-gold/30 
+                  rounded-xl 
+                  shadow-xl 
+                  p-3 
+                  w-48 
+                  backdrop-blur-lg
+                "
+              >
+                {/* Header */}
+                <p className="text-white text-sm font-medium mb-2 text-center">
+                  File options
+                </p>
+
+                {/* File Input */}
+                <label className="block cursor-pointer">
+                  <input
+                    type="file"
+                    className="hidden"
+                    disabled={isLoading || needsOnboarding}
+                    accept=".pdf,.docx,.txt"
+                    onChange={(e) => {
+                      handleFileInput(e);
+                      closeFileOptions();
+                    }}
+                  />
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-colors">
+                    <span className="text-xl">📁</span>
+                    <span className="text-white text-sm">Summarize File</span>
+                  </div>
+                </label>
+
+                {/* Close Button */}
+                <button
+                  onClick={closeFileOptions}
+                  className="mt-2 w-full text-center text-gold/70 hover:text-gold text-xs"
+                >
+                  Cancel
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
 
