@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import Image from "next/image";
 import Side from "@/app/component/side";
-import { addChat } from "@/app/lib/chat";
+import { addChat, addMessage } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import Map from "@/app/component/map";
 import { supabase } from "./lib/supabaseClient";
 import { getOnbaording } from "./lib/user";
 import Spinner from "@/app/component/spinner";
-import { uploadFile } from "./lib/file-upload";
+import { uploadFileSupabase } from "./lib/file-upload";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,7 +20,6 @@ export default function Chat() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
   const [openMap, setOpenMap] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
@@ -111,20 +110,18 @@ export default function Chat() {
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
-
-      const userMsg = {
-        sender: "user",
-        message: message,
-        id: Date.now(),
-      };
-      setMessages([userMsg]);
-
-      // 4) Create chat row
-      const chatTitle = message.slice(0, 50);
-      const { id } = await addChat(userId, chatTitle);
-
-      // 6) Redirect
-      router.push(`/${id}`);
+      // 2) Add chat to DB
+      if(file) {
+        const { id } = await addChat(userId, file.name.slice(0, 50));
+        const filePath = await uploadFileSupabase(file, id);
+        addMessage(id, "user", "Summrizing your file..." + filePath);
+        router.push(`/${id}`);
+      }
+      else{
+        const { id } = await addChat(userId, message.slice(0, 50));
+        addMessage(id, "user", message);
+        router.push(`/${id}`);
+      }
     } catch (err) {
       console.error("Failed to start chat:", err);
       setFailed(true);

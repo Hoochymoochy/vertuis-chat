@@ -9,7 +9,7 @@ import ChatBubble from "@/app/component/bubble";
 import Side from "@/app/component/side";
 import Map from "@/app/component/map";
 import question from "@/app/lib/question";
-import { addMessage, getAllMessage } from "@/app/lib/chat";
+import { addMessage, getAllMessage, getChatLength, getLatestChat } from "@/app/lib/chat";
 import Spinner from "@/app/component/spinner";
 
 export default function ChatPage() {
@@ -134,34 +134,16 @@ export default function ChatPage() {
       if (!currentChatId) return;
 
       setChatId(currentChatId);
-      
-      const firstMsg = localStorage.getItem("first_message");
-      
-      if (firstMsg) {
-        hasProcessedFirstMessage.current = true;
-        localStorage.removeItem("first_message");
-        
-        // Wait for realtime to be ready
-        await new Promise(r => setTimeout(r, 400));
-        
-        // Add temp user message
-        const tempUserMsg = {
-          id: `temp-user-${Date.now()}`,
-          sender: "user",
-          message: firstMsg,
-          created_at: new Date().toISOString()
-        };
-        
-        setMessages([tempUserMsg]);
-        
-        // Save to DB
-        await addMessage(currentChatId, "user", firstMsg);
-        
-        // Wait for DB insert to complete
-        await new Promise(r => setTimeout(r, 500));
-        
-        // Trigger AI response
-        await triggerAIResponse(firstMsg, currentChatId);
+
+      const length = await getChatLength(currentChatId)
+            
+      if (length >= 1) {
+        const firstMessage = await getLatestChat(currentChatId);
+
+        if (firstMessage && firstMessage.file_path){
+
+        }
+
       }
     };
     
@@ -169,7 +151,7 @@ export default function ChatPage() {
   }, [params.id, user, loading, isInitialized]);
 
   // Handle AI response with streaming
-  const triggerAIResponse = async (msg: string, chatId: string) => {
+  const triggerAIResponse = async (msg: string, chatId: string, filePath?: string) => {
     if (isProcessingAI.current) return;
     isProcessingAI.current = true;
     
@@ -187,6 +169,8 @@ export default function ChatPage() {
     }]);
 
     try {
+
+      
       // Stream the response
       await question(msg, chatId, (token: string) => {
         aiMessage += token;
@@ -212,6 +196,8 @@ export default function ChatPage() {
           }
         });
       });
+
+      
 
       // Save complete AI message to DB (realtime will replace streaming message)
       await addMessage(chatId, "ai", aiMessage);

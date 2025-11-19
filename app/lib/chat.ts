@@ -8,6 +8,7 @@ export interface Chat {
   user_id: string;
   title: string;
   created_at: string;
+  file_path?: string;
 }
 
 export interface Message {
@@ -83,10 +84,10 @@ export const validateChatOwnership = async (chat_id: string, user_id: string): P
 }
 
 // Add a message to a chat
-export const addMessage = async (chat_id: string, sender: string, message: string): Promise<void> => {
+export const addMessage = async (chat_id: string, sender: string, message: string, file_path?: string): Promise<void> => {
   const { error } = await supabase
     .from('messages')
-    .insert({ chat_id, sender, message })
+    .insert({ chat_id, sender, message, file_path })
     
   if (error) throw error
 }
@@ -102,6 +103,34 @@ export const getAllMessage = async (chat_id: string): Promise<Message[]> => {
   if (error) throw error
   return data as Message[] || []
 }
+
+export const getChatLength = async (chat_id: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('messages')
+    .select('id', { count: 'exact', head: true }) // head: true avoids fetching all rows
+    .eq('chat_id', chat_id);
+
+  if (error) throw error;
+  return count || 0;
+};
+
+export const getLatestMessage = async (chat_id: string): Promise<Message | null> => {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('chat_id', chat_id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // No rows returned
+    throw error
+  } else {
+    return data as Message
+  }
+}
+
 
 // Delete a chat and all its messages
 export const deleteChat = async (chat_id: string): Promise<void> => {
