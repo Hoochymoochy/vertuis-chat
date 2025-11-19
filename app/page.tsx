@@ -114,7 +114,8 @@ export default function Chat() {
       if(file) {
         const { id } = await addChat(userId, file.name.slice(0, 50));
         const filePath = await uploadFileSupabase(file, id);
-        addMessage(id, "user", "Summrizing your file..." + filePath);
+        if(filePath === null) throw new Error("File upload failed");
+        addMessage(id, "user", "Summrizing your file..." + filePath, filePath, file.name);
         router.push(`/${id}`);
       }
       else{
