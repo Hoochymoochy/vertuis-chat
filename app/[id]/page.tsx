@@ -243,6 +243,8 @@ export default function ChatPage() {
         // 1. Get the public URL from Supabase
         const fileUrl  = await getPublicUrl(filePath);
 
+        console.log('Downloading file:', fileUrl);
+
         // 2. Download the file as a blob
         const downloadRes = await fetch(fileUrl);
         const blob = await downloadRes.blob();
@@ -308,8 +310,8 @@ export default function ChatPage() {
       // Upload file if present
       if (selectedFile) {
         console.log('Uploading file:', selectedFile.name);
-        const { url } = await uploadFileToStorage(selectedFile, user.id);
-        uploadedFilePath = url;
+        const { path } = await uploadFileToStorage(selectedFile, user.id);
+        uploadedFilePath = path;
         uploadedFileName = selectedFile.name;
         setSelectedFile(null);
       }
