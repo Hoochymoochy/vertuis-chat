@@ -4,14 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
-import Image from "next/image";
 import ChatBubble from "@/app/component/bubble";
 import Side from "@/app/component/side";
 import Map from "@/app/component/map";
 import question from "@/app/lib/question";
 import { uploadFileSSE } from "@/app/lib/file-upload";
 import { addMessage, getAllMessage, getChatLength, getLatestMessage, uploadFileToStorage, getPublicUrl } from "@/app/lib/chat";
-import Spinner from "@/app/component/spinner";
+import InputBox from "@/app/component/inputbox";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -20,8 +19,6 @@ export default function ChatPage() {
   const [user, setUser] = useState<any>(null);
   const [chatId, setChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
-  const [message, setMessage] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [openMap, setOpenMap] = useState(false);
@@ -31,7 +28,6 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasProcessedFirstMessage = useRef(false);
   const isProcessingAI = useRef(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Helper function to deduplicate messages
   const deduplicateMessages = (msgs: any[]) => {
@@ -82,7 +78,7 @@ export default function ChatPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-    const hasLoadedInitial = useRef(false);
+  const hasLoadedInitial = useRef(false);
 
   // Setup realtime listener
   useEffect(() => {
@@ -119,16 +115,14 @@ export default function ChatPage() {
             // Check if this exact message (by ID) already exists
             const existingIndex = prev.findIndex(m => m.id === newMsg.id);
             if (existingIndex !== -1) {
-              // Message already exists, don't add it again
               return prev;
             }
             
             // Remove temp messages that match this real message
             const filtered = prev.filter(m => {
               const isTemp = String(m.id).startsWith('temp-');
-              if (!isTemp) return true; // Keep all non-temp messages
+              if (!isTemp) return true;
               
-              // Remove temp if it matches the new message
               const matchesContent = m.message === newMsg.message;
               const matchesSender = m.sender === newMsg.sender;
               return !(matchesContent && matchesSender);
@@ -164,14 +158,12 @@ export default function ChatPage() {
         const firstMessage = await getLatestMessage(currentChatId);
 
         if (firstMessage && firstMessage.sender === 'user') {
-          // Check if we need to generate AI response
           const allMessages = await getAllMessage(currentChatId);
           const hasAIResponse = allMessages.some(
             m => m.sender === 'ai' && 
             new Date(m.created_at).getTime() > new Date(firstMessage.created_at).getTime()
           );
           
-          // Only trigger AI if there's no response yet
           if (!hasAIResponse) {
             triggerAIResponse(
               firstMessage.message, 
@@ -236,33 +228,21 @@ export default function ChatPage() {
           }
         });
       };
+
       // Handle file-based or text-based messages
       if (filePath && fileName) {
         console.log('Processing file message:', { filePath, fileName });
 
-        // 1. Get the public URL from Supabase
-        const fileUrl  = await getPublicUrl(filePath);
-
+        const fileUrl = await getPublicUrl(filePath);
         console.log('Downloading file:', fileUrl);
 
-        // 2. Download the file as a blob
         const downloadRes = await fetch(fileUrl);
         const blob = await downloadRes.blob();
-
-        // 3. Convert blob → File (backend expects File for UploadFile)
         const file = new File([blob], fileName, { type: blob.type });
 
-        // 4. Send the REAL file to SSE
-        await uploadFileSSE(
-          file,
-          user.id,
-          "en",
-          handleToken
-        );
-      }
-      else {
+        await uploadFileSSE(file, user.id, "en", handleToken);
+      } else {
         console.log('Processing text message:', msg);
-        // Regular text-only message
         await question(msg, chatId, handleToken);
       }
 
@@ -279,47 +259,28 @@ export default function ChatPage() {
     }
   };
 
-  // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['.pdf', '.docx', '.txt'];
-      const fileExt = '.' + file.name.split('.').pop()?.toLowerCase();
-      
-      if (validTypes.includes(fileExt)) {
-        setSelectedFile(file);
-      } else {
-        alert('Please select a PDF, DOCX, or TXT file');
-      }
-    }
-  };
-
-  // Handle message submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if ((!message.trim() && !selectedFile) || !chatId || isLoading) return;
+  // Handle message submission from InputBox
+  const handleSubmit = async (message: string, file?: File | null) => {
+    if ((!message.trim() && !file) || !chatId || isLoading) return;
 
     const userMessage = message.trim();
     let uploadedFilePath: string | null = null;
     let uploadedFileName: string | null = null;
-
-    setMessage("");
+    let tempMsg: any = null;
 
     try {
       // Upload file if present
-      if (selectedFile) {
-        console.log('Uploading file:', selectedFile.name);
-        const { path } = await uploadFileToStorage(selectedFile, user.id);
+      if (file) {
+        console.log('Uploading file:', file.name);
+        const { path } = await uploadFileToStorage(file, user.id);
         uploadedFilePath = path;
-        uploadedFileName = selectedFile.name;
-        setSelectedFile(null);
+        uploadedFileName = file.name;
       }
 
       // Add temp message to UI
       const tempId = `temp-user-${Date.now()}`;
       const displayMessage = userMessage || `📎 ${uploadedFileName}`;
-      const tempMsg = {
+      tempMsg = {
         id: tempId,
         sender: "user",
         message: displayMessage,
@@ -351,12 +312,10 @@ export default function ChatPage() {
     } catch (err) {
       console.error("Failed to send message:", err);
       setFailed(true);
-      setMessages((prev) => prev.filter(m => m.id === tempMsg?.id));
+      if (tempMsg) {
+        setMessages((prev) => prev.filter(m => m.id !== tempMsg.id));
+      }
     }
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(event.target.value);
   };
 
   if (!isInitialized) {
@@ -385,7 +344,6 @@ export default function ChatPage() {
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {deduplicateMessages(messages).map((msg, index) => {
-              // Create a truly unique key using ID and index as fallback
               const uniqueKey = msg.id ? `${msg.id}` : `msg-${index}-${msg.created_at}`;
               
               return (
@@ -439,80 +397,17 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Input Bar */}
-        <div className="w-full max-w-md z-20">
-          <form onSubmit={handleSubmit} className="relative">
-            {/* File preview */}
-            {selectedFile && (
-              <div className="mb-2 flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-lg px-3 py-2">
-                <span className="text-gold text-sm flex items-center gap-1">
-                  📎 {selectedFile.name}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedFile(null)}
-                  className="ml-auto text-red-400 hover:text-red-300 text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            
-            <div className="flex items-end gap-3">
-              {/* File upload button */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.docx,.txt"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading}
-                className="w-12 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gold/25 transition-colors"
-                aria-label="Attach file"
-              >
-                <span className="text-gold text-xl">📎</span>
-              </button>
-
-              {/* Text input */}
-              <textarea
-                placeholder="Ask a question, cite a law, or make your case..."
-                value={message}
-                disabled={isLoading}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                onChange={(e) => {
-                  handleInputChange(e);
-                  e.target.style.height = 'auto';
-                  e.target.style.height = `${e.target.scrollHeight}px`;
-                }}
-                rows={1}
-                className="flex-1 resize-none overflow-hidden bg-gold/15 backdrop-blur-md border border-gold/30 px-4 py-3 shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gold/40 transition-all placeholder:text-gold/50 text-white"
-              />
-              
-              {/* Send button */}
-              <button
-                type="submit"
-                disabled={isLoading || (!message.trim() && !selectedFile)}
-                className="w-14 h-12 flex items-center justify-center bg-gold/15 backdrop-blur-md border border-gold/30 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gold/25 transition-colors"
-                aria-label="Send message"
-              >
-                {isLoading ? (
-                  <Spinner />
-                ) : (
-                  <Image src="/up-arrow.png" alt="Send" width={25} height={20} />
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+        {/* Input Bar - Using InputBox Component */}
+        <InputBox
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+          disabled={false}
+          placeholder="Ask a question, cite a law, or make your case..."
+          filePlaceholder="Press enter to continue..."
+          acceptedFileTypes=".pdf,.docx,.txt"
+          showFileUpload={true}
+          maxFileSize={10}
+        />
       </div>
       <div ref={messagesEndRef} />
     </div>

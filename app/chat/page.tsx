@@ -11,12 +11,12 @@ import { supabase } from "../lib/supabaseClient";
 import { getOnbaording } from "../lib/user";
 import Spinner from "@/app/component/spinner";
 import { uploadFileSupabase } from "../lib/file-upload";
+import InputBox from "../component/inputbox";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function Chat() {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [message, setMessage] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -24,11 +24,7 @@ export default function Chat() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [dragEvent, setDragEvent] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [dragCounter, setDragCounter] = useState(0);
-  const [fileOptions, setFileOptions] = useState(false);
-  const [fileThere, setFileThere] = useState(false);
   const router = useRouter();
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
@@ -90,13 +86,7 @@ export default function Chat() {
     return () => window.removeEventListener('locationUpdated', handleLocationUpdate);
   }, []);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(event.target.value);
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const handleSubmit = async (message: string, file?: File | null) => {
     // Need either text or file to start
     if ((!message.trim() && !file) || !userId || isLoading) return;
 
@@ -111,16 +101,15 @@ export default function Chat() {
       if (status !== "ok") throw new Error("Backend not ready");
 
       // 2) Add chat to DB
-      if(file) {
+      if (file) {
         const { id } = await addChat(userId, file.name.slice(0, 50));
         const filePath = await uploadFileSupabase(file, id);
-        if(filePath === null) throw new Error("File upload failed");
-        addMessage(id, "user", "Summrizing your file..." + filePath, filePath, file.name);
+        if (filePath === null) throw new Error("File upload failed");
+        await addMessage(id, "user", "Summarizing your file..." + filePath, filePath, file.name);
         router.push(`/chat/${id}`);
-      }
-      else{
+      } else {
         const { id } = await addChat(userId, message.slice(0, 50));
-        addMessage(id, "user", message);
+        await addMessage(id, "user", message);
         router.push(`/chat/${id}`);
       }
     } catch (err) {
@@ -129,15 +118,6 @@ export default function Chat() {
       setIsLoading(false);
     }
   };
-
-    const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setFileThere(true);
-    }
-  };
-
 
   const onDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
@@ -171,25 +151,11 @@ export default function Chat() {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
-      setFile(droppedFile);
+      // You can handle the dropped file here if needed
       console.log("File dropped:", droppedFile);
       e.dataTransfer.clearData();
     }
   };
-
-  const removeFile = () => {
-    setFile(null);
-    setUploadProgress(0);
-    setFileThere(false);
-  };
-
-  const openFileOptions = () => {
-    setFileOptions(true);
-  }
-
-  const closeFileOptions = () => {
-    setFileOptions(false);
-  }
 
   if (isCheckingAuth) {
     return (
@@ -269,7 +235,7 @@ export default function Chat() {
       {/* Main Chat Zone */}
       <motion.div
         layout
-        className={`relative flex flex-col items-center w-full transition-all duration-500 relative ${
+        className={`relative flex flex-col items-center w-full transition-all duration-500 ${
           isSubmitted ? 'justify-end pb-16' : 'justify-center'
         } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
       >
@@ -317,166 +283,16 @@ export default function Chat() {
         </AnimatePresence>
 
         {/* Input Bar */}
-        <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4 relative">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative bg-gold/15 backdrop-blur-md border border-gold/30 rounded-3xl shadow-lg overflow-hidden">
-              {/* File Preview Inside Input */}
-              {file && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="px-4 pt-3 pb-2 border-b border-gold/20"
-                >
-                  <div className="flex items-center gap-2 bg-gold/10 rounded-lg px-3 py-2">
-                    <div className="flex-shrink-0 w-8 h-8 bg-gold/20 rounded-lg flex items-center justify-center">
-                      <span className="text-gold text-xs">📄</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-xs font-medium truncate">
-                        {file.name}
-                      </p>
-                      <p className="text-gold/60 text-[10px]">
-                        {(file.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                    <button
-                      onClick={removeFile}
-                      type="button"
-                      className="flex-shrink-0 w-5 h-5 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold/70 hover:text-gold transition-colors text-xs"
-                      aria-label="Remove file"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  {uploadProgress > 0 && (
-                    <div className="w-full bg-gold/20 rounded-full h-1 mt-2">
-                      <div
-                        className="bg-gold h-1 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Textarea and Button Row */}
-              <div className="flex justify-center items-center p-3 relative">
-                {/* File Upload */}
-                <div className="flex-shrink-0 relative">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.05 }}
-                    onClick={openFileOptions}
-                    type="button"
-                    className={`
-                      w-8 h-8 flex items-center justify-center 
-                      bg-gold/20 hover:bg-gold/30 
-                      rounded-lg transition-colors
-                      ${isLoading || needsOnboarding ? 'opacity-40 cursor-not-allowed' : ''}
-                    `}
-                  >
-                    <span className="text-gold text-lg font-light">+</span>
-                  </motion.button>
-                </div>
-
-                <textarea
-                  placeholder= {file ? "Press enter to start summarizing" : "Ask a question, cite a law, or make your case..."}
-                  value={message}
-                  disabled={isLoading || needsOnboarding || (file !== null)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  onChange={(e) => {
-                    handleInputChange(e);
-                    e.target.style.height = "auto";
-                    const newHeight = Math.min(e.target.scrollHeight, 200);
-                    e.target.style.height = `${newHeight}px`;
-                  }}
-                  rows={1}
-                  style={{ maxHeight: "200px" }}
-                  className="flex-1 resize-none overflow-y-auto bg-transparent border-none px-2 py-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-all placeholder:text-gold/40 text-white text-[15px] "
-                />
-
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.05 }}
-                  type="submit"
-                  disabled={isLoading || !message.trim() && !file || needsOnboarding }
-                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
-                  aria-label="Send message"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4">
-                      <Spinner />
-                    </div>
-                  ) : (
-                    <Image src="/up-arrow.png" alt="Send" width={16} height={16} className="opacity-90" />
-                  )}
-                </motion.button>
-              </div>
-            </div>
-          </form>
-
-          {/* File Options Dropdown (Positioned under + button) */}
-          <AnimatePresence>
-            {fileOptions && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ type: "spring", stiffness: 180, damping: 16 }}
-                className="
-                  absolute 
-                  mb-2 
-                  z-50
-                  bg-gold/10 
-                  border border-gold/30 
-                  rounded-xl 
-                  shadow-xl 
-                  p-3 
-                  w-48 
-                  backdrop-blur-lg
-                "
-              >
-                {/* Header */}
-                <p className="text-white text-sm font-medium mb-2 text-center">
-                  File options
-                </p>
-
-                {/* File Input */}
-                <label className="block cursor-pointer">
-                  <input
-                    type="file"
-                    className="hidden"
-                    disabled={isLoading || needsOnboarding}
-                    accept=".pdf,.docx,.txt"
-                    onChange={(e) => {
-                      handleFileInput(e);
-                      closeFileOptions();
-                    }}
-                  />
-
-                  <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-colors">
-                    <span className="text-xl">📁</span>
-                    <span className="text-white text-sm">Summarize File</span>
-                  </div>
-                </label>
-
-                {/* Close Button */}
-                <button
-                  onClick={closeFileOptions}
-                  className="mt-2 w-full text-center text-gold/70 hover:text-gold text-xs"
-                >
-                  Cancel
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        <InputBox
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+          disabled={needsOnboarding}
+          placeholder="Ask a question, cite a law, or make your case..."
+          filePlaceholder="Press enter to start summarizing"
+          acceptedFileTypes=".pdf,.docx,.txt"
+          showFileUpload={true}
+          maxFileSize={10}
+        />
       </motion.div>
 
       {/* Tagline */}
