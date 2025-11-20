@@ -77,7 +77,7 @@ export default function Home() {
                 className="text-white/70 hover:text-[#d4af37] transition-all duration-300 relative group"
               >
                 {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#d4af37] group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#d4af37] group-hover:w-full transition-all duration-300" />
               </button>
             ))}
             <button
@@ -132,7 +132,7 @@ export default function Home() {
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold tracking-tight">
               <span className="text-gradient">VERITUS</span>
             </h1>
-            <div className="h-[2px] w-32 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
+            <div className="h-0.5 w-32 mx-auto bg-linear-to-r from-transparent via-[#d4af37] to-transparent" />
             <p className="text-2xl md:text-4xl font-light text-white/90 tracking-wide">
               AI You Can Swear By
             </p>
@@ -182,7 +182,7 @@ export default function Home() {
             backgroundRepeat: 'no-repeat'
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/80 via-black/60 to-black/80" />
         
         <div className={`relative z-10 max-w-5xl mx-auto text-center space-y-16 transition-all duration-1000 ${
           visibleSections.has("about") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
@@ -192,7 +192,7 @@ export default function Home() {
               Law Shouldn't Be a <br />
               <span className="text-gradient">Guessing Game</span>
             </h2>
-            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+            <div className="h-px w-24 mx-auto bg-[#d4af37]" />
           </div>
 
           {/* Cards Grid */}
@@ -221,9 +221,9 @@ export default function Home() {
                   transitionDelay: `${i * 200}ms`
                 }}
               >
-                <div className="relative glass-effect p-8 space-y-4 hover:border-[#d4af37]/50 transition-all duration-500 flex flex-col flex-grow">
+                <div className="relative glass-effect p-8 space-y-4 hover:border-[#d4af37]/50 transition-all duration-500 flex flex-col grow">
                   <h3 className="text-xl font-serif text-[#d4af37]">{item.title}</h3>
-                  <p className="text-white/70 leading-relaxed flex-grow">{item.content}</p>
+                  <p className="text-white/70 leading-relaxed grow">{item.content}</p>
                 </div>
               </div>
             ))}
@@ -250,7 +250,7 @@ export default function Home() {
             <h2 className="text-5xl md:text-7xl font-serif font-semibold">
               Precision <span className="text-gradient">Engineered</span>
             </h2>
-            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+            <div className="h-px w-24 mx-auto bg-[#d4af37]" />
             <p className="text-xl text-white/70 max-w-3xl mx-auto">
               Three pillars of legal AI you can trust
             </p>
@@ -296,7 +296,7 @@ export default function Home() {
                     {feature.desc}
                   </p>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-[#d4af37] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
               </div>
             ))}
           </div>
@@ -308,7 +308,7 @@ export default function Home() {
         id="global"
         className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0604] to-black" />
+        <div className="absolute inset-0 bg-linear-to-b from-black via-[#0a0604] to-black" />
         
         <div className={`relative z-10 max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center transition-all duration-1000 ${
           visibleSections.has('global') ? 'opacity-100' : 'opacity-0'
@@ -319,7 +319,7 @@ export default function Home() {
                 Starting Local,<br />
                 <span className="text-gradient">Scaling Global</span>
               </h2>
-              <div className="h-[1px] w-24 mx-auto lg:mx-0 bg-[#d4af37]" />
+              <div className="h-px w-24 mx-auto lg:mx-0 bg-[#d4af37]" />
             </div>
 
             <p className="text-lg text-white/70 leading-relaxed max-w-xl mx-auto lg:mx-0">
@@ -371,7 +371,7 @@ export default function Home() {
         id="contact"
         className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-[#d4af37]/5 via-black to-black" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#d4af37]/5 via-black to-black" />
         
         <div className={`relative z-10 max-w-4xl mx-auto text-center space-y-16 transition-all duration-1000 ${
           visibleSections.has('contact') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
@@ -380,7 +380,7 @@ export default function Home() {
             <h2 className="text-5xl md:text-7xl font-serif font-semibold leading-tight">
               Join the <span className="text-gradient">Future of Law</span>
             </h2>
-            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+            <div className="h-px w-24 mx-auto bg-[#d4af37]" />
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
               Be among the first legal professionals to experience AI that never compromises on truth.
             </p>

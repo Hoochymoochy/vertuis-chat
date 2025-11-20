@@ -98,7 +98,7 @@ export default function InputBox({
               className="px-4 pt-3 pb-2 border-b border-gold/20"
             >
               <div className="flex items-center gap-2 bg-gold/10 rounded-lg px-3 py-2">
-                <div className="flex-shrink-0 w-8 h-8 bg-gold/20 rounded-lg flex items-center justify-center">
+                <div className="shrink-0 w-8 h-8 bg-gold/20 rounded-lg flex items-center justify-center">
                   <span className="text-gold text-xs">📄</span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -112,7 +112,7 @@ export default function InputBox({
                 <button
                   onClick={removeFile}
                   type="button"
-                  className="flex-shrink-0 w-5 h-5 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold/70 hover:text-gold transition-colors text-xs"
+                  className="shrink-0 w-5 h-5 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold/70 hover:text-gold transition-colors text-xs"
                   aria-label="Remove file"
                 >
                   ✕
@@ -133,7 +133,7 @@ export default function InputBox({
           <div className="flex justify-center items-center p-3 relative">
             {/* File Upload Button */}
             {showFileUpload && (
-              <div className="flex-shrink-0 relative">
+              <div className="shrink-0 relative">
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.05 }}
@@ -179,7 +179,7 @@ export default function InputBox({
               type="button"
               onClick={handleSubmit}
               disabled={isLoading || (!message.trim() && !file) || disabled}
-              className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
+              className="shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
               aria-label="Send message"
             >
               {isLoading ? (

@@ -129,7 +129,7 @@ interface SignUpResponse {
             transition={{ delay: 0.5 }}
           >
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-gold mt-0.5 shrink-0" />
               <div className="text-sm text-white/70 space-y-2">
                 <p>Click the verification link in the email to activate your account.</p>
                 <p className="text-white/50 text-xs">
@@ -320,9 +320,9 @@ interface SignUpResponse {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
-          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
+          <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
           <p className="text-white/60 text-sm">Or sign up with</p>
-          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
+          <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
         </motion.div>
 
         <motion.button
