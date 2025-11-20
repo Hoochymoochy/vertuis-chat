@@ -79,7 +79,7 @@ export default function ChatPage() {
       </div>
 
       {/* Main Content */}
-      <div className="relative flex-grow flex flex-col items-center w-full pb-12">
+      <div className="relative grow flex flex-col items-center w-full pb-12">
         {/* Messages Container */}
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
