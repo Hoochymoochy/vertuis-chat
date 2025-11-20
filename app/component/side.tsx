@@ -85,14 +85,14 @@ export default function Side({ setOpenMap }: SideProps) {
     setIsLangOpen(false);
   };
 
-  const newChat = () => router.push("/");
+  const newChat = () => router.push("/chat");
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
   };
 
-  const handleChatClick = (id: string) => router.push(`/${id}`);
+  const handleChatClick = (id: string) => router.push(`/chat/${id}`);
 
   return (
     <>

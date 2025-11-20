@@ -1,502 +1,465 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence, Transition } from "framer-motion";
-import Image from "next/image";
-import Side from "@/app/component/side";
-import { addChat, addMessage } from "@/app/lib/chat";
-import { useRouter } from "next/navigation";
-import Map from "@/app/component/map";
-import { supabase } from "./lib/supabaseClient";
-import { getOnbaording } from "./lib/user";
-import Spinner from "@/app/component/spinner";
-import { uploadFileSupabase } from "./lib/file-upload";
+import { useState, useEffect } from "react"
+import { Menu, X, ChevronDown } from "lucide-react"
+import { useRouter } from "next/navigation"
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+export default function Home() {
+  const [email, setEmail] = useState("")
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const [visibleSections, setVisibleSections] = useState(new Set())
+  const router = useRouter()
 
-export default function Chat() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [message, setMessage] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [openMap, setOpenMap] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
-  const [dragEvent, setDragEvent] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [dragCounter, setDragCounter] = useState(0);
-  const [fileOptions, setFileOptions] = useState(false);
-  const [fileThere, setFileThere] = useState(false);
-  const router = useRouter();
-
-  const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
-
-  // Auth listener
   useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "SIGNED_OUT") {
-          router.push("/login");
-        } else if (event === "SIGNED_IN" && session) {
-          setUserId(session.user.id);
-        }
-      }
-    );
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-    return () => {
-      subscription?.subscription?.unsubscribe?.();
-    };
-  }, [router]);
-
-  // Initial login check & onboarding
   useEffect(() => {
-    let mounted = true;
-    const checkLogin = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        if (data.session?.user) {
-          const user = data.session.user;
-          setUserId(user.id);
-
-          const onboarded = await getOnbaording(user.id);
-          if (!onboarded) {
-            setNeedsOnboarding(true);
-            setOpenMap(true);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id))
           }
-        } else {
-          router.push("/login");
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      } finally {
-        if (mounted) setIsCheckingAuth(false);
-      }
-    };
-    checkLogin();
-    return () => { mounted = false; }
-  }, [router]);
+        })
+      },
+      { threshold: 0.2 }
+    )
 
-  // Listen for location updates
-  useEffect(() => {
-    const handleLocationUpdate = () => {
-      setNeedsOnboarding(false);
-    };
-    
-    window.addEventListener('locationUpdated', handleLocationUpdate);
-    return () => window.removeEventListener('locationUpdated', handleLocationUpdate);
-  }, []);
+    document.querySelectorAll("section[id]").forEach((section) => {
+      observer.observe(section)
+    })
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(event.target.value);
-  };
+    return () => observer.disconnect()
+  }, [])
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    // Need either text or file to start
-    if ((!message.trim() && !file) || !userId || isLoading) return;
-
-    setIsSubmitted(true);
-    setIsLoading(true);
-    setFailed(false);
-
-    try {
-      // 1) Backend health check
-      const healthRes = await fetch(`${backendUrl}/health`);
-      const { status } = await healthRes.json();
-      if (status !== "ok") throw new Error("Backend not ready");
-
-      // 2) Add chat to DB
-      if(file) {
-        const { id } = await addChat(userId, file.name.slice(0, 50));
-        const filePath = await uploadFileSupabase(file, id);
-        if(filePath === null) throw new Error("File upload failed");
-        addMessage(id, "user", "Summrizing your file..." + filePath, filePath, file.name);
-        router.push(`/${id}`);
-      }
-      else{
-        const { id } = await addChat(userId, message.slice(0, 50));
-        addMessage(id, "user", message);
-        router.push(`/${id}`);
-      }
-    } catch (err) {
-      console.error("Failed to start chat:", err);
-      setFailed(true);
-      setIsLoading(false);
+  const scrollToSection = (id: string) => {
+    const section = document.getElementById(id)
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" })
+      setIsMenuOpen(false)
     }
-  };
-
-    const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setFileThere(true);
-    }
-  };
-
-
-  const onDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragCounter(prev => prev + 1);
-    setDragEvent(true);
-  };
-
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const onDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragCounter(prev => {
-      const newCount = prev - 1;
-      if (newCount === 0) {
-        setDragEvent(false);
-      }
-      return newCount;
-    });
-  };
-
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragCounter(0);
-    setDragEvent(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFile = e.dataTransfer.files[0];
-      setFile(droppedFile);
-      console.log("File dropped:", droppedFile);
-      e.dataTransfer.clearData();
-    }
-  };
-
-  const removeFile = () => {
-    setFile(null);
-    setUploadProgress(0);
-    setFileThere(false);
-  };
-
-  const openFileOptions = () => {
-    setFileOptions(true);
   }
 
-  const closeFileOptions = () => {
-    setFileOptions(false);
-  }
-
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <Spinner />
-          <p className="text-gold text-sm">Verifying authentication...</p>
-        </div>
-      </div>
-    );
+  const handleRoute = (path: string) => {
+    router.push(path)
+    setIsMenuOpen(false)
   }
 
   return (
-    <motion.div
-      layout
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
-      onDragEnter={onDragEnter}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-    >
-      {/* Frosted overlay */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
-      />
+    <div className="relative bg-black text-white overflow-x-hidden">
 
-      <Side setOpenMap={setOpenMap} />
-      <Map openMap={openMap} setOpenMap={setOpenMap} />
-
-      {/* Onboarding overlay */}
-      <AnimatePresence>
-        {needsOnboarding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md z-30 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', stiffness: 150, damping: 18 }}
-              className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 p-8 max-w-md text-center shadow-2xl"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]"
-              />
-              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Veritus</h2>
-              <p className="text-gold/80 text-sm">
-                Select your jurisdiction on the map to begin your oath.
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Drag and Drop Overlay */}
-      {dragEvent && (
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-30 flex items-center justify-center">
-          <div className="bg-gradient-to-br from-gold/15 to-gold/5 border border-gold/30 p-8 max-w-md text-center shadow-2xl">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]" />
-            <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Drag and Drop</h2>
-            <p className="text-gold/80 text-sm">
-              Drop your file to upload.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Main Chat Zone */}
-      <motion.div
-        layout
-        className={`relative flex flex-col items-center w-full transition-all duration-500 relative ${
-          isSubmitted ? 'justify-end pb-16' : 'justify-center'
-        } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
+      {/* Navigation */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+          scrollY > 100 
+            ? 'opacity-100 translate-y-0 bg-black/80 backdrop-blur-xl border-b border-[#d4af37]/20 shadow-xl' 
+            : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
       >
-        {/* Logo */}
-        <motion.div
-          layout
-          animate={{ y: isSubmitted ? '-100%' : 0 }}
-          transition={smoothSpring}
-          className="flex items-center justify-center mb-6"
-        >
-          <motion.h1
-            layout
-            animate={{ scale: isSubmitted ? 0.9 : 1 }}
-            transition={smoothSpring}
-            className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]"
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6 flex items-center justify-between">
+          <button
+            onClick={() => scrollToSection("hero")}
+            className="text-2xl font-serif font-semibold tracking-wide text-gradient hover:scale-105 transition-transform duration-300"
           >
-            <span className="text-gradient">VERITUS</span>
-          </motion.h1>
-        </motion.div>
+            VERITUS
+          </button>
 
-        {/* Error Toast */}
-        <AnimatePresence>
-          {failed && (
-            <motion.div
-              key="error-toast"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="flex justify-center items-center mb-4"
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-10 text-sm tracking-widest font-light">
+            {['ABOUT', 'FEATURES', 'GLOBAL', 'CONTACT'].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item.toLowerCase())}
+                className="text-white/70 hover:text-[#d4af37] transition-all duration-300 relative group"
+              >
+                {item}
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#d4af37] group-hover:w-full transition-all duration-300" />
+              </button>
+            ))}
+            <button
+              onClick={() => handleRoute('/login')}
+              className="px-6 py-2 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all duration-300 rounded-sm"
             >
-              <motion.div
-                layout
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-                className="max-w-xs bg-gold/15 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
-              >
-                <p className="text-white text-sm text-center">
-                  Message failed — try again, counselor.
-                </p>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              SIGN IN
+            </button>
+          </div>
 
-        {/* Input Bar */}
-        <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4 relative">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative bg-gold/15 backdrop-blur-md border border-gold/30 rounded-3xl shadow-lg overflow-hidden">
-              {/* File Preview Inside Input */}
-              {file && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="px-4 pt-3 pb-2 border-b border-gold/20"
-                >
-                  <div className="flex items-center gap-2 bg-gold/10 rounded-lg px-3 py-2">
-                    <div className="flex-shrink-0 w-8 h-8 bg-gold/20 rounded-lg flex items-center justify-center">
-                      <span className="text-gold text-xs">📄</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-xs font-medium truncate">
-                        {file.name}
-                      </p>
-                      <p className="text-gold/60 text-[10px]">
-                        {(file.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                    <button
-                      onClick={removeFile}
-                      type="button"
-                      className="flex-shrink-0 w-5 h-5 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold/70 hover:text-gold transition-colors text-xs"
-                      aria-label="Remove file"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  {uploadProgress > 0 && (
-                    <div className="w-full bg-gold/20 rounded-full h-1 mt-2">
-                      <div
-                        className="bg-gold h-1 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Textarea and Button Row */}
-              <div className="flex justify-center items-center p-3 relative">
-                {/* File Upload */}
-                <div className="flex-shrink-0 relative">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.05 }}
-                    onClick={openFileOptions}
-                    type="button"
-                    className={`
-                      w-8 h-8 flex items-center justify-center 
-                      bg-gold/20 hover:bg-gold/30 
-                      rounded-lg transition-colors
-                      ${isLoading || needsOnboarding ? 'opacity-40 cursor-not-allowed' : ''}
-                    `}
-                  >
-                    <span className="text-gold text-lg font-light">+</span>
-                  </motion.button>
-                </div>
-
-                <textarea
-                  placeholder= {file ? "Press enter to start summarizing" : "Ask a question, cite a law, or make your case..."}
-                  value={message}
-                  disabled={isLoading || needsOnboarding || (file !== null)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  onChange={(e) => {
-                    handleInputChange(e);
-                    e.target.style.height = "auto";
-                    const newHeight = Math.min(e.target.scrollHeight, 200);
-                    e.target.style.height = `${newHeight}px`;
-                  }}
-                  rows={1}
-                  style={{ maxHeight: "200px" }}
-                  className="flex-1 resize-none overflow-y-auto bg-transparent border-none px-2 py-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-all placeholder:text-gold/40 text-white text-[15px] "
-                />
-
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.05 }}
-                  type="submit"
-                  disabled={isLoading || !message.trim() && !file || needsOnboarding }
-                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gold/25 hover:bg-gold/35 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold/25"
-                  aria-label="Send message"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4">
-                      <Spinner />
-                    </div>
-                  ) : (
-                    <Image src="/up-arrow.png" alt="Send" width={16} height={16} className="opacity-90" />
-                  )}
-                </motion.button>
-              </div>
-            </div>
-          </form>
-
-          {/* File Options Dropdown (Positioned under + button) */}
-          <AnimatePresence>
-            {fileOptions && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ type: "spring", stiffness: 180, damping: 16 }}
-                className="
-                  absolute 
-                  mb-2 
-                  z-50
-                  bg-gold/10 
-                  border border-gold/30 
-                  rounded-xl 
-                  shadow-xl 
-                  p-3 
-                  w-48 
-                  backdrop-blur-lg
-                "
-              >
-                {/* Header */}
-                <p className="text-white text-sm font-medium mb-2 text-center">
-                  File options
-                </p>
-
-                {/* File Input */}
-                <label className="block cursor-pointer">
-                  <input
-                    type="file"
-                    className="hidden"
-                    disabled={isLoading || needsOnboarding}
-                    accept=".pdf,.docx,.txt"
-                    onChange={(e) => {
-                      handleFileInput(e);
-                      closeFileOptions();
-                    }}
-                  />
-
-                  <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-colors">
-                    <span className="text-xl">📁</span>
-                    <span className="text-white text-sm">Summarize File</span>
-                  </div>
-                </label>
-
-                {/* Close Button */}
-                <button
-                  onClick={closeFileOptions}
-                  className="mt-2 w-full text-center text-gold/70 hover:text-gold text-xs"
-                >
-                  Cancel
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </motion.div>
-
-      {/* Tagline */}
-      <AnimatePresence>
-        {!isSubmitted && (
-          <motion.div
-            key="tagline"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className={`z-20 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-[#d4af37]"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <p className="text-gold text-lg sm:text-xl font-medium uppercase tracking-widest">
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-[#d4af37]/20">
+            <div className="flex flex-col items-center gap-6 py-8 text-sm tracking-widest">
+              {['ABOUT', 'FEATURES', 'GLOBAL', 'CONTACT'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => scrollToSection(item.toLowerCase())}
+                  className="text-white/70 hover:text-[#d4af37] transition-all duration-300"
+                >
+                  {item}
+                </button>
+              ))}
+              <button
+                onClick={() => handleRoute('/login')}
+                className="px-6 py-2 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all duration-300 rounded-sm"
+              >
+                SIGN IN
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <section
+        id="hero"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
+      >
+
+        <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 text-center space-y-12 bg-black/80 backdrop-blur-xl border border-[#d4af37]/20">
+          <div className="space-y-6 animate-fadeInUp">
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold tracking-tight">
+              <span className="text-gradient">VERITUS</span>
+            </h1>
+            <div className="h-[2px] w-32 mx-auto bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
+            <p className="text-2xl md:text-4xl font-light text-white/90 tracking-wide">
               AI You Can Swear By
             </p>
-            <p className="text-white/70 text-xs italic">(Not legal advice)</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
+          </div>
+
+          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+            The next generation of legal intelligence. Every citation verified. Every answer trusted. 
+            Built for lawyers who demand precision in an era of uncertainty.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="px-10 py-4 bg-[#d4af37] text-black font-medium text-lg hover:bg-[#f4e5b8] transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#d4af37]/50"
+            >
+              Join the Beta
+            </button>
+            <button
+              onClick={() => scrollToSection('about')}
+              className="px-10 py-4 border border-[#d4af37] text-[#d4af37] font-medium text-lg hover:bg-[#d4af37]/10 transition-all duration-300 hover:scale-105"
+            >
+              Learn More
+            </button>
+          </div>
+
+          <button
+            onClick={() => scrollToSection('about')}
+            className=" text-[#d4af37]/50 hover:text-[#d4af37] transition-all duration-300 animate-float"
+          >
+            <ChevronDown size={40} />
+          </button>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section
+        id="about"
+        className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
+      >
+        {/* Marble Background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: "url('/marble.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+        
+        <div className={`relative z-10 max-w-5xl mx-auto text-center space-y-16 transition-all duration-1000 ${
+          visibleSections.has("about") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
+        }`}>
+          <div className="space-y-8">
+            <h2 className="text-5xl md:text-7xl font-serif font-semibold">
+              Law Shouldn't Be a <br />
+              <span className="text-gradient">Guessing Game</span>
+            </h2>
+            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid md:grid-cols-3 gap-8 text-left items-stretch">
+            {[
+              {
+                title: "The Problem",
+                content:
+                  "Every day, legal professionals waste hours verifying citations, chasing amendments, and second guessing AI hallucinations."
+              },
+              {
+                title: "The Solution",
+                content:
+                  "Veritus eliminates uncertainty with source backed answers, real time legal updates, and zero tolerance for hallucinations."
+              },
+              {
+                title: "The Future",
+                content:
+                  "A new era where lawyers trust their AI completely, focusing on strategy instead of fact checking."
+              }
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden group flex flex-col"
+                style={{
+                  transitionDelay: `${i * 200}ms`
+                }}
+              >
+                <div className="relative glass-effect p-8 space-y-4 hover:border-[#d4af37]/50 transition-all duration-500 flex flex-col flex-grow">
+                  <h3 className="text-xl font-serif text-[#d4af37]">{item.title}</h3>
+                  <p className="text-white/70 leading-relaxed flex-grow">{item.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
+            The next era of legal integrity starts here.
+          </p>
+        </div>
+      </section>
+
+
+      {/* Features Section */}
+      <section
+        id="features"
+        className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
+      >
+        <div className="absolute inset-0 bg-black" />
+        
+        <div className={`relative z-10 max-w-7xl mx-auto space-y-20 transition-all duration-1000 ${
+          visibleSections.has('features') ? 'opacity-100' : 'opacity-0'
+        }`}>
+          <div className="text-center space-y-6">
+            <h2 className="text-5xl md:text-7xl font-serif font-semibold">
+              Precision <span className="text-gradient">Engineered</span>
+            </h2>
+            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+            <p className="text-xl text-white/70 max-w-3xl mx-auto">
+              Three pillars of legal AI you can trust
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'Source-Backed Chat',
+                desc: 'Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.',
+                icon: '/icons/scale2.png',
+              },
+              {
+                title: 'Document Analysis',
+                desc: 'Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context (coming soon).',
+                icon: '/icons/doc2.png',
+              },
+              {
+                title: 'Jurisdiction Sync',
+                desc: 'Real time updates to federal, state, and regional law (coming soon). Never miss an amendment or new precedent again.',
+                icon: '/icons/globe2.png',
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="group relative glass-effect p-10 space-y-6 hover:border-[#d4af37]/50 hover:scale-105 transition-all duration-500"
+                style={{
+                  transitionDelay: `${i * 150}ms`
+                }}
+              >
+              <div className="w-24 h-24 mb-6 relative">
+                <img
+                  src={feature.icon}
+                  alt={feature.title}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-serif text-[#d4af37]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-white/70 leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Global Section */}
+      <section
+        id="global"
+        className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0604] to-black" />
+        
+        <div className={`relative z-10 max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center transition-all duration-1000 ${
+          visibleSections.has('global') ? 'opacity-100' : 'opacity-0'
+        }`}>
+          <div className="space-y-10 text-center lg:text-left order-2 lg:order-1">
+            <div className="space-y-6">
+              <h2 className="text-5xl md:text-6xl font-serif font-semibold leading-tight">
+                Starting Local,<br />
+                <span className="text-gradient">Scaling Global</span>
+              </h2>
+              <div className="h-[1px] w-24 mx-auto lg:mx-0 bg-[#d4af37]" />
+            </div>
+
+            <p className="text-lg text-white/70 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              We're mastering Federal law first. Then every statute, every case, every update. 
+              Then expanding nationwide with the same uncompromising precision.
+            </p>
+
+            <div className="glass-effect p-8 space-y-6">
+              <p className="text-[#d4af37] font-medium text-lg">Coverage Roadmap</p>
+              <div className="space-y-4">
+                {[
+                  { text: "Brazil Laws and Regulations", status: "Live" },
+                  { text: "Us and Canada", status: "Q2 2025" },
+                  { text: "Rest of the World", status: "2026" }
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-3 border-b border-white/10 last:border-0"
+                    style={{
+                      transitionDelay: `${i * 150}ms`
+                    }}
+                  >
+                    <span className="text-white/80">{item.text}</span>
+                    <span className={`text-xs px-3 py-1 rounded-full ${
+                      item.status === 'Live' 
+                        ? 'bg-[#d4af37]/20 text-[#d4af37]' 
+                        : 'bg-white/10 text-white/60'
+                    }`}>
+                      {item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center order-1 lg:order-2">
+            <img
+              src="/world.png"
+              alt="Global"
+              className="object-contain w-full h-full"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="relative min-h-screen flex items-center justify-center py-32 px-6 lg:px-12"
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-[#d4af37]/5 via-black to-black" />
+        
+        <div className={`relative z-10 max-w-4xl mx-auto text-center space-y-16 transition-all duration-1000 ${
+          visibleSections.has('contact') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}>
+          <div className="space-y-8">
+            <h2 className="text-5xl md:text-7xl font-serif font-semibold leading-tight">
+              Join the <span className="text-gradient">Future of Law</span>
+            </h2>
+            <div className="h-[1px] w-24 mx-auto bg-[#d4af37]" />
+            <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+              Be among the first legal professionals to experience AI that never compromises on truth.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {[
+              { 
+                title: "Existing Users", 
+                desc: "Access your account", 
+                buttonText: "Sign In", 
+                link: "/login",
+                primary: false
+              },
+              { 
+                title: "New to Veritus?", 
+                desc: "Request beta access", 
+                buttonText: "Join Beta", 
+                link: "/register",
+                primary: true
+              },
+            ].map((card, i) => (
+              <div
+                key={i}
+                className={`glass-effect p-10 space-y-6 hover:border-[#d4af37]/50 hover:scale-105 transition-all duration-500 ${
+                  card.primary ? 'ring-2 ring-[#d4af37]/30' : ''
+                }`}
+                style={{
+                  transitionDelay: `${i * 200}ms`
+                }}
+              >
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-serif text-[#d4af37]">{card.title}</h3>
+                  <p className="text-white/60">{card.desc}</p>
+                </div>
+                <button
+                  onClick={() => handleRoute(card.link)}
+                  className={`w-full py-4 font-medium transition-all duration-300 hover:scale-105 ${
+                    card.primary
+                      ? 'bg-[#d4af37] text-black hover:bg-[#f4e5b8] hover:shadow-2xl hover:shadow-[#d4af37]/50'
+                      : 'border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10'
+                  }`}
+                >
+                  {card.buttonText}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-12 border-t border-[#d4af37]/20 space-y-6">
+            <p className="text-white/50 text-sm tracking-widest">EARLY ACCESS</p>
+            <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@firm.com"
+                className="flex-1 px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
+              />
+              <button className="px-8 py-4 bg-[#d4af37] text-black font-medium hover:bg-[#f4e5b8] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#d4af37]/50 whitespace-nowrap">
+                Request Access
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative border-t border-[#d4af37]/20 py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-white/50">
+          <p className="font-serif text-[#d4af37]">VERITUS</p>
+          <p>© 2025 Veritus AI. Legal intelligence redefined.</p>
+          <div className="flex gap-6">
+            <button onClick={()=> handleRoute("/privacy")} className="hover:text-[#d4af37] transition-colors duration-300">Privacy</button>
+            <button onClick={()=> handleRoute("/terms")} className="hover:text-[#d4af37] transition-colors duration-300">Terms</button>
+            <button onClick={()=> handleRoute("/contact")} className="hover:text-[#d4af37] transition-colors duration-300">Contact</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
 }

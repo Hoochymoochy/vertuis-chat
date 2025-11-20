@@ -46,7 +46,7 @@ interface SignUpResponse {
         setVerificationSent(true);
       } else if (session) {
         // Auto-confirmed (shouldn't happen with email confirmation enabled)
-        router.push("/");
+        router.push("/chat");
       }
     } catch (err: any) {
       setError(err.message || "Registration failed");

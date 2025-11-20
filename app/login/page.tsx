@@ -28,7 +28,7 @@ export default function LoginPage() {
       // Check if session exists (user is verified)
       if (data.session) {
         // Supabase handles session storage automatically
-        router.push("/");
+        router.push("/chat");
       } else if (data.user && !data.user.email_confirmed_at) {
         // User exists but email not verified
         setNeedsVerification(true);
