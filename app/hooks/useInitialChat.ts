@@ -25,7 +25,7 @@ export default function useInitialChat(userId: string | null) {
         const { id } = await addChat(userId, file.name.slice(0, 50));
         const filePath = await uploadFileSupabase(file, id);
         if (filePath === null) throw new Error("File upload failed");
-        await addMessage(id, "user", "Summarizing your file..." + filePath, filePath, file.name);
+        await addMessage(id, "user", "Summarizing your file..." , filePath, file.name);
         router.push(`/chat/${id}`);
       } else {
         const { id } = await addChat(userId, message.slice(0, 50));

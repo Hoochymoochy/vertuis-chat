@@ -8,6 +8,8 @@ import Spinner from "@/app/component/spinner";
 import InputBox from "@/app/component/inputbox";
 import useAuth from "@/app/hooks/useAuth";
 import useInitialChat from "@/app/hooks/useInitialChat";
+import useFileDrop from "@/app/hooks/useFileDrop";
+import Overlay from "@/app/component/overlay";
 
 export default function Chat() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -15,12 +17,19 @@ export default function Chat() {
   
   const { userId, isCheckingAuth, needsOnboarding } = useAuth();
   const { isLoading, failed, startChat } = useInitialChat(userId);
+  
+  const { isDragging, droppedFile, dragHandlers, clearDroppedFile } = useFileDrop({
+    acceptedFileTypes: ['.pdf', '.docx', '.txt'],
+    maxFileSize: 10,
+    onError: (message) => alert(message),
+  });
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
 
   const handleSubmit = async (message: string, file?: File | null) => {
     setIsSubmitted(true);
     await startChat(message, file);
+    clearDroppedFile();
   };
 
   if (isCheckingAuth) {
@@ -38,6 +47,7 @@ export default function Chat() {
     <motion.div
       layout
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
+      {...dragHandlers}
     >
       <motion.div
         initial={{ opacity: 0 }}
@@ -45,7 +55,7 @@ export default function Chat() {
         transition={{ duration: 1 }}
         className="absolute inset-0 bg-black/60 backdrop-blur-md"
       />
-
+      <Overlay isDragging={isDragging} />
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
@@ -140,6 +150,7 @@ export default function Chat() {
           acceptedFileTypes=".pdf,.docx,.txt"
           showFileUpload={true}
           maxFileSize={10}
+          droppedFile={droppedFile}
         />
       </motion.div>
 

@@ -25,7 +25,7 @@ export default function useChatSubmit(
       }
 
       const tempId = `temp-user-${Date.now()}`;
-      const displayMessage = userMessage || `📎 ${uploadedFileName}`;
+      const displayMessage = userMessage || `Summarizing your file...`;
       tempMsg = {
         id: tempId,
         sender: "user",

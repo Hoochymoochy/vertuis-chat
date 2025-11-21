@@ -7,11 +7,13 @@ import ChatBubble from "@/app/component/bubble";
 import Side from "@/app/component/side";
 import Map from "@/app/component/map";
 import InputBox from "@/app/component/inputbox";
+import Overlay from "@/app/component/overlay";
 import useAuth  from "@/app/hooks/useAuth";
 import useChatMessages from "@/app/hooks/useChatMessages";
 import useAIResponse from "@/app/hooks/useAIResponse";
 import useFirstMessage from "@/app/hooks/useFirstMessage";
 import useChatSubmit from "@/app/hooks/useChatSubmit";
+import useFileDrop from "@/app/hooks/useFileDrop";
 
 export default function ChatPage() {
   const params = useParams();
@@ -30,6 +32,12 @@ export default function ChatPage() {
     triggerAIResponse,
     setFailed
   );
+
+  const { isDragging, droppedFile, dragHandlers, clearDroppedFile } = useFileDrop({
+    acceptedFileTypes: ['.pdf', '.docx', '.txt'],
+    maxFileSize: 10,
+    onError: (message) => alert(message),
+  });
 
   // Initialize chat ID from params
   useEffect(() => {
@@ -54,6 +62,11 @@ export default function ChatPage() {
     }
   }, [messages]);
 
+  const handleChatSubmit = async (message: string, file?: File | null) => {
+    await handleSubmit(message, file);
+    clearDroppedFile();
+  };
+
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[url('/marble.jpg')] bg-cover bg-center">
@@ -66,8 +79,12 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
+    <div 
+      className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative"
+      {...dragHandlers}
+    >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
+      <Overlay isDragging={isDragging} />
       <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
@@ -140,7 +157,7 @@ export default function ChatPage() {
 
         {/* Input Box */}
         <InputBox
-          onSubmit={handleSubmit}
+          onSubmit={handleChatSubmit}
           isLoading={isLoading}
           disabled={false}
           placeholder="Ask a question, cite a law, or make your case..."
@@ -148,6 +165,7 @@ export default function ChatPage() {
           acceptedFileTypes=".pdf,.docx,.txt"
           showFileUpload={true}
           maxFileSize={10}
+          droppedFile={droppedFile}
         />
       </div>
       

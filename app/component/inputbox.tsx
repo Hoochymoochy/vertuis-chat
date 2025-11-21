@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion, Transition } from "framer-motion";
 import Image from "next/image";
 
@@ -12,6 +12,7 @@ type InputBoxProps = {
   acceptedFileTypes?: string;
   showFileUpload?: boolean;
   maxFileSize?: number; // in MB
+  droppedFile?: File | null; // File dropped from parent
 };
 
 export default function InputBox({
@@ -24,11 +25,22 @@ export default function InputBox({
   acceptedFileTypes = ".pdf,.docx,.txt",
   showFileUpload = true,
   maxFileSize = 10,
+  droppedFile,
 }: InputBoxProps) {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileOptions, setFileOptions] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Handle dropped file from parent component
+  useEffect(() => {
+    if (droppedFile) {
+      setFile(droppedFile);
+      if (onFileUpload) {
+        onFileUpload(droppedFile);
+      }
+    }
+  }, [droppedFile, onFileUpload]);
 
   const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
 
