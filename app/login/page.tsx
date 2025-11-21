@@ -28,7 +28,7 @@ export default function LoginPage() {
       // Check if session exists (user is verified)
       if (data.session) {
         // Supabase handles session storage automatically
-        router.push("/");
+        router.push("/chat");
       } else if (data.user && !data.user.email_confirmed_at) {
         // User exists but email not verified
         setNeedsVerification(true);
@@ -119,7 +119,7 @@ export default function LoginPage() {
             transition={{ delay: 0.5 }}
           >
             <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <Mail className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div className="text-sm text-white/70 space-y-2">
                 <p>Check your inbox for the verification link we sent when you registered.</p>
                 <p className="text-white/50 text-xs">
@@ -270,9 +270,9 @@ export default function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
+          <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
           <p className="text-white/60 text-sm">Or login with</p>
-          <div className="h-[1px] flex-1 mx-auto bg-[#d4af37]" />
+          <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
         </motion.div>
 
         <motion.button

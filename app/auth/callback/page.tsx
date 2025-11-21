@@ -58,7 +58,7 @@ async function handleAuth() {
     await new Promise((resolve) => setTimeout(resolve, 150));
 
     if (!active) return;
-    router.replace("/");
+    router.replace("/chat");
   } catch (err) {
     console.error("Auth callback failed:", err);
     if (active)
