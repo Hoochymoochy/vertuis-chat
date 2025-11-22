@@ -128,7 +128,7 @@ export default function Home() {
       >
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 text-center space-y-12 bg-black/80 backdrop-blur-xl border border-[#d4af37]/20">
-          <div className="space-y-6 animate-fadeInUp">
+          <div className="space-y-6">
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold tracking-tight">
               <span className="text-gradient">VERITUS</span>
             </h1>
@@ -138,12 +138,12 @@ export default function Home() {
             </p>
           </div>
 
-          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
             The next generation of legal intelligence. Every citation verified. Every answer trusted. 
             Built for lawyers who demand precision in an era of uncertainty.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => scrollToSection('contact')}
               className="px-10 py-4 bg-[#d4af37] text-black font-medium text-lg hover:bg-[#f4e5b8] transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#d4af37]/50"
