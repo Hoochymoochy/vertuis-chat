@@ -1,0 +1,70 @@
+{
+  "Nav": {
+    "about": "ABOUT",
+    "features": "FEATURES",
+    "global": "GLOBAL",
+    "contact": "CONTACT",
+    "signIn": "SIGN IN"
+  },
+  "Hero": {
+    "title": "VERITUS",
+    "tagline": "AI You Can Swear By",
+    "description": "The next generation of legal intelligence. Every citation verified. Every answer trusted. Built for lawyers who demand precision in an era of uncertainty.",
+    "joinBeta": "Join the Beta",
+    "learnMore": "Learn More"
+  },
+  "About": {
+    "title": "Law Shouldn't Be a",
+    "titleHighlight": "Guessing Game",
+    "problem": "The Problem",
+    "problemDesc": "Every day, legal professionals waste hours verifying citations, chasing amendments, and second guessing AI hallucinations.",
+    "solution": "The Solution",
+    "solutionDesc": "Veritus eliminates uncertainty with source backed answers, real time legal updates, and zero tolerance for hallucinations.",
+    "future": "The Future",
+    "futureDesc": "A new era where lawyers trust their AI completely, focusing on strategy instead of fact checking.",
+    "closing": "The next era of legal integrity starts here."
+  },
+  "Features": {
+    "title": "Precision",
+    "titleHighlight": "Engineered",
+    "subtitle": "Three pillars of legal AI you can trust",
+    "sourceBackedTitle": "Source-Backed Chat",
+    "sourceBackedDesc": "Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.",
+    "documentTitle": "Document Analysis",
+    "documentDesc": "Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context (coming soon).",
+    "jurisdictionTitle": "Jurisdiction Sync",
+    "jurisdictionDesc": "Real time updates to federal, state, and regional law (coming soon). Never miss an amendment or new precedent again."
+  },
+  "Global": {
+    "title": "Starting Local,",
+    "titleHighlight": "Scaling Global",
+    "description": "We're mastering Federal law first. Then every statute, every case, every update. Then expanding nationwide with the same uncompromising precision.",
+    "roadmap": "Coverage Roadmap",
+    "brazil": "Brazil Laws and Regulations",
+    "usCanada": "US and Canada",
+    "restOfWorld": "Rest of the World",
+    "live": "Live",
+    "q2": "Q2 2025",
+    "year": "2026"
+  },
+  "Contact": {
+    "title": "Join the",
+    "titleHighlight": "Future of Law",
+    "description": "Be among the first legal professionals to experience AI that never compromises on truth.",
+    "existingTitle": "Existing Users",
+    "existingDesc": "Access your account",
+    "existingButton": "Sign In",
+    "newTitle": "New to Veritus?",
+    "newDesc": "Request beta access",
+    "newButton": "Join Beta",
+    "earlyAccess": "EARLY ACCESS",
+    "emailPlaceholder": "your@firm.com",
+    "requestAccess": "Request Access"
+  },
+  "Footer": {
+    "copyright": "© 2025 Veritus AI. Legal intelligence redefined.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  }
+}

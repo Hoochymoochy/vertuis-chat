@@ -1,0 +1,70 @@
+{
+  "Nav": {
+    "about": "SOBRE",
+    "features": "RECURSOS",
+    "global": "GLOBAL",
+    "contact": "CONTATO",
+    "signIn": "ENTRAR"
+  },
+  "Hero": {
+    "title": "VERITUS",
+    "tagline": "IA em Que Você Pode Confiar",
+    "description": "A próxima geração de inteligência jurídica. Cada citação verificada. Cada resposta confiável. Construído para advogados que exigem precisão em uma era de incerteza.",
+    "joinBeta": "Entre no Beta",
+    "learnMore": "Saiba Mais"
+  },
+  "About": {
+    "title": "Direito Não Deveria Ser um",
+    "titleHighlight": "Jogo de Adivinhação",
+    "problem": "O Problema",
+    "problemDesc": "Todos os dias, profissionais jurídicos perdem horas verificando citações, rastreando emendas e questionando alucinações de IA.",
+    "solution": "A Solução",
+    "solutionDesc": "Veritus elimina a incerteza com respostas baseadas em fontes, atualizações jurídicas em tempo real e tolerância zero para alucinações.",
+    "future": "O Futuro",
+    "futureDesc": "Uma nova era onde advogados confiam completamente em sua IA, focando em estratégia em vez de verificação de fatos.",
+    "closing": "A próxima era da integridade jurídica começa aqui."
+  },
+  "Features": {
+    "title": "Precisão",
+    "titleHighlight": "Engenheirada",
+    "subtitle": "Três pilares de IA jurídica em que você pode confiar",
+    "sourceBackedTitle": "Chat com Fontes",
+    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas com citações verificáveis de fontes primárias. Cada afirmação. Sempre.",
+    "documentTitle": "Análise de Documentos",
+    "documentDesc": "Carregue contratos, estatutos ou jurisprudência. Destaque instantaneamente provisões-chave, faça referências cruzadas de citações e entenda o contexto (em breve).",
+    "jurisdictionTitle": "Sincronização de Jurisdição",
+    "jurisdictionDesc": "Atualizações em tempo real de leis federais, estaduais e regionais (em breve). Nunca perca uma emenda ou novo precedente novamente."
+  },
+  "Global": {
+    "title": "Começando Local,",
+    "titleHighlight": "Expandindo Globalmente",
+    "description": "Estamos dominando as leis federais primeiro. Depois cada estatuto, cada caso, cada atualização. Então expandindo nacionalmente com a mesma precisão incompromissável.",
+    "roadmap": "Roteiro de Cobertura",
+    "brazil": "Leis e Regulamentos do Brasil",
+    "usCanada": "EUA e Canadá",
+    "restOfWorld": "Resto do Mundo",
+    "live": "Ativo",
+    "q2": "2º Trimestre 2025",
+    "year": "2026"
+  },
+  "Contact": {
+    "title": "Junte-se ao",
+    "titleHighlight": "Futuro do Direito",
+    "description": "Esteja entre os primeiros profissionais jurídicos a experimentar IA que nunca compromete a verdade.",
+    "existingTitle": "Usuários Existentes",
+    "existingDesc": "Acesse sua conta",
+    "existingButton": "Entrar",
+    "newTitle": "Novo no Veritus?",
+    "newDesc": "Solicite acesso beta",
+    "newButton": "Entre no Beta",
+    "earlyAccess": "ACESSO ANTECIPADO",
+    "emailPlaceholder": "seu@escritorio.com",
+    "requestAccess": "Solicitar Acesso"
+  },
+  "Footer": {
+    "copyright": "© 2025 Veritus AI. Inteligência jurídica redefinida.",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "contact": "Contato"
+  }
+}
