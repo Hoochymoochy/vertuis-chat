@@ -66,5 +66,116 @@
     "privacy": "Privacidade",
     "terms": "Termos",
     "contact": "Contato"
+  },
+  "Login": {
+    "title": "Entrar",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Senha",
+    "signInButton": "Entrar",
+    "loggingIn": "Entrando...",
+    "orLoginWith": "Ou entre com",
+    "continueWithGoogle": "Continuar com Google",
+    "noAccount": "Não tem uma conta?",
+    "register": "Registrar",
+    "forgotPassword": "Esqueceu a senha?",
+    "errorUnableToSignIn": "Não foi possível entrar. Por favor, tente novamente.",
+    "errorInvalidCredentials": "Email ou senha inválidos",
+    "errorLoginFailed": "Falha no login",
+    "errorGoogleFailed": "Falha no login com Google",
+    "verificationTitle": "Email Não Verificado",
+    "verificationMessage": "Por favor, verifique seu endereço de email antes de fazer login.",
+    "verificationInbox": "Verifique sua caixa de entrada para o link de verificação que enviamos quando você se registrou.",
+    "verificationSpam": "Não encontrou? Verifique sua pasta de spam ou entre em contato com o suporte.",
+    "backToLogin": "Voltar ao Login"
+  },
+  "Register": {
+    "title": "Registrar",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Senha",
+    "confirmPasswordPlaceholder": "Confirmar Senha",
+    "createAccountButton": "Criar Conta",
+    "creatingAccount": "Criando Conta...",
+    "orSignUpWith": "Ou registre-se com",
+    "continueWithGoogle": "Continuar com Google",
+    "haveAccount": "Já tem uma conta?",
+    "login": "Entrar",
+    "errorPasswordMismatch": "As senhas não coincidem",
+    "errorRegistrationFailed": "Falha no registro",
+    "errorGoogleFailed": "Falha no login com Google",
+    "verificationTitle": "Verifique Seu Email",
+    "verificationMessage": "Enviamos um link de verificação para",
+    "verificationInstructions": "Clique no link de verificação no email para ativar sua conta.",
+    "verificationExpiry": "O link expira em 24 horas. Verifique sua pasta de spam se não encontrar.",
+    "goToLogin": "Ir para Login",
+    "didntReceive": "Não recebeu o email?",
+    "tryAgain": "Tente novamente"
+  },
+  "Chat": {
+    "verifyingAuth": "Verificando autenticação...",
+    "welcomeTitle": "Bem-vindo ao Veritus",
+    "welcomeMessage": "Selecione sua jurisdição no mapa para começar seu juramento.",
+    "errorMessage": "Mensagem falhou — tente novamente, conselheiro.",
+    "placeholder": "Faça uma pergunta, cite uma lei ou apresente seu caso...",
+    "filePlaceholder": "Pressione enter para começar a resumir",
+    "tagline": "IA em Que Você Pode Confiar",
+    "disclaimer": "(Não é aconselhamento jurídico)"
+  },
+  "AuthCallback": {
+    "completingAuth": "Concluindo autenticação...",
+    "errorTitle": "Erro de Autenticação",
+    "backToLogin": "Voltar ao Login",
+    "errorMissingTokens": "Tokens de autenticação ausentes na URL de retorno.",
+    "errorSessionFailed": "A sessão não pôde ser verificada.",
+    "errorUnknown": "Ocorreu um erro desconhecido."
+  },
+  "Side": {
+    "newChat": "Novo Chat",
+    "recentChats": "Chats Recentes",
+    "jurisdiction": "Jurisdição",
+    "country": "País",
+    "state": "Estado",
+    "clickToChange": "Clique para mudar localização →",
+    "logout": "Sair",
+    "global": "Global"
+  },
+  "Map": {
+    "backToWorld": "Voltar ao Mundo",
+    "hovering": "Passando sobre:",
+    "selected": "Selecionado:",
+    "chooseCountry": "Escolha um país para começar",
+    "selectState": "Dados federais estão ativos. Selecione um estado para nos ajudar a priorizar quais regiões expandir primeiro",
+    "selectToStart": "Por favor, selecione um país para começar"
+  },
+  "InputBox": {
+    "placeholder": "Faça uma pergunta, cite uma lei ou apresente seu caso...",
+    "filePlaceholder": "Pressione enter para começar a resumir",
+    "fileOptions": "Opções de arquivo",
+    "summarizeFile": "Resumir Arquivo",
+    "cancel": "Cancelar",
+    "fileSizeError": "O tamanho do arquivo deve ser menor que"
+  },
+  "ChatBubble": {
+    "whatHelpful": "O que foi útil?",
+    "whatWrong": "O que deu errado?",
+    "optional": "(opcional)",
+    "skip": "Pular",
+    "thanksFeedback": "Obrigado pelo feedback:",
+    "offTopic": "Fora do tópico",
+    "outdatedLaw": "Lei desatualizada",
+    "unclearExplanation": "Explicação confusa",
+    "missingCitation": "Citação faltando",
+    "inaccurateInfo": "Informação imprecisa",
+    "perfectAnswer": "Resposta perfeita",
+    "clearExplanation": "Explicação clara",
+    "helpfulCitations": "Citações úteis",
+    "comprehensive": "Abrangente"
+  },
+  "ChatPage": {
+    "failedMessage": "Falha ao enviar mensagem. Por favor, tente novamente.",
+    "continuePrompt": "Pressione enter para continuar..."
+  },
+  "Overlay": {
+    "dropFile": "Solte Seu Arquivo",
+    "releaseUpload": "Solte para carregar seu documento"
   }
 }

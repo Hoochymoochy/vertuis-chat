@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import { setLanguage, getCountry, getState, getLanguage } from "@/app/lib/user";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "@/app/lib/supabaseClient";
+import { useTranslations, useLocale } from 'next-intl';
 
 interface Chat {
   id: string;
@@ -25,10 +26,12 @@ export default function Side({ setOpenMap }: SideProps) {
   const [state, setSelectedState] = useState<string | null>("N/A");
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+  const t = useTranslations('Side');
+  const locale = useLocale();
 
   const languages = [
     { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "pt", name: "Português", flag: "🇧🇷" },
+    { code: "br", name: "Português", flag: "🇧🇷" },
   ];
 
   const currentLanguage = languages.find((l) => l.code === lang) || languages[0];
@@ -54,17 +57,17 @@ export default function Side({ setOpenMap }: SideProps) {
 
         setSelectedCountry(fetchedCountry ?? "World");
         setSelectedState(fetchedState ?? "N/A");
-        setSelectedLang(fetchedLang ?? "en");
+        setSelectedLang(fetchedLang ?? locale);
       } catch (err) {
         console.error("Error fetching user or chat data:", err);
         setSelectedCountry("World");
         setSelectedState("N/A");
-        setSelectedLang("en");
+        setSelectedLang(locale);
       }
     };
 
     fetchChatsAndUser();
-  }, []);
+  }, [locale]);
 
   // Listen for map/location updates
   useEffect(() => {
@@ -83,16 +86,19 @@ export default function Side({ setOpenMap }: SideProps) {
     setSelectedLang(langCode);
     if (userId) await setLanguage(userId, langCode);
     setIsLangOpen(false);
+    
+    // Navigate to new locale
+    router.push(`/${langCode}/chat`);
   };
 
-  const newChat = () => router.push("/chat");
+  const newChat = () => router.push(`/${locale}/chat`);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push(`/${locale}/login`);
   };
 
-  const handleChatClick = (id: string) => router.push(`/chat/${id}`);
+  const handleChatClick = (id: string) => router.push(`/${locale}/chat/${id}`);
 
   return (
     <>
@@ -150,14 +156,14 @@ export default function Side({ setOpenMap }: SideProps) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            New Chat
+            {t('newChat')}
           </motion.button>
         </div>
 
         {/* Chats List */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gold/30 scrollbar-track-transparent hover:scrollbar-thumb-gold/50">
           <div className="p-4">
-            <h3 className="text-gold text-xs uppercase tracking-wider font-semibold mb-3">Recent Chats</h3>
+            <h3 className="text-gold text-xs uppercase tracking-wider font-semibold mb-3">{t('recentChats')}</h3>
             <motion.div className="space-y-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.2 }}>
               {chats.map((chat, index) => (
                 <motion.div
@@ -198,11 +204,11 @@ export default function Side({ setOpenMap }: SideProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="text-gold text-xs uppercase tracking-wider font-semibold">Jurisdiction</span>
+                <span className="text-gold text-xs uppercase tracking-wider font-semibold">{t('jurisdiction')}</span>
               </div>
-              <div className="text-white text-sm"><span className="text-gold/80">Country:</span> {country || "Global"}</div>
-              <div className="text-white text-sm"><span className="text-gold/80">State:</span> {state || "N/A"}</div>
-              <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">Click to change location →</div>
+              <div className="text-white text-sm"><span className="text-gold/80">{t('country')}:</span> {country || t('global')}</div>
+              <div className="text-white text-sm"><span className="text-gold/80">{t('state')}:</span> {state || "N/A"}</div>
+              <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">{t('clickToChange')}</div>
             </div>
           </motion.button>
         </div>
@@ -245,7 +251,7 @@ export default function Side({ setOpenMap }: SideProps) {
           {/* Logout */}
           <motion.button onClick={handleLogout} className="w-full group relative overflow-hidden bg-linear-to-r from-red-950/40 to-red-900/40 hover:from-red-900/60 hover:to-red-800/60 border border-red-500/30 hover:border-red-500/50 px-4 py-2.5 transition-all duration-300" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <div className="relative flex items-center justify-center gap-2">
-              <span className="text-white text-sm font-medium group-hover:text-red-100 transition-colors">Logout</span>
+              <span className="text-white text-sm font-medium group-hover:text-red-100 transition-colors">{t('logout')}</span>
             </div>
           </motion.button>
         </div>

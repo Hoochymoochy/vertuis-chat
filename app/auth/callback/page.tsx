@@ -4,77 +4,79 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import { motion } from "framer-motion";
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function AuthCallback() {
   const router = useRouter();
+  const t = useTranslations('AuthCallback');
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     let active = true;
 
-async function handleAuth() {
-  try {
-    // Grab hash params (for Supabase OAuth redirect)
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const access_token = params.get("access_token");
-    const refresh_token = params.get("refresh_token");
+    async function handleAuth() {
+      try {
+        // Grab hash params (for Supabase OAuth redirect)
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const access_token = params.get("access_token");
+        const refresh_token = params.get("refresh_token");
 
-    if (!access_token || !refresh_token) {
-      throw new Error("Missing authentication tokens in callback URL.");
+        if (!access_token || !refresh_token) {
+          throw new Error(t('errorMissingTokens'));
+        }
+
+        // Apply tokens to Supabase session
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token,
+          refresh_token,
+        });
+        if (sessionError) throw new Error(sessionError.message);
+
+        // Double-check session actually exists
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) throw new Error(t('errorSessionFailed'));
+
+        // 🪄 Auto-seed user_data on first login
+        const { data: userData } = await supabase.auth.getUser();
+        const user = userData.user;
+        if (user) {
+          const { error: insertError } = await supabase
+            .from("user_data")
+            .upsert(
+              {
+                user_id: user.id,
+                country: "World",
+                state: "N/A",
+                language: locale, // Use current locale
+              },
+              { onConflict: "user_id" }
+            );
+          if (insertError) console.error("Error seeding user_data:", insertError);
+        }
+
+        // Give Supabase a brief moment to persist
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        if (!active) return;
+        router.replace(`/${locale}/chat`);
+      } catch (err) {
+        console.error("Auth callback failed:", err);
+        if (active)
+          setError(err instanceof Error ? err.message : t('errorUnknown'));
+      } finally {
+        if (active) setIsProcessing(false);
+      }
     }
-
-    // Apply tokens to Supabase session
-    const { error: sessionError } = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
-    if (sessionError) throw new Error(sessionError.message);
-
-    // Double-check session actually exists
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) throw new Error("Session could not be verified.");
-
-    // 🪄 Auto-seed user_data on first login
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData.user;
-    if (user) {
-      const { error: insertError } = await supabase
-        .from("user_data")
-        .upsert(
-          {
-            user_id: user.id,
-            country: "World",
-            state: "N/A",
-            language: "en",
-          },
-          { onConflict: "user_id" }
-        );
-      if (insertError) console.error("Error seeding user_data:", insertError);
-    }
-
-    // Give Supabase a brief moment to persist
-    await new Promise((resolve) => setTimeout(resolve, 150));
-
-    if (!active) return;
-    router.replace("/chat");
-  } catch (err) {
-    console.error("Auth callback failed:", err);
-    if (active)
-      setError(err instanceof Error ? err.message : "Unknown error occurred.");
-  } finally {
-    if (active) setIsProcessing(false);
-  }
-}
-
 
     handleAuth();
 
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [router, t, locale]);
 
   if (error) {
     return (
@@ -84,14 +86,14 @@ async function handleAuth() {
           animate={{ opacity: 1, y: 0 }}
           className="text-2xl font-semibold text-gold"
         >
-          Authentication Error
+          {t('errorTitle')}
         </motion.h2>
         <p className="text-white/80 max-w-sm">{error}</p>
         <button
-          onClick={() => router.push("/login")}
+          onClick={() => router.push(`/${locale}/login`)}
           className="mt-3 px-5 py-2 rounded-lg bg-gold text-black font-medium hover:bg-gold/90 transition"
         >
-          Back to Login
+          {t('backToLogin')}
         </button>
       </div>
     );
@@ -101,7 +103,7 @@ async function handleAuth() {
     <div className="flex flex-col items-center justify-center min-h-screen text-center gap-3 p-6">
       <Spinner />
       <p className="text-gold text-base font-medium">
-        Completing authentication...
+        {t('completingAuth')}
       </p>
     </div>
   );

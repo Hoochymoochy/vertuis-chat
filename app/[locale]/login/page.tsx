@@ -3,53 +3,50 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signUp, signInWithGoogle } from "@/app/lib/user";
 import Image from "next/image";
 import google from "@/public/google.svg";
-import { Mail, CheckCircle2, ArrowRight } from "lucide-react";
+import { signIn, signInWithGoogle } from "@/app/lib/user";
+import { Mail, AlertCircle } from "lucide-react";
+import { useTranslations, useLocale } from 'next-intl';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations('Login');
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [verificationSent, setVerificationSent] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
 
-interface SignUpResponse {
-  id?: string;
-  email?: string;
-  session?: any;
-  user?: any;
-}
-
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
+    setNeedsVerification(false);
 
     try {
-      const { user, session }: SignUpResponse = await signUp(email, password);
-
-      // Check if email confirmation is required
-      if (user && !session) {
-        // Email confirmation required - show success state
-        setVerificationSent(true);
-      } else if (session) {
-        // Auto-confirmed (shouldn't happen with email confirmation enabled)
-        router.push("/chat");
+      const data = await signIn(email, password);
+      
+      // Check if session exists (user is verified)
+      if (data.session) {
+        // Supabase handles session storage automatically
+        router.push(`/${locale}/chat`);
+      } else if (data.user && !data.user.email_confirmed_at) {
+        // User exists but email not verified
+        setNeedsVerification(true);
+      } else {
+        setError(t('errorUnableToSignIn'));
       }
     } catch (err: any) {
-      setError(err.message || "Registration failed");
+      // Handle specific Supabase errors
+      if (err.message.includes("Email not confirmed")) {
+        setNeedsVerification(true);
+      } else if (err.message.includes("Invalid login credentials")) {
+        setError(t('errorInvalidCredentials'));
+      } else {
+        setError(err.message || t('errorLoginFailed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -59,19 +56,16 @@ interface SignUpResponse {
     setLoading(true);
     setError(null);
     try {
-      const data = await signInWithGoogle();
-      if (data && data.id) {
-        router.push("/");
-      }
+      await signInWithGoogle();
+      // Google sign-in will redirect, so no need to manually navigate
     } catch (err: any) {
-      setError(err.message || "Google login failed");
-    } finally {
+      setError(err.message || t('errorGoogleFailed'));
       setLoading(false);
     }
   };
 
-  // Show verification sent screen
-  if (verificationSent) {
+  // Show email verification needed screen
+  if (needsVerification) {
     return (
       <div className="bg-marble bg-cover bg-no-repeat bg-center min-h-screen w-full flex flex-col px-4 py-6 relative overflow-hidden">
         <motion.div
@@ -87,7 +81,6 @@ interface SignUpResponse {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Success icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -98,8 +91,8 @@ interface SignUpResponse {
               delay: 0.2 
             }}
           >
-            <div className="w-20 h-20 rounded-full bg-gold/20 border-2 border-gold flex items-center justify-center mb-6">
-              <Mail className="w-10 h-10 text-gold" />
+            <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mb-6">
+              <AlertCircle className="w-10 h-10 text-amber-500" />
             </div>
           </motion.div>
 
@@ -109,7 +102,7 @@ interface SignUpResponse {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Check Your Email
+            {t('verificationTitle')}
           </motion.h1>
 
           <motion.p 
@@ -118,30 +111,30 @@ interface SignUpResponse {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            We've sent a verification link to
-            <span className="block text-gold font-medium mt-1">{email}</span>
+            {t('verificationMessage')}
+            <span className="block text-gold font-medium mt-2">{email}</span>
           </motion.p>
 
           <motion.div 
-            className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-6 w-full"
+            className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-6 w-full"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-gold mt-0.5 shrink-0" />
+              <Mail className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div className="text-sm text-white/70 space-y-2">
-                <p>Click the verification link in the email to activate your account.</p>
+                <p>{t('verificationInbox')}</p>
                 <p className="text-white/50 text-xs">
-                  The link will expire in 24 hours. Check your spam folder if you don't see it.
+                  {t('verificationSpam')}
                 </p>
               </div>
             </div>
           </motion.div>
 
           <motion.button
-            onClick={() => router.push("/login")}
-            className="w-full text-gold font-bold py-3 rounded-xl border border-gold hover:bg-gold/20 transition-all duration-300 relative overflow-hidden group flex items-center justify-center gap-2"
+            onClick={() => setNeedsVerification(false)}
+            className="w-full text-gold font-bold py-3 rounded-xl border border-gold hover:bg-gold/20 transition-all duration-300 relative overflow-hidden group"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -154,33 +147,17 @@ interface SignUpResponse {
               whileHover={{ x: "100%" }}
               transition={{ duration: 0.6 }}
             />
-            <span className="relative z-10 text-gold">Go to Login</span>
-            <ArrowRight className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">{t('backToLogin')}</span>
           </motion.button>
-
-          <motion.p 
-            className="text-white/50 text-xs mt-6 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
-            Didn't receive the email?{" "}
-            <button 
-              onClick={() => setVerificationSent(false)}
-              className="text-gold hover:underline"
-            >
-              Try again
-            </button>
-          </motion.p>
         </motion.div>
       </div>
     );
   }
 
-  // Registration form
+  // Login form
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-black/50"/>
+      <div className="absolute inset-0 bg-black/50" />
       <motion.div
         className="absolute inset-0 bg-gradient-radial from-gold/5 via-transparent to-transparent"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -189,7 +166,7 @@ interface SignUpResponse {
       />
 
       <motion.form
-        onSubmit={handleRegister}
+        onSubmit={handleLogin}
         className="glass-effect bg-black/60 backdrop-blur-md p-8 border border-gold/30 w-full max-w-md m-auto flex flex-col items-center shadow-xl relative z-10"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -205,7 +182,7 @@ interface SignUpResponse {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          Register
+          {t('title')}
         </motion.h1>
 
         <AnimatePresence mode="wait">
@@ -230,11 +207,9 @@ interface SignUpResponse {
         >
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onFocus={() => setFocusedField("email")}
-            onBlur={() => setFocusedField(null)}
             required
             className="flex w-full px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
           />
@@ -248,32 +223,10 @@ interface SignUpResponse {
         >
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setFocusedField("password")}
-            onBlur={() => setFocusedField(null)}
             required
-            minLength={6}
-            className="flex w-full px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
-          />
-        </motion.div>
-
-        <motion.div 
-          className="w-full mb-6 relative"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            onFocus={() => setFocusedField("confirmPassword")}
-            onBlur={() => setFocusedField(null)}
-            required
-            minLength={6}
             className="flex w-full px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
           />
         </motion.div>
@@ -284,7 +237,7 @@ interface SignUpResponse {
           className="w-full py-4 font-medium relative flex items-center justify-center gap-2 border border-[#d4af37] focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300 hover:scale-105 bg-[#d4af37] text-black hover:bg-[#f4e5b8] hover:shadow-2xl hover:shadow-[#d4af37]/50 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
           whileHover={{ scale: loading ? 1 : 1.02 }}
           whileTap={{ scale: loading ? 1 : 0.98 }}
         >
@@ -306,10 +259,10 @@ interface SignUpResponse {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="inline-block w-4 h-4 border-2 border-gold border-t-transparent rounded-full"
                 />
-                Creating Account...
+                {t('loggingIn')}
               </motion.span>
             ) : (
-              "Create Account"
+              t('signInButton')
             )}
           </span>
         </motion.button>
@@ -318,10 +271,10 @@ interface SignUpResponse {
           className="w-full flex items-center gap-3 mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
         >
           <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
-          <p className="text-white/60 text-sm">Or sign up with</p>
+          <p className="text-white/60 text-sm">{t('orLoginWith')}</p>
           <div className="h-px flex-1 mx-auto bg-[#d4af37]" />
         </motion.div>
 
@@ -332,30 +285,46 @@ interface SignUpResponse {
           className="w-full py-4 font-medium transition-all duration-300 hover:scale-105 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10 flex flex-row items-center justify-center gap-2 mb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.9 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
           whileHover={{ scale: loading ? 1 : 1.03, y: loading ? 0 : -2 }}
           whileTap={{ scale: loading ? 1 : 0.97 }}
         >
           <Image src={google} alt="Google" width={20} height={20} />
-          Continue with Google
+          {t('continueWithGoogle')}
         </motion.button>
 
         <motion.p 
           className="text-white/70 text-sm mt-4 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1.0 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
         >
-          Already have an account?{" "}
+          {t('noAccount')}{" "}
           <motion.a 
-            href="/login" 
+            href={`/${locale}/register`}
             className="text-gold hover:underline font-medium"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            Login
+            {t('register')}
           </motion.a>
         </motion.p>
+
+        {/* <motion.div 
+          className=" flex justify-end mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.55 }}
+        >
+          <motion.a 
+            href={`/${locale}/forgot-password`}
+            className="text-gold/80 hover:text-gold text-sm transition-colors"
+            whileHover={{ scale: 1.05 }}
+          >
+            {t('forgotPassword')}
+          </motion.a>
+        </motion.div> */}
+        
       </motion.form>
     </div>
   );
