@@ -11,10 +11,7 @@ export default function Map({openMap, setOpenMap}: MapProps) {
     // Detect mobile Safari
     const isMobileSafari = typeof window !== 'undefined' && 
     /iPhone|iPad|iPod/.test(navigator.userAgent) && 
-    !(window as any).MSStream;
-    
-    console.log('📱 [MAP WRAPPER] isMobileSafari:', isMobileSafari);
-    console.log('📱 [MAP WRAPPER] openMap:', openMap);
+    ('MSStream' in window);
     
     return(
     <AnimatePresence mode="wait">
@@ -68,4 +65,5 @@ export default function Map({openMap, setOpenMap}: MapProps) {
       )}
     </AnimatePresence> 
     )
+}
 }
