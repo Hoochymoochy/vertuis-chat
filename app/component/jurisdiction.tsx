@@ -20,6 +20,7 @@ type MapView = 'world' | 'Brazil' | 'United States of America'
 interface WorldToCountryMapProps {
   setOpenMap: (open: boolean) => void
 }
+
 export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
   const [currentView, setCurrentView] = useState<MapView>('world')
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
@@ -32,96 +33,178 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
 
   // Load saved country and state on mount
   useEffect(() => {
+    console.log('🗺️ [MAP INIT] Component mounting...')
+    
     const loadSavedSelection = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      if (!user) return;
-      
-      setUserId(user.id);
-      const onboarded = await getOnbaording(user.id)
-      
-      // If not onboarded, this is their first time
-      if (!onboarded) {
-        setIsOnboarding(true)
-        return
-      }
-      
-      const savedCountry = await getCountry(user.id)
-      const savedState = await getState(user.id)
-      
-      if (savedCountry && savedCountry !== 'World') {
-        setSelectedCountry(savedCountry)
-        if (savedCountry === 'Brazil' || savedCountry === 'United States of America') {
-          setCurrentView(savedCountry as MapView)
+      try {
+        console.log('🔐 [AUTH] Fetching user from Supabase...')
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error) {
+          console.error('❌ [AUTH ERROR]', error)
+          throw error;
         }
-      }
-      
-      if (savedState && savedState !== 'N/A') {
-        setSelectedState(savedState)
+        
+        if (!user) {
+          console.warn('⚠️ [AUTH] No user found')
+          return;
+        }
+        
+        console.log('✅ [AUTH] User authenticated:', user.id)
+        setUserId(user.id);
+        
+        console.log('📋 [ONBOARDING] Checking onboarding status...')
+        const onboarded = await getOnbaording(user.id)
+        console.log('📋 [ONBOARDING] Status:', onboarded)
+        
+        // If not onboarded, this is their first time
+        if (!onboarded) {
+          console.log('🆕 [ONBOARDING] First time user - showing onboarding')
+          setIsOnboarding(true)
+          return
+        }
+        
+        console.log('💾 [STORAGE] Loading saved country...')
+        const savedCountry = await getCountry(user.id)
+        console.log('💾 [STORAGE] Saved country:', savedCountry)
+        
+        console.log('💾 [STORAGE] Loading saved state...')
+        const savedState = await getState(user.id)
+        console.log('💾 [STORAGE] Saved state:', savedState)
+        
+        if (savedCountry && savedCountry !== 'World') {
+          console.log('🌍 [MAP] Setting country to:', savedCountry)
+          setSelectedCountry(savedCountry)
+          if (savedCountry === 'Brazil' || savedCountry === 'United States of America') {
+            console.log('🗺️ [MAP] Switching to country view:', savedCountry)
+            setCurrentView(savedCountry as MapView)
+          }
+        }
+        
+        if (savedState && savedState !== 'N/A') {
+          console.log('📍 [MAP] Setting state to:', savedState)
+          setSelectedState(savedState)
+        }
+        
+        console.log('✅ [INIT] Load complete')
+      } catch (err) {
+        console.error('❌ [INIT ERROR] Failed to load saved selection:', err)
       }
     }
     
     loadSavedSelection()
   }, [])
 
+  // Log when view changes
+  useEffect(() => {
+    console.log('🔄 [VIEW CHANGE] Current view:', currentView)
+    console.log('🔄 [VIEW CHANGE] Map URL:', 
+      currentView === 'world' ? WORLD_URL :
+      currentView === 'Brazil' ? BRAZIL_URL :
+      currentView === 'United States of America' ? USA_URL : 'unknown'
+    )
+  }, [currentView])
+
   const handleCountryClick = async (countryName: string) => {
-    if (isTransitioning) return;
+    console.log('🖱️ [CLICK] Country clicked:', countryName)
+    
+    if (isTransitioning) {
+      console.log('⏳ [CLICK] Ignored - transition in progress')
+      return;
+    }
     
     const normalizedCountry = countryName === 'Brazil' ? 'Brazil' : 
                               countryName === 'United States of America' ? 'United States of America' : null;
 
-    if (!normalizedCountry) return;
+    if (!normalizedCountry) {
+      console.log('❌ [CLICK] Country not supported:', countryName)
+      return;
+    }
 
+    console.log('✅ [CLICK] Valid country:', normalizedCountry)
     setIsTransitioning(true);
     setHoveredRegion(null);
 
-    await saveCountry(userId??"", normalizedCountry);
-    await saveState(userId??"", 'N/A');
-    setSelectedCountry(normalizedCountry);
-    setSelectedState(null);
-    setHasSelectedCountry(true);
+    try {
+      console.log('💾 [SAVE] Saving country:', normalizedCountry)
+      await saveCountry(userId??"", normalizedCountry);
+      
+      console.log('💾 [SAVE] Resetting state to N/A')
+      await saveState(userId??"", 'N/A');
+      
+      setSelectedCountry(normalizedCountry);
+      setSelectedState(null);
+      setHasSelectedCountry(true);
 
-        // Complete onboarding if this is first time
-    if (isOnboarding) {
-      await setOnbaording(userId??"", true);
-      setIsOnboarding(false);
-    }
+      // Complete onboarding if this is first time
+      if (isOnboarding) {
+        console.log('🎓 [ONBOARDING] Completing onboarding')
+        await setOnbaording(userId??"", true);
+        setIsOnboarding(false);
+      }
 
-    window.dispatchEvent(new Event('locationUpdated'));
+      console.log('📢 [EVENT] Dispatching locationUpdated event')
+      window.dispatchEvent(new Event('locationUpdated'));
 
-    setTimeout(() => {
-      setCurrentView(normalizedCountry as MapView);
+      console.log('⏱️ [TRANSITION] Waiting 400ms before view change')
+      setTimeout(() => {
+        console.log('🔄 [TRANSITION] Changing view to:', normalizedCountry)
+        setCurrentView(normalizedCountry as MapView);
+        setIsTransitioning(false);
+      }, 400);
+    } catch (err) {
+      console.error('❌ [SAVE ERROR] Failed to save country:', err)
       setIsTransitioning(false);
-    }, 400);
+    }
   };
 
   const handleStateClick = async (stateName: string) => {
-    if (isTransitioning) return;
+    console.log('🖱️ [CLICK] State clicked:', stateName)
     
-    await saveState(userId??"", stateName);
-    setSelectedState(stateName);
+    if (isTransitioning) {
+      console.log('⏳ [CLICK] Ignored - transition in progress')
+      return;
+    }
+    
+    try {
+      console.log('💾 [SAVE] Saving state:', stateName)
+      await saveState(userId??"", stateName);
+      setSelectedState(stateName);
 
-    window.dispatchEvent(new Event('locationUpdated'));
+      console.log('📢 [EVENT] Dispatching locationUpdated event')
+      window.dispatchEvent(new Event('locationUpdated'));
 
-    setTimeout(() => {
-      setOpenMap(false);
-    }, 300);
+      console.log('⏱️ [CLOSE] Closing map in 300ms')
+      setTimeout(() => {
+        console.log('🚪 [CLOSE] Closing map')
+        setOpenMap(false);
+      }, 300);
+    } catch (err) {
+      console.error('❌ [SAVE ERROR] Failed to save state:', err)
+    }
   };
 
   const handleBackToWorld = async () => {
-    if (isTransitioning) return;
+    console.log('🔙 [BACK] Back to world clicked')
+    
+    if (isTransitioning) {
+      console.log('⏳ [BACK] Ignored - transition in progress')
+      return;
+    }
 
     setIsTransitioning(true);
     setHoveredRegion(null);
-
 
     setSelectedCountry(null);
     setSelectedState(null);
     setHasSelectedCountry(false);
 
+    console.log('📢 [EVENT] Dispatching locationUpdated event')
     window.dispatchEvent(new Event('locationUpdated'));
 
+    console.log('⏱️ [TRANSITION] Waiting 400ms before view change')
     setTimeout(() => {
+      console.log('🔄 [TRANSITION] Changing view to: world')
       setCurrentView('world');
       setIsTransitioning(false);
     }, 400);
@@ -207,6 +290,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 ease: [0.43, 0.13, 0.23, 0.96]
               }}
               className="w-full flex justify-center"
+              onAnimationStart={() => console.log('🎬 [ANIMATION] World map animation started')}
+              onAnimationComplete={() => console.log('✅ [ANIMATION] World map animation complete')}
             >
               <ComposableMap 
                 projection="geoMercator"
@@ -215,8 +300,9 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 height={400}
               >
                 <Geographies geography={WORLD_URL}>
-                  {({ geographies }: any) =>
-                    geographies.map((geo: any) => {
+                  {({ geographies }: any) => {
+                    console.log('🗺️ [GEOGRAPHIES] World map loaded:', geographies?.length, 'countries')
+                    return geographies.map((geo: any) => {
                       const countryName = geo.properties.name
                       const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
                       
@@ -253,7 +339,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                         />
                       )
                     })
-                  }
+                  }}
                 </Geographies>
               </ComposableMap>
             </motion.div>
@@ -268,6 +354,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
             className="w-full flex justify-center"
+            onAnimationStart={() => console.log('🎬 [ANIMATION] Brazil map animation started')}
+            onAnimationComplete={() => console.log('✅ [ANIMATION] Brazil map animation complete')}
           >
             <ComposableMap
               projection="geoMercator"
@@ -276,8 +364,9 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               height={500}
             >
           <Geographies geography={BRAZIL_URL}>
-            {({ geographies }: any) =>
-              geographies.map((geo: any) => {
+            {({ geographies }: any) => {
+              console.log('🗺️ [GEOGRAPHIES] Brazil map loaded:', geographies?.length, 'states')
+              return geographies.map((geo: any) => {
                 const stateName = geo.properties.name
 
                 return (
@@ -313,7 +402,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                   />
                 )
               })
-            }
+            }}
           </Geographies>
 
             </ComposableMap>
@@ -329,6 +418,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
             className="w-full flex justify-center"
+            onAnimationStart={() => console.log('🎬 [ANIMATION] USA map animation started')}
+            onAnimationComplete={() => console.log('✅ [ANIMATION] USA map animation complete')}
           >
             <ComposableMap
               projection="geoAlbersUsa"
@@ -337,8 +428,9 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               height={500}
             >
               <Geographies geography={USA_URL}>
-                {({ geographies }: any) =>
-                  geographies.map((geo: any) => {
+                {({ geographies }: any) => {
+                  console.log('🗺️ [GEOGRAPHIES] USA map loaded:', geographies?.length, 'states')
+                  return geographies.map((geo: any) => {
                     const stateName = geo.properties.name
 
                     return (
@@ -374,7 +466,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                       />
                     )
                   })
-                }
+                }}
               </Geographies>
             </ComposableMap>
           </motion.div>
