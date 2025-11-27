@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import Side from "@/app/component/side";
 import Map from "@/app/component/map";
@@ -32,6 +32,13 @@ export default function Chat() {
     clearDroppedFile();
   };
 
+  // Fixed: Added needsOnboarding to dependency array and ensure map opens when onboarding is needed
+  useEffect(() => {
+    if (needsOnboarding) {
+      setOpenMap(true);
+    }
+  }, [needsOnboarding]);
+
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -57,7 +64,7 @@ export default function Chat() {
       />
       <Overlay isDragging={isDragging} />
       <Side setOpenMap={setOpenMap} />
-      <Map openMap={openMap} needsOnboarding={needsOnboarding} setOpenMap={setOpenMap} />
+      <Map openMap={openMap} setOpenMap={setOpenMap} needsOnboarding={needsOnboarding} />
 
       {/* Onboarding overlay */}
       <AnimatePresence>

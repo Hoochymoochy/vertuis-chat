@@ -7,10 +7,10 @@ type MapProps = {
     setOpenMap: (open: boolean) => void;
 };
 
-export default function Map({openMap, needsOnboarding, setOpenMap}: MapProps) {
+export default function Map({openMap, setOpenMap}: MapProps) {
     return(
     <AnimatePresence mode="wait">
-      {openMap || needsOnboarding && (
+      {openMap && (
         <motion.div
           key="map-popup"
           initial={{ opacity: 0 }}
