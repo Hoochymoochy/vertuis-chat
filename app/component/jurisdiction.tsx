@@ -307,13 +307,18 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
       </motion.button>
 
       {/* Map Container */}
-      <div className="">
+      <div className="relative w-full" style={{ minHeight: '400px' }}>
         {/* Error display */}
         {mapError && (
           <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 mb-4">
             <strong>Map Error:</strong> {mapError}
           </div>
         )}
+        
+        {/* Mobile Safari Debug - visible indicator */}
+        <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 z-50">
+          Map Container Ready
+        </div>
         
         <AnimatePresence mode="wait">
         {/* World Map View */}
@@ -327,15 +332,31 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 duration: 0.8, 
                 ease: [0.43, 0.13, 0.23, 0.96]
               }}
-              className="w-full flex justify-center"
+              className="w-full flex justify-center relative"
+              style={{ 
+                minHeight: '400px',
+                WebkitTransform: 'translateZ(0)', // Force GPU acceleration on Safari
+                transform: 'translateZ(0)'
+              }}
               onAnimationStart={() => console.log('🎬 [ANIMATION] World map animation started')}
               onAnimationComplete={() => console.log('✅ [ANIMATION] World map animation complete')}
             >
+              {/* Visual indicator */}
+              <div className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 z-50">
+                SVG Container Active
+              </div>
+              
               <ComposableMap 
                 projection="geoMercator"
                 projectionConfig={{ scale: 120, center: [0, 20] }}
                 width={800}
                 height={400}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  maxWidth: '800px',
+                  display: 'block' // Ensure SVG is block-level
+                }}
               >
                 <Geographies geography={WORLD_URL}>
                   {({ geographies }: any) => {
@@ -349,12 +370,19 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                       return null
                     }
                     
+                    console.log('🎨 [RENDER] About to render', geographies.length, 'Geography components')
+                    
                     return geographies.map((geo: any, index: number) => {
                       if (index === 0) {
                         console.log('🗺️ [SAMPLE] First country:', geo.properties)
+                        console.log('🗺️ [SAMPLE] First geo structure:', Object.keys(geo))
                       }
                       const countryName = geo.properties.name
                       const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
+                      
+                      if (index === 0) {
+                        console.log('🎨 [RENDER] First Geography - clickable:', isClickable, 'color:', getCountryFillColor(countryName))
+                      }
                       
                       return (
                         <Geography
@@ -403,7 +431,12 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
-            className="w-full flex justify-center"
+            className="w-full flex justify-center relative"
+            style={{ 
+              minHeight: '500px',
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)'
+            }}
             onAnimationStart={() => console.log('🎬 [ANIMATION] Brazil map animation started')}
             onAnimationComplete={() => console.log('✅ [ANIMATION] Brazil map animation complete')}
           >
@@ -412,6 +445,12 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               projectionConfig={{ scale: 650, center: [-52, -14] }}
               width={800}
               height={500}
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxWidth: '800px',
+                display: 'block'
+              }}
             >
           <Geographies geography={BRAZIL_URL}>
             {({ geographies }: any) => {
@@ -477,7 +516,12 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
-            className="w-full flex justify-center"
+            className="w-full flex justify-center relative"
+            style={{ 
+              minHeight: '500px',
+              WebkitTransform: 'translateZ(0)',
+              transform: 'translateZ(0)'
+            }}
             onAnimationStart={() => console.log('🎬 [ANIMATION] USA map animation started')}
             onAnimationComplete={() => console.log('✅ [ANIMATION] USA map animation complete')}
           >
@@ -486,6 +530,12 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               projectionConfig={{ scale: 800 }}
               width={800}
               height={500}
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxWidth: '800px',
+                display: 'block'
+              }}
             >
               <Geographies geography={USA_URL}>
                 {({ geographies }: any) => {
