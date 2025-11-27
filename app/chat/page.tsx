@@ -57,7 +57,7 @@ export default function Chat() {
       />
       <Overlay isDragging={isDragging} />
       <Side setOpenMap={setOpenMap} />
-      <Map openMap={openMap} setOpenMap={setOpenMap} />
+      <Map openMap={openMap} needsOnboarding={needsOnboarding} setOpenMap={setOpenMap} />
 
       {/* Onboarding overlay */}
       <AnimatePresence>

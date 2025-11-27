@@ -3,13 +3,14 @@ import WorldToCountryMap from "./jurisdiction"
 
 type MapProps = {
     openMap: boolean;
+    needsOnboarding?: boolean;
     setOpenMap: (open: boolean) => void;
 };
 
-export default function Map({openMap, setOpenMap}: MapProps) {
+export default function Map({openMap, needsOnboarding, setOpenMap}: MapProps) {
     return(
     <AnimatePresence mode="wait">
-      {openMap && (
+      {openMap || needsOnboarding && (
         <motion.div
           key="map-popup"
           initial={{ opacity: 0 }}
