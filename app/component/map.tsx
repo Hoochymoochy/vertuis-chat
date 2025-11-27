@@ -66,4 +66,3 @@ export default function Map({openMap, setOpenMap}: MapProps) {
     </AnimatePresence> 
     )
 }
-}
