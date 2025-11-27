@@ -31,9 +31,27 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
   const [isOnboarding, setIsOnboarding] = useState(false)
   const [hasSelectedCountry, setHasSelectedCountry] = useState(false)
 
+  // Add error boundary for map rendering
+  const [mapError, setMapError] = useState<string | null>(null)
+  const [componentMounted, setComponentMounted] = useState(false)
+
+  // Track component mount
+  useEffect(() => {
+    console.log('🎯 [MOUNT] WorldToCountryMap component mounted')
+    console.log('🎯 [MOUNT] Window dimensions:', window.innerWidth, 'x', window.innerHeight)
+    console.log('🎯 [MOUNT] Device pixel ratio:', window.devicePixelRatio)
+    setComponentMounted(true)
+    return () => {
+      console.log('🎯 [UNMOUNT] WorldToCountryMap component unmounted')
+    }
+  }, [])
+
   // Load saved country and state on mount
   useEffect(() => {
     console.log('🗺️ [MAP INIT] Component mounting...')
+    console.log('🌐 [BROWSER] User agent:', navigator.userAgent)
+    console.log('🌐 [BROWSER] Language:', navigator.language)
+    console.log('🌐 [BROWSER] Online:', navigator.onLine)
     
     const loadSavedSelection = async () => {
       try {
@@ -229,6 +247,19 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
 
   return (
     <div className="relative">
+      {/* Debug Info - visible on screen */}
+      {!componentMounted && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-yellow-500/80 text-black px-4 py-2 z-50 text-sm font-bold">
+          Component not fully mounted yet...
+        </div>
+      )}
+      
+      {componentMounted && currentView === 'world' && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-green-500/80 text-white px-4 py-2 z-50 text-xs">
+          ✓ Mounted | View: {currentView} | Online: {navigator.onLine ? 'Yes' : 'No'}
+        </div>
+      )}
+      
       {/* Back Button */}
       {currentView !== 'world' && (
         <motion.button
@@ -277,6 +308,13 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
 
       {/* Map Container */}
       <div className="">
+        {/* Error display */}
+        {mapError && (
+          <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 mb-4">
+            <strong>Map Error:</strong> {mapError}
+          </div>
+        )}
+        
         <AnimatePresence mode="wait">
         {/* World Map View */}
         {currentView === 'world' && (
@@ -302,7 +340,19 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 <Geographies geography={WORLD_URL}>
                   {({ geographies }: any) => {
                     console.log('🗺️ [GEOGRAPHIES] World map loaded:', geographies?.length, 'countries')
-                    return geographies.map((geo: any) => {
+                    console.log('🗺️ [GEOGRAPHIES] Geographies is array?', Array.isArray(geographies))
+                    console.log('🗺️ [GEOGRAPHIES] Type:', typeof geographies)
+                    
+                    if (!geographies || geographies.length === 0) {
+                      console.error('❌ [GEOGRAPHIES] No countries found in world map!')
+                      setMapError('World map data is empty')
+                      return null
+                    }
+                    
+                    return geographies.map((geo: any, index: number) => {
+                      if (index === 0) {
+                        console.log('🗺️ [SAMPLE] First country:', geo.properties)
+                      }
                       const countryName = geo.properties.name
                       const isClickable = countryName === 'Brazil' || countryName === 'United States of America'
                       
@@ -366,6 +416,16 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           <Geographies geography={BRAZIL_URL}>
             {({ geographies }: any) => {
               console.log('🗺️ [GEOGRAPHIES] Brazil map loaded:', geographies?.length, 'states')
+              console.log('🗺️ [GEOGRAPHIES] Brazil - is array?', Array.isArray(geographies))
+              
+              if (!geographies || geographies.length === 0) {
+                console.error('❌ [GEOGRAPHIES] No states found in Brazil map!')
+                setMapError('Brazil map data is empty')
+                return null
+              }
+              if (geographies && geographies.length > 0) {
+                console.log('🗺️ [SAMPLE] First Brazil state:', geographies[0].properties)
+              }
               return geographies.map((geo: any) => {
                 const stateName = geo.properties.name
 
@@ -430,6 +490,16 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               <Geographies geography={USA_URL}>
                 {({ geographies }: any) => {
                   console.log('🗺️ [GEOGRAPHIES] USA map loaded:', geographies?.length, 'states')
+                  console.log('🗺️ [GEOGRAPHIES] USA - is array?', Array.isArray(geographies))
+                  
+                  if (!geographies || geographies.length === 0) {
+                    console.error('❌ [GEOGRAPHIES] No states found in USA map!')
+                    setMapError('USA map data is empty')
+                    return null
+                  }
+                  if (geographies && geographies.length > 0) {
+                    console.log('🗺️ [SAMPLE] First USA state:', geographies[0].properties)
+                  }
                   return geographies.map((geo: any) => {
                     const stateName = geo.properties.name
 
