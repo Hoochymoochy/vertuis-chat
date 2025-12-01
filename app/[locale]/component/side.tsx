@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import { setLanguage, getCountry, getState, getLanguage } from "@/app/lib/user";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "@/app/lib/supabaseClient";
 
 interface Chat {
   id: string;

@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import ChatBubble from "@/app/component/bubble";
-import Side from "@/app/component/side";
-import Map from "@/app/component/map";
-import InputBox from "@/app/component/inputbox";
-import Overlay from "@/app/component/overlay";
+import ChatBubble from "@/app/[locale]/component/bubble";
+import Side from "@/app/[locale]/component/side";
+import Map from "@/app/[locale]/component/map";
+import InputBox from "@/app/[locale]/component/inputbox";
+import Overlay from "@/app/[locale]/component/overlay";
 import useAuth  from "@/app/hooks/useAuth";
 import useChatMessages from "@/app/hooks/useChatMessages";
 import useAIResponse from "@/app/hooks/useAIResponse";

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useTranslations, useLocale } from 'next-intl'
+import Link from 'next/link'
 
 export default function Home() {
   const [email, setEmail] = useState("")
@@ -10,6 +12,8 @@ export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState(new Set())
   const router = useRouter()
+  const t = useTranslations()
+  const locale = useLocale()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -45,8 +49,12 @@ export default function Home() {
   }
 
   const handleRoute = (path: string) => {
-    router.push(path)
+    router.push(`/${locale}${path}`)
     setIsMenuOpen(false)
+  }
+
+  const switchLocale = (newLocale: string) => {
+    router.push(`/${newLocale}`)
   }
 
   return (
@@ -65,26 +73,27 @@ export default function Home() {
             onClick={() => scrollToSection("hero")}
             className="text-2xl font-serif font-semibold tracking-wide text-gradient hover:scale-105 transition-transform duration-300"
           >
-            VERITUS
+            {t('Hero.title')}
           </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-10 text-sm tracking-widest font-light">
-            {['ABOUT', 'FEATURES', 'GLOBAL', 'CONTACT'].map((item) => (
+            {['about', 'features', 'global', 'contact'].map((item) => (
               <button
                 key={item}
-                onClick={() => scrollToSection(item.toLowerCase())}
+                onClick={() => scrollToSection(item)}
                 className="text-white/70 hover:text-[#d4af37] transition-all duration-300 relative group"
               >
-                {item}
+                {t(`Nav.${item}`)}
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#d4af37] group-hover:w-full transition-all duration-300" />
               </button>
             ))}
+            
             <button
               onClick={() => handleRoute('/login')}
               className="px-6 py-2 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all duration-300 rounded-sm"
             >
-              SIGN IN
+              {t('Nav.signIn')}
             </button>
           </div>
 
@@ -101,20 +110,45 @@ export default function Home() {
         {isMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-[#d4af37]/20">
             <div className="flex flex-col items-center gap-6 py-8 text-sm tracking-widest">
-              {['ABOUT', 'FEATURES', 'GLOBAL', 'CONTACT'].map((item) => (
+              {['about', 'features', 'global', 'contact'].map((item) => (
                 <button
                   key={item}
-                  onClick={() => scrollToSection(item.toLowerCase())}
+                  onClick={() => scrollToSection(item)}
                   className="text-white/70 hover:text-[#d4af37] transition-all duration-300"
                 >
-                  {item}
+                  {t(`Nav.${item}`)}
                 </button>
               ))}
+              
+              {/* Mobile Language Switcher */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => switchLocale('en')}
+                  className={`px-4 py-2 text-xs transition-all duration-300 ${
+                    locale === 'en' 
+                      ? 'bg-[#d4af37] text-black' 
+                      : 'text-white/70 hover:text-[#d4af37]'
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => switchLocale('br')}
+                  className={`px-4 py-2 text-xs transition-all duration-300 ${
+                    locale === 'br' 
+                      ? 'bg-[#d4af37] text-black' 
+                      : 'text-white/70 hover:text-[#d4af37]'
+                  }`}
+                >
+                  PT
+                </button>
+              </div>
+
               <button
                 onClick={() => handleRoute('/login')}
                 className="px-6 py-2 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all duration-300 rounded-sm"
               >
-                SIGN IN
+                {t('Nav.signIn')}
               </button>
             </div>
           </div>
@@ -128,33 +162,32 @@ export default function Home() {
       >
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 text-center space-y-12 bg-black/80 backdrop-blur-xl border border-[#d4af37]/20">
-          <div className="space-y-6 animate-fadeInUp">
+          <div className="space-y-6">
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold tracking-tight">
-              <span className="text-gradient">VERITUS</span>
+              <span className="text-gradient">{t('Hero.title')}</span>
             </h1>
             <div className="h-0.5 w-32 mx-auto bg-linear-to-r from-transparent via-[#d4af37] to-transparent" />
             <p className="text-2xl md:text-4xl font-light text-white/90 tracking-wide">
-              AI You Can Swear By
+              {t('Hero.tagline')}
             </p>
           </div>
 
-          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-            The next generation of legal intelligence. Every citation verified. Every answer trusted. 
-            Built for lawyers who demand precision in an era of uncertainty.
+          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
+            {t('Hero.description')}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => scrollToSection('contact')}
               className="px-10 py-4 bg-[#d4af37] text-black font-medium text-lg hover:bg-[#f4e5b8] transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#d4af37]/50"
             >
-              Join the Beta
+              {t('Hero.joinBeta')}
             </button>
             <button
               onClick={() => scrollToSection('about')}
               className="px-10 py-4 border border-[#d4af37] text-[#d4af37] font-medium text-lg hover:bg-[#d4af37]/10 transition-all duration-300 hover:scale-105"
             >
-              Learn More
+              {t('Hero.learnMore')}
             </button>
           </div>
 
@@ -189,8 +222,8 @@ export default function Home() {
         }`}>
           <div className="space-y-8">
             <h2 className="text-5xl md:text-7xl font-serif font-semibold">
-              Law Shouldn't Be a <br />
-              <span className="text-gradient">Guessing Game</span>
+              {t('About.title')} <br />
+              <span className="text-gradient">{t('About.titleHighlight')}</span>
             </h2>
             <div className="h-px w-24 mx-auto bg-[#d4af37]" />
           </div>
@@ -199,19 +232,16 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8 text-left items-stretch">
             {[
               {
-                title: "The Problem",
-                content:
-                  "Every day, legal professionals waste hours verifying citations, chasing amendments, and second guessing AI hallucinations."
+                title: t('About.problem'),
+                content: t('About.problemDesc')
               },
               {
-                title: "The Solution",
-                content:
-                  "Veritus eliminates uncertainty with source backed answers, real time legal updates, and zero tolerance for hallucinations."
+                title: t('About.solution'),
+                content: t('About.solutionDesc')
               },
               {
-                title: "The Future",
-                content:
-                  "A new era where lawyers trust their AI completely, focusing on strategy instead of fact checking."
+                title: t('About.future'),
+                content: t('About.futureDesc')
               }
             ].map((item, i) => (
               <div
@@ -230,7 +260,7 @@ export default function Home() {
           </div>
 
           <p className="text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
-            The next era of legal integrity starts here.
+            {t('About.closing')}
           </p>
         </div>
       </section>
@@ -248,29 +278,29 @@ export default function Home() {
         }`}>
           <div className="text-center space-y-6">
             <h2 className="text-5xl md:text-7xl font-serif font-semibold">
-              Precision <span className="text-gradient">Engineered</span>
+              {t('Features.title')} <span className="text-gradient">{t('Features.titleHighlight')}</span>
             </h2>
             <div className="h-px w-24 mx-auto bg-[#d4af37]" />
             <p className="text-xl text-white/70 max-w-3xl mx-auto">
-              Three pillars of legal AI you can trust
+              {t('Features.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: 'Source-Backed Chat',
-                desc: 'Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.',
+                title: t('Features.sourceBackedTitle'),
+                desc: t('Features.sourceBackedDesc'),
                 icon: '/icons/scale2.png',
               },
               {
-                title: 'Document Analysis',
-                desc: 'Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context (coming soon).',
+                title: t('Features.documentTitle'),
+                desc: t('Features.documentDesc'),
                 icon: '/icons/doc2.png',
               },
               {
-                title: 'Jurisdiction Sync',
-                desc: 'Real time updates to federal, state, and regional law (coming soon). Never miss an amendment or new precedent again.',
+                title: t('Features.jurisdictionTitle'),
+                desc: t('Features.jurisdictionDesc'),
                 icon: '/icons/globe2.png',
               },
             ].map((feature, i) => (
@@ -316,24 +346,23 @@ export default function Home() {
           <div className="space-y-10 text-center lg:text-left order-2 lg:order-1">
             <div className="space-y-6">
               <h2 className="text-5xl md:text-6xl font-serif font-semibold leading-tight">
-                Starting Local,<br />
-                <span className="text-gradient">Scaling Global</span>
+                {t('Global.title')}<br />
+                <span className="text-gradient">{t('Global.titleHighlight')}</span>
               </h2>
               <div className="h-px w-24 mx-auto lg:mx-0 bg-[#d4af37]" />
             </div>
 
             <p className="text-lg text-white/70 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              We're mastering Federal law first. Then every statute, every case, every update. 
-              Then expanding nationwide with the same uncompromising precision.
+              {t('Global.description')}
             </p>
 
             <div className="glass-effect p-8 space-y-6">
-              <p className="text-[#d4af37] font-medium text-lg">Coverage Roadmap</p>
+              <p className="text-[#d4af37] font-medium text-lg">{t('Global.roadmap')}</p>
               <div className="space-y-4">
                 {[
-                  { text: "Brazil Laws and Regulations", status: "Live" },
-                  { text: "Us and Canada", status: "Q2 2025" },
-                  { text: "Rest of the World", status: "2026" }
+                  { text: t('Global.brazil'), status: t('Global.live') },
+                  { text: t('Global.usCanada'), status: t('Global.q2') },
+                  { text: t('Global.restOfWorld'), status: t('Global.year') }
                 ].map((item, i) => (
                   <div
                     key={i}
@@ -344,7 +373,7 @@ export default function Home() {
                   >
                     <span className="text-white/80">{item.text}</span>
                     <span className={`text-xs px-3 py-1 rounded-full ${
-                      item.status === 'Live' 
+                      item.status === t('Global.live')
                         ? 'bg-[#d4af37]/20 text-[#d4af37]' 
                         : 'bg-white/10 text-white/60'
                     }`}>
@@ -378,27 +407,27 @@ export default function Home() {
         }`}>
           <div className="space-y-8">
             <h2 className="text-5xl md:text-7xl font-serif font-semibold leading-tight">
-              Join the <span className="text-gradient">Future of Law</span>
+              {t('Contact.title')} <span className="text-gradient">{t('Contact.titleHighlight')}</span>
             </h2>
             <div className="h-px w-24 mx-auto bg-[#d4af37]" />
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
-              Be among the first legal professionals to experience AI that never compromises on truth.
+              {t('Contact.description')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
             {[
               { 
-                title: "Existing Users", 
-                desc: "Access your account", 
-                buttonText: "Sign In", 
+                title: t('Contact.existingTitle'),
+                desc: t('Contact.existingDesc'),
+                buttonText: t('Contact.existingButton'),
                 link: "/login",
                 primary: false
               },
               { 
-                title: "New to Veritus?", 
-                desc: "Request beta access", 
-                buttonText: "Join Beta", 
+                title: t('Contact.newTitle'),
+                desc: t('Contact.newDesc'),
+                buttonText: t('Contact.newButton'),
                 link: "/register",
                 primary: true
               },
@@ -431,17 +460,17 @@ export default function Home() {
           </div>
 
           <div className="pt-12 border-t border-[#d4af37]/20 space-y-6">
-            <p className="text-white/50 text-sm tracking-widest">EARLY ACCESS</p>
+            <p className="text-white/50 text-sm tracking-widest">{t('Contact.earlyAccess')}</p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@firm.com"
+                placeholder={t('Contact.emailPlaceholder')}
                 className="flex-1 px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#d4af37] transition-all duration-300"
               />
               <button className="px-8 py-4 bg-[#d4af37] text-black font-medium hover:bg-[#f4e5b8] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#d4af37]/50 whitespace-nowrap">
-                Request Access
+                {t('Contact.requestAccess')}
               </button>
             </div>
           </div>
@@ -451,12 +480,12 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative border-t border-[#d4af37]/20 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-white/50">
-          <p className="font-serif text-[#d4af37]">VERITUS</p>
-          <p>© 2025 Veritus AI. Legal intelligence redefined.</p>
+          <p className="font-serif text-[#d4af37]">{t('Hero.title')}</p>
+          <p>{t('Footer.copyright')}</p>
           <div className="flex gap-6">
-            <button onClick={()=> handleRoute("/privacy")} className="hover:text-[#d4af37] transition-colors duration-300">Privacy</button>
-            <button onClick={()=> handleRoute("/terms")} className="hover:text-[#d4af37] transition-colors duration-300">Terms</button>
-            <button onClick={()=> handleRoute("/contact")} className="hover:text-[#d4af37] transition-colors duration-300">Contact</button>
+            <button onClick={()=> handleRoute("/privacy")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.privacy')}</button>
+            <button onClick={()=> handleRoute("/terms")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.terms')}</button>
+            <button onClick={()=> handleRoute("/contact")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.contact')}</button>
           </div>
         </div>
       </footer>

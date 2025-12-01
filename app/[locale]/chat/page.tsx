@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
-import Side from "@/app/component/side";
-import Map from "@/app/component/map";
-import Spinner from "@/app/component/spinner";
-import InputBox from "@/app/component/inputbox";
+import Side from "@/app/[locale]/component/side";
+import Map from "@/app/[locale]/component/map";
+import Spinner from "@/app/[locale]/component/spinner";
+import InputBox from "@/app/[locale]/component/inputbox";
 import useAuth from "@/app/hooks/useAuth";
 import useInitialChat from "@/app/hooks/useInitialChat";
 import useFileDrop from "@/app/hooks/useFileDrop";
-import Overlay from "@/app/component/overlay";
+import Overlay from "@/app/[locale]/component/overlay";
 
 export default function Chat() {
   const [isSubmitted, setIsSubmitted] = useState(false);

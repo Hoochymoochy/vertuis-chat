@@ -1,0 +1,181 @@
+{
+  "Nav": {
+    "about": "ABOUT",
+    "features": "FEATURES",
+    "global": "GLOBAL",
+    "contact": "CONTACT",
+    "signIn": "SIGN IN"
+  },
+  "Hero": {
+    "title": "VERITUS",
+    "tagline": "AI You Can Swear By",
+    "description": "The next generation of legal intelligence. Every citation verified. Every answer trusted. Built for lawyers who demand precision in an era of uncertainty.",
+    "joinBeta": "Join the Beta",
+    "learnMore": "Learn More"
+  },
+  "About": {
+    "title": "Law Shouldn't Be a",
+    "titleHighlight": "Guessing Game",
+    "problem": "The Problem",
+    "problemDesc": "Every day, legal professionals waste hours verifying citations, chasing amendments, and second guessing AI hallucinations.",
+    "solution": "The Solution",
+    "solutionDesc": "Veritus eliminates uncertainty with source backed answers, real time legal updates, and zero tolerance for hallucinations.",
+    "future": "The Future",
+    "futureDesc": "A new era where lawyers trust their AI completely, focusing on strategy instead of fact checking.",
+    "closing": "The next era of legal integrity starts here."
+  },
+  "Features": {
+    "title": "Precision",
+    "titleHighlight": "Engineered",
+    "subtitle": "Three pillars of legal AI you can trust",
+    "sourceBackedTitle": "Source-Backed Chat",
+    "sourceBackedDesc": "Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.",
+    "documentTitle": "Document Analysis",
+    "documentDesc": "Upload contracts, statutes, or case law. Instantly highlight key provisions, cross-reference citations, and understand context (coming soon).",
+    "jurisdictionTitle": "Jurisdiction Sync",
+    "jurisdictionDesc": "Real time updates to federal, state, and regional law (coming soon). Never miss an amendment or new precedent again."
+  },
+  "Global": {
+    "title": "Starting Local,",
+    "titleHighlight": "Scaling Global",
+    "description": "We're mastering Federal law first. Then every statute, every case, every update. Then expanding nationwide with the same uncompromising precision.",
+    "roadmap": "Coverage Roadmap",
+    "brazil": "Brazil Laws and Regulations",
+    "usCanada": "US and Canada",
+    "restOfWorld": "Rest of the World",
+    "live": "Live",
+    "q2": "Q2 2025",
+    "year": "2026"
+  },
+  "Contact": {
+    "title": "Join the",
+    "titleHighlight": "Future of Law",
+    "description": "Be among the first legal professionals to experience AI that never compromises on truth.",
+    "existingTitle": "Existing Users",
+    "existingDesc": "Access your account",
+    "existingButton": "Sign In",
+    "newTitle": "New to Veritus?",
+    "newDesc": "Request beta access",
+    "newButton": "Join Beta",
+    "earlyAccess": "EARLY ACCESS",
+    "emailPlaceholder": "your@firm.com",
+    "requestAccess": "Request Access"
+  },
+  "Footer": {
+    "copyright": "© 2025 Veritus AI. Legal intelligence redefined.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  },
+  "Login": {
+    "title": "Login",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "signInButton": "Sign In",
+    "loggingIn": "Logging in...",
+    "orLoginWith": "Or login with",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "forgotPassword": "Forgot password?",
+    "errorUnableToSignIn": "Unable to sign in. Please try again.",
+    "errorInvalidCredentials": "Invalid email or password",
+    "errorLoginFailed": "Login failed",
+    "errorGoogleFailed": "Google login failed",
+    "verificationTitle": "Email Not Verified",
+    "verificationMessage": "Please verify your email address before logging in.",
+    "verificationInbox": "Check your inbox for the verification link we sent when you registered.",
+    "verificationSpam": "Don't see it? Check your spam folder or contact support.",
+    "backToLogin": "Back to Login"
+  },
+  "Register": {
+    "title": "Register",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Confirm Password",
+    "createAccountButton": "Create Account",
+    "creatingAccount": "Creating Account...",
+    "orSignUpWith": "Or sign up with",
+    "continueWithGoogle": "Continue with Google",
+    "haveAccount": "Already have an account?",
+    "login": "Login",
+    "errorPasswordMismatch": "Passwords do not match",
+    "errorRegistrationFailed": "Registration failed",
+    "errorGoogleFailed": "Google login failed",
+    "verificationTitle": "Check Your Email",
+    "verificationMessage": "We've sent a verification link to",
+    "verificationInstructions": "Click the verification link in the email to activate your account.",
+    "verificationExpiry": "The link will expire in 24 hours. Check your spam folder if you don't see it.",
+    "goToLogin": "Go to Login",
+    "didntReceive": "Didn't receive the email?",
+    "tryAgain": "Try again"
+  },
+  "Chat": {
+    "verifyingAuth": "Verifying authentication...",
+    "welcomeTitle": "Welcome to Veritus",
+    "welcomeMessage": "Select your jurisdiction on the map to begin your oath.",
+    "errorMessage": "Message failed — try again, counselor.",
+    "placeholder": "Ask a question, cite a law, or make your case...",
+    "filePlaceholder": "Press enter to start summarizing",
+    "tagline": "AI You Can Swear By",
+    "disclaimer": "(Not legal advice)"
+  },
+  "AuthCallback": {
+    "completingAuth": "Completing authentication...",
+    "errorTitle": "Authentication Error",
+    "backToLogin": "Back to Login",
+    "errorMissingTokens": "Missing authentication tokens in callback URL.",
+    "errorSessionFailed": "Session could not be verified.",
+    "errorUnknown": "Unknown error occurred."
+  },
+  "Side": {
+    "newChat": "New Chat",
+    "recentChats": "Recent Chats",
+    "jurisdiction": "Jurisdiction",
+    "country": "Country",
+    "state": "State",
+    "clickToChange": "Click to change location →",
+    "logout": "Logout",
+    "global": "Global"
+  },
+  "Map": {
+    "backToWorld": "Back to World",
+    "hovering": "Hovering:",
+    "selected": "Selected:",
+    "chooseCountry": "Choose a country to get started",
+    "selectState": "Federal data is active. Select a state to help us prioritize which regions to expand first",
+    "selectToStart": "Please select a country to get started"
+  },
+  "InputBox": {
+    "placeholder": "Ask a question, cite a law, or make your case...",
+    "filePlaceholder": "Press enter to start summarizing",
+    "fileOptions": "File options",
+    "summarizeFile": "Summarize File",
+    "cancel": "Cancel",
+    "fileSizeError": "File size must be less than"
+  },
+  "ChatBubble": {
+    "whatHelpful": "What made this helpful?",
+    "whatWrong": "What went wrong?",
+    "optional": "(optional)",
+    "skip": "Skip",
+    "thanksFeedback": "Thanks for your feedback:",
+    "offTopic": "Off-topic",
+    "outdatedLaw": "Outdated law",
+    "unclearExplanation": "Unclear explanation",
+    "missingCitation": "Missing citation",
+    "inaccurateInfo": "Inaccurate information",
+    "perfectAnswer": "Perfect answer",
+    "clearExplanation": "Clear explanation",
+    "helpfulCitations": "Helpful citations",
+    "comprehensive": "Comprehensive"
+  },
+  "ChatPage": {
+    "failedMessage": "Failed to send message. Please try again.",
+    "continuePrompt": "Press enter to continue..."
+  },
+  "Overlay": {
+    "dropFile": "Drop Your File",
+    "releaseUpload": "Release to upload your document"
+  }
+}
