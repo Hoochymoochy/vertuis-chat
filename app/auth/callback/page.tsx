@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import { motion } from "framer-motion";
+import Spinner from "@/app/[locale]/component/spinner";
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -155,11 +156,17 @@ export default function AuthCallback() {
   );
 }
 
-function Spinner() {
+export default function AuthCallback() {
   return (
-    <motion.div
-      className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin"
-      aria-label="Loading"
-    />
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen text-center gap-3 p-6">
+        <Spinner />
+        <p className="text-gold text-base font-medium">
+          Loading...
+        </p>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
