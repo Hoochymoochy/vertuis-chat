@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion, Transition } from "framer-motion";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 type InputBoxProps = {
@@ -20,17 +21,22 @@ export default function InputBox({
   onSubmit,
   isLoading = false,
   disabled = false,
-  placeholder = "Ask a question, cite a law, or make your case...",
-  filePlaceholder = "Press enter to start summarizing",
+  placeholder,
+  filePlaceholder,
   acceptedFileTypes = ".pdf,.docx,.txt",
   showFileUpload = true,
   maxFileSize = 10,
   droppedFile,
 }: InputBoxProps) {
+  const t = useTranslations("InputBox");
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileOptions, setFileOptions] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Use translations as default if props not provided
+  const effectivePlaceholder = placeholder || t("placeholder");
+  const effectiveFilePlaceholder = filePlaceholder || t("filePlaceholder");
 
   // Handle dropped file from parent component
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function InputBox({
 
     // Validate file size
     if (selectedFile.size > maxFileSize * 1024 * 1024) {
-      alert(`File size must be less than ${maxFileSize}MB`);
+      alert(`${t("fileSizeError")} ${maxFileSize}MB`);
       return;
     }
 
@@ -165,7 +171,7 @@ export default function InputBox({
             )}
 
             <textarea
-              placeholder={file ? filePlaceholder : placeholder}
+              placeholder={file ? effectiveFilePlaceholder : effectivePlaceholder}
               value={message}
               disabled={isLoading || disabled || (file !== null)}
               onKeyDown={(e) => {
@@ -217,7 +223,7 @@ export default function InputBox({
             className="absolute mb-2 z-50 bg-gold/10 border border-gold/30 rounded-xl shadow-xl p-3 w-48 backdrop-blur-lg"
           >
             <p className="text-white text-sm font-medium mb-2 text-center">
-              File options
+              {t("fileOptions")}
             </p>
 
             <label className="block cursor-pointer">
@@ -234,7 +240,7 @@ export default function InputBox({
 
               <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-colors">
                 <span className="text-xl">📁</span>
-                <span className="text-white text-sm">Summarize File</span>
+                <span className="text-white text-sm">{t("summarizeFile")}</span>
               </div>
             </label>
 
@@ -242,7 +248,7 @@ export default function InputBox({
               onClick={closeFileOptions}
               className="mt-2 w-full text-center text-gold/70 hover:text-gold text-xs"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </motion.div>
         )}

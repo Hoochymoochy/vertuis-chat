@@ -72,15 +72,16 @@ export async function getUser() {
 }
 
 // OAuth sign-ins
-export async function signInWithGoogle() {
+export async function signInWithGoogle(locale: string) {
   const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: `${window.location.origin}/auth/callback` },
-  })
-  if (error) throw error
-  const user = await supabase.auth.getUser()
-  return user.data.user
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?locale=${locale}`,
+    },
+  });
+  if (error) throw error;
 }
+
 
 export async function signInWithFacebook() {
   const { error } = await supabase.auth.signInWithOAuth({
