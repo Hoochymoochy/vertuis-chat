@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Side from "@/app/[locale]/component/side";
 import Map from "@/app/[locale]/component/map";
 import Spinner from "@/app/[locale]/component/spinner";
@@ -14,6 +14,7 @@ import Overlay from "@/app/[locale]/component/overlay";
 
 export default function Chat() {
   const t = useTranslations("Chat");
+  const locale = useLocale();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [openMap, setOpenMap] = useState(false);
   
@@ -30,7 +31,7 @@ export default function Chat() {
 
   const handleSubmit = async (message: string, file?: File | null) => {
     setIsSubmitted(true);
-    await startChat(message, file);
+    await startChat(message, locale, file);
     clearDroppedFile();
   };
 
