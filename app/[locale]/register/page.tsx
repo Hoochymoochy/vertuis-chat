@@ -62,13 +62,11 @@ interface SignUpResponse {
     setLoading(true);
     setError(null);
     try {
-      const data = await signInWithGoogle(locale);
-      if (data && data.id) {
-        router.push(`/${locale}/`);
-      }
+      // Store locale in cookie before OAuth redirect
+      document.cookie = `oauth_locale=${locale}; path=/; max-age=600`; // 10 min expiry
+      await signInWithGoogle(locale);
     } catch (err: any) {
       setError(err.message || t('errorGoogleFailed'));
-    } finally {
       setLoading(false);
     }
   };

@@ -144,7 +144,9 @@
     "selected": "Selected:",
     "chooseCountry": "Choose a country to get started",
     "selectState": "Federal data is active. Select a state to help us prioritize which regions to expand first",
-    "selectToStart": "Please select a country to get started"
+    "selectToStart": "Please select a country to get started",
+    "country": "Country",
+    "state": "State"
   },
   "InputBox": {
     "placeholder": "Ask a question, cite a law, or make your case...",

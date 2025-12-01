@@ -144,7 +144,9 @@
     "selected": "Selecionado:",
     "chooseCountry": "Escolha um país para começar",
     "selectState": "Dados federais estão ativos. Selecione um estado para nos ajudar a priorizar quais regiões expandir primeiro",
-    "selectToStart": "Por favor, selecione um país para começar"
+    "selectToStart": "Por favor, selecione um país para começar",
+    "country": "País",
+    "state": "Estado"
   },
   "InputBox": {
     "placeholder": "Faça uma pergunta, cite uma lei ou apresente seu caso...",

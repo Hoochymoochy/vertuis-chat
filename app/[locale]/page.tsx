@@ -458,7 +458,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="pt-12 border-t border-[#d4af37]/20 space-y-6">
+          {/* <div className="pt-12 border-t border-[#d4af37]/20 space-y-6">
             <p className="text-white/50 text-sm tracking-widest">{t('Contact.earlyAccess')}</p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
               <input
@@ -472,7 +472,7 @@ export default function Home() {
                 {t('Contact.requestAccess')}
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -482,9 +482,9 @@ export default function Home() {
           <p className="font-serif text-[#d4af37]">{t('Hero.title')}</p>
           <p>{t('Footer.copyright')}</p>
           <div className="flex gap-6">
-            <button onClick={()=> handleRoute("/privacy")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.privacy')}</button>
-            <button onClick={()=> handleRoute("/terms")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.terms')}</button>
-            <button onClick={()=> handleRoute("/contact")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.contact')}</button>
+            <button onClick={()=> handleRoute("/")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.privacy')}</button>
+            <button onClick={()=> handleRoute("/")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.terms')}</button>
+            <button onClick={()=> handleRoute("/")} className="hover:text-[#d4af37] transition-colors duration-300">{t('Footer.contact')}</button>
           </div>
         </div>
       </footer>
