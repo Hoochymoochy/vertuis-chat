@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import {
   ComposableMap,
   Geographies,
@@ -22,6 +23,7 @@ interface WorldToCountryMapProps {
 }
 
 export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
+  const t = useTranslations("Map")
   const [currentView, setCurrentView] = useState<MapView>('world')
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
   const [selectedState, setSelectedState] = useState<string | null>(null)
@@ -180,7 +182,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               ←
             </motion.span>
             <span className="text-gold text-sm font-medium group-hover:text-white transition-colors">
-              Back to World
+              {t("backToWorld")}
             </span>
           </div>
         </motion.button>
@@ -451,7 +453,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
                 </svg>
               </motion.div>
               <p className="text-white text-base font-semibold">
-                Please select a country to get started
+                {t("selectToStart")}
               </p>
             </div>
           </motion.div>
@@ -482,8 +484,8 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               </motion.div>
               <p className="text-gold/90 text-sm leading-relaxed">
                 {currentView === 'world'
-                  ? 'Choose a country to get started'
-                  : 'Federal data is active. Select a state to help us prioritize which regions to expand first'}
+                  ? t("chooseCountry")
+                  : t("selectState")}
               </p>
             </div>
           </motion.div>
@@ -505,7 +507,7 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             {currentView === 'world' ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Hovering:</span>
+                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">{t("hovering")}:</span>
                   <span className="text-white text-sm font-medium">{hoveredRegion || '—'}</span>
                 </div>
                 <motion.div
@@ -516,13 +518,13 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
             ) : (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">Country:</span>
+                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">{t("country")}:</span>
                   <span className="text-white text-sm font-medium">{getDisplayCountryName()}</span>
                 </div>
                 <div className="h-px bg-gold/20" />
                 <div className="flex items-center justify-between">
                   <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">
-                    {hoveredRegion ? 'Hovering:' : selectedState ? 'Selected:' : 'State:'}
+                    {hoveredRegion ? t("hovering") + ':' : selectedState ? t("selected") + ':' : t("state") + ':'}
                   </span>
                   <span className="text-white text-sm font-medium">{hoveredRegion || selectedState || '—'}</span>
                 </div>

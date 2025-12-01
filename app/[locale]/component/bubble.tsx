@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { giveFeedback } from "@/app/lib/chat"
 
 // Core feedback logic — properly awaits the backend call
@@ -19,21 +20,6 @@ const getFeedback = async (
   }
 }
 
-const NEGATIVE_REASONS = [
-  "Off-topic",
-  "Outdated law",
-  "Unclear explanation",
-  "Missing citation",
-  "Inaccurate information",
-]
-
-const POSITIVE_REASONS = [
-  "Perfect answer",
-  "Clear explanation",
-  "Helpful citations",
-  "Comprehensive",
-]
-
 export default function ChatBubble({
   id,
   message,
@@ -45,12 +31,28 @@ export default function ChatBubble({
   isLast?: boolean
   isStreaming?: boolean
 }) {
+  const t = useTranslations("ChatBubble")
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null)
   const [showReasons, setShowReasons] = useState(false)
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [displayMessage, setDisplayMessage] = useState(message)
   const bubbleRef = useRef<HTMLDivElement>(null)
+
+  const NEGATIVE_REASONS = [
+    t("offTopic"),
+    t("outdatedLaw"),
+    t("unclearExplanation"),
+    t("missingCitation"),
+    t("inaccurateInfo"),
+  ]
+
+  const POSITIVE_REASONS = [
+    t("perfectAnswer"),
+    t("clearExplanation"),
+    t("helpfulCitations"),
+    t("comprehensive"),
+  ]
 
   // Smoothly update message during streaming
   useEffect(() => {
@@ -211,7 +213,7 @@ export default function ChatBubble({
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="bg-black/80 backdrop-blur-sm border border-gold/20 p-3 shadow-xl">
                 <p className="text-white/70 text-xs mb-2">
-                  {feedback === "up" ? "What made this helpful?" : "What went wrong?"} (optional)
+                  {feedback === "up" ? t("whatHelpful") : t("whatWrong")} {t("optional")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {reasons.map((reason) => (
@@ -234,7 +236,7 @@ export default function ChatBubble({
                   disabled={isSubmitting}
                   className="mt-2 text-xs text-white/50 hover:text-white/70 transition-colors underline"
                 >
-                  Skip
+                  {t("skip")}
                 </button>
               </div>
             </div>
@@ -244,7 +246,7 @@ export default function ChatBubble({
             <div className="animate-in fade-in duration-300">
               <div className="bg-gold/10 border border-gold/30 rounded-lg px-3 py-2">
                 <p className="text-gold text-xs">
-                  ✓ Thanks for your feedback: <span className="font-medium">{selectedReason}</span>
+                  ✓ {t("thanksFeedback")} <span className="font-medium">{selectedReason}</span>
                 </p>
               </div>
             </div>

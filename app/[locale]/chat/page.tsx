@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
+import { useTranslations } from "next-intl";
 import Side from "@/app/[locale]/component/side";
 import Map from "@/app/[locale]/component/map";
 import Spinner from "@/app/[locale]/component/spinner";
@@ -12,6 +13,7 @@ import useFileDrop from "@/app/hooks/useFileDrop";
 import Overlay from "@/app/[locale]/component/overlay";
 
 export default function Chat() {
+  const t = useTranslations("Chat");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [openMap, setOpenMap] = useState(false);
   
@@ -32,7 +34,6 @@ export default function Chat() {
     clearDroppedFile();
   };
 
-  // Fixed: Added needsOnboarding to dependency array and ensure map opens when onboarding is needed
   useEffect(() => {
     if (needsOnboarding) {
       setOpenMap(true);
@@ -44,7 +45,7 @@ export default function Chat() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
           <Spinner />
-          <p className="text-gold text-sm">Verifying authentication...</p>
+          <p className="text-gold text-sm">{t("verifyingAuth")}</p>
         </div>
       </div>
     );
@@ -88,9 +89,11 @@ export default function Chat() {
                 transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
                 className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]"
               />
-              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Veritus</h2>
+              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+                {t("welcomeTitle")}
+              </h2>
               <p className="text-gold/80 text-sm">
-                Select your jurisdiction on the map to begin your oath.
+                {t("welcomeMessage")}
               </p>
             </motion.div>
           </motion.div>
@@ -140,7 +143,7 @@ export default function Chat() {
                 className="max-w-xs bg-gold/15 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
               >
                 <p className="text-white text-sm text-center">
-                  Message failed — try again, counselor.
+                  {t("errorMessage")}
                 </p>
               </motion.div>
             </motion.div>
@@ -152,8 +155,8 @@ export default function Chat() {
           onSubmit={handleSubmit}
           isLoading={isLoading}
           disabled={needsOnboarding}
-          placeholder="Ask a question, cite a law, or make your case..."
-          filePlaceholder="Press enter to start summarizing"
+          placeholder={t("placeholder")}
+          filePlaceholder={t("filePlaceholder")}
           acceptedFileTypes=".pdf,.docx,.txt"
           showFileUpload={true}
           maxFileSize={10}
@@ -173,9 +176,9 @@ export default function Chat() {
             className={`z-20 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
           >
             <p className="text-gold text-lg sm:text-xl font-medium uppercase tracking-widest">
-              AI You Can Swear By
+              {t("tagline")}
             </p>
-            <p className="text-white/70 text-xs italic">(Not legal advice)</p>
+            <p className="text-white/70 text-xs italic">{t("disclaimer")}</p>
           </motion.div>
         )}
       </AnimatePresence>

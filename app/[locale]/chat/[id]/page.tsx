@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import ChatBubble from "@/app/[locale]/component/bubble";
 import Side from "@/app/[locale]/component/side";
 import Map from "@/app/[locale]/component/map";
@@ -16,6 +17,8 @@ import useChatSubmit from "@/app/hooks/useChatSubmit";
 import useFileDrop from "@/app/hooks/useFileDrop";
 
 export default function ChatPage() {
+  const t = useTranslations("ChatPage");
+  const tChat = useTranslations("Chat");
   const params = useParams();
   const [chatId, setChatId] = useState<string | null>(null);
   const [openMap, setOpenMap] = useState(false);
@@ -150,7 +153,7 @@ export default function ChatPage() {
         {failed && (
           <div className="max-w-xs bg-red-500/20 border border-red-500/30 rounded-2xl px-4 py-3 mb-4">
             <p className="text-red-200 text-sm">
-              Failed to send message. Please try again.
+              {t("failedMessage")}
             </p>
           </div>
         )}
@@ -160,8 +163,8 @@ export default function ChatPage() {
           onSubmit={handleChatSubmit}
           isLoading={isLoading}
           disabled={false}
-          placeholder="Ask a question, cite a law, or make your case..."
-          filePlaceholder="Press enter to continue..."
+          placeholder={tChat("placeholder")}
+          filePlaceholder={t("continuePrompt")}
           acceptedFileTypes=".pdf,.docx,.txt"
           showFileUpload={true}
           maxFileSize={10}

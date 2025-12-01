@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from 'next-intl'
-import Link from 'next/link'
 
 export default function Home() {
   const [email, setEmail] = useState("")
