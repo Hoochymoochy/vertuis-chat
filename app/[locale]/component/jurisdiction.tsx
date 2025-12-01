@@ -10,10 +10,10 @@ import {
 import { setCountry as saveCountry, setState as saveState, getCountry, getState } from "@/app/lib/user"
 import { supabase } from '@/app/lib/supabaseClient'
 import { getOnbaording, setOnbaording } from '@/app/lib/user'
+import WORLD_URL from '@/public/countries-110m.json'
+import BRAZIL_URL from '@/public/brazil-states.json'
+import USA_URL from '@/public/us-states.json'
 
-const WORLD_URL = '/countries-110m.json'
-const BRAZIL_URL = '/brazil-states.geojson'
-const USA_URL = '/us-states.json'
 
 type MapView = 'world' | 'Brazil' | 'United States of America'
 
