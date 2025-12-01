@@ -52,12 +52,15 @@ export default function LoginPage() {
     }
   };
 
+  // In your LoginPage component, update handleGoogleLogin:
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithGoogle();
-      // Google sign-in will redirect, so no need to manually navigate
+      // Store locale in cookie before OAuth redirect
+      document.cookie = `oauth_locale=${locale}; path=/; max-age=600`; // 10 min expiry
+      await signInWithGoogle(locale);
     } catch (err: any) {
       setError(err.message || t('errorGoogleFailed'));
       setLoading(false);

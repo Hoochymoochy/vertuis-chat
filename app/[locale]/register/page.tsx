@@ -62,7 +62,7 @@ interface SignUpResponse {
     setLoading(true);
     setError(null);
     try {
-      const data = await signInWithGoogle();
+      const data = await signInWithGoogle(locale);
       if (data && data.id) {
         router.push(`/${locale}/`);
       }

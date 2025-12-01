@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import { motion } from "framer-motion";
 
 export default function AuthCallback() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
 
@@ -15,13 +16,34 @@ export default function AuthCallback() {
 
     async function handleAuth() {
       try {
+        // Get locale from query params (passed via redirectTo)
+        const localeFromUrl = searchParams.get("locale");
+        
         // Grab tokens from URL hash (Supabase OAuth returns them here)
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
-        console.log("Params:", params);
         const access_token = params.get("access_token");
         const refresh_token = params.get("refresh_token");
+        
+        // Parse cookies properly
+        const getCookies = document.cookie.split(";");
+        const localeCookie = getCookies.find((cookie) => 
+          cookie.trim().startsWith("oauth_locale=")
+        );
+        
+        // Extract the locale value from the cookie
+        const localeFromCookie = localeCookie 
+          ? localeCookie.split("=")[1].trim() 
+          : null;
 
+        console.log("Auth details:", { 
+          access_token: access_token ? "present" : "missing",
+          refresh_token: refresh_token ? "present" : "missing",
+          localeFromUrl,
+          localeFromCookie,
+          allCookies: getCookies.map(c => c.trim())
+        });
+        
         if (!access_token || !refresh_token) {
           throw new Error("Missing auth tokens. Try signing in again.");
         }
@@ -41,8 +63,12 @@ export default function AuthCallback() {
         const { data: userData } = await supabase.auth.getUser();
         const user = userData.user;
 
-        // Default language fallback
-        let locale = "en";
+        // Priority order for locale:
+        // 1. URL query param (user's choice at login)
+        // 2. Cookie value (from OAuth flow)
+        // 3. User's saved preference
+        // 4. Default to "en"
+        let locale = localeFromUrl || localeFromCookie || "en";
 
         if (user) {
           // Check existing user profile for locale
@@ -50,13 +76,14 @@ export default function AuthCallback() {
             .from("user_data")
             .select("language")
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
 
-          if (profile?.language) {
+          // Only use saved preference if no locale was passed in URL or cookie
+          if (!localeFromUrl && !localeFromCookie && profile?.language) {
             locale = profile.language;
           }
 
-          // Upsert basic user_data if they are new
+          // Upsert basic user_data
           await supabase.from("user_data").upsert(
             {
               user_id: user.id,
@@ -68,12 +95,17 @@ export default function AuthCallback() {
           );
         }
 
-        // Let Supabase chill for a sec
+        // Clear the oauth_locale cookie after use
+        if (localeFromCookie) {
+          document.cookie = "oauth_locale=; path=/; max-age=0";
+        }
+
+        // Let Supabase settle
         await new Promise((r) => setTimeout(r, 150));
 
         if (!active) return;
 
-        // Warp them into their localized chat
+        // Redirect to localized chat
         router.replace(`/${locale}/chat`);
       } catch (err) {
         console.error("Auth callback failed:", err);
@@ -90,7 +122,7 @@ export default function AuthCallback() {
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [router, searchParams]);
 
   if (error) {
     return (
