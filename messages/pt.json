@@ -179,5 +179,44 @@
   "Overlay": {
     "dropFile": "Solte Seu Arquivo",
     "releaseUpload": "Solte para carregar seu documento"
-  }
+  },
+    "Payment": {
+      "title": "Acesse o Veritus",
+      "subtitle": "Inteligência jurídica com citações comprovadas, construída para confiança, autoridade e precisão.",
+      "plans": {
+        "scholar": {
+          "name": "Acadêmico",
+          "features": {
+            "feature1": "Acesso à análise jurídica básica",
+            "feature2": "Consultas limitadas de documentos",
+            "feature3": "Respostas com citações comprovadas",
+            "feature4": "Uso acadêmico e estudantil",
+            "feature5": "Cancele a qualquer momento"
+          }
+        },
+        "professional": {
+          "name": "Profissional",
+          "features": {
+            "feature1": "Acesso completo à pesquisa jurídica",
+            "feature2": "Análise ilimitada de documentos",
+            "feature3": "Processamento prioritário",
+            "feature4": "Ferramentas avançadas de citação",
+            "feature5": "Cancele a qualquer momento"
+          }
+        }
+      },
+      "perMonth": "/ mês",
+      "securePayment": "Pagamento Seguro",
+      "form": {
+        "fullName": "Nome Completo",
+        "email": "Endereço de Email",
+        "processing": "Processando…",
+        "submitButton": "Prosseguir para Acesso Seguro"
+      },
+      "security": "Pagamentos protegidos pela Stripe • Criptografado e compatível",
+      "success": {
+        "title": "Acesso Concedido",
+        "message": "Sua assinatura do Veritus está ativa.\nInteligência jurídica de precisão aguarda você."
+      }
+    }
 }

@@ -179,5 +179,44 @@
   "Overlay": {
     "dropFile": "Drop Your File",
     "releaseUpload": "Release to upload your document"
-  }
+  },
+      "Payment": {
+        "title": "Access Veritus",
+        "subtitle": "Citation-backed legal intelligence built for trust, authority, and precision.",
+        "plans": {
+          "scholar": {
+            "name": "Scholar",
+            "features": {
+              "feature1": "Core legal analysis access",
+              "feature2": "Limited document queries",
+              "feature3": "Citation-backed responses",
+              "feature4": "Academic & student use",
+              "feature5": "Cancel anytime"
+            }
+          },
+          "professional": {
+            "name": "Professional",
+            "features": {
+              "feature1": "Full legal research access",
+              "feature2": "Unlimited document analysis",
+              "feature3": "Priority processing",
+              "feature4": "Advanced citation tools",
+              "feature5": "Cancel anytime"
+            }
+          }
+        },
+        "perMonth": "/ month",
+        "securePayment": "Secure Payment",
+        "form": {
+          "fullName": "Full Name",
+          "email": "Email Address",
+          "processing": "Processing…",
+          "submitButton": "Proceed to Secure Access"
+        },
+        "security": "Payments secured by Stripe • Encrypted & compliant",
+        "success": {
+          "title": "Access Granted",
+          "message": "Your Veritus subscription is now active.\nPrecision legal intelligence awaits."
+        }
+      }
 }
