@@ -59,7 +59,7 @@ export default function PaymentPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/billing/create-checkout-session", {
+      const res = await fetch("http://localhost:3001/api/billing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
