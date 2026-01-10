@@ -10,6 +10,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { createPlan } from "@/app/lib/payment";
 
 export default function PaymentPage() {
   const { userId } = useAuth();
@@ -59,20 +60,16 @@ export default function PaymentPage() {
     setError(null);
 
     try {
-      const res = await fetch("https://veritus-payment.vercel.app/api/billing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: selectedPlan, // "student" | "pro"
-          userId,
-          email,
-          name,
-          currency: isPtBr ? "brl" : "usd",
-          locale,
-        }),
-      });
 
-      const data = await res.json();
+
+      const data = await createPlan(
+        selectedPlan,
+        userId,
+        email,
+        name,
+        isPtBr,
+        locale
+      );
 
       if (!data.url) {
         throw new Error("Stripe session failed");

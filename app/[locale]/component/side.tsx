@@ -7,6 +7,7 @@ import { getAllChat } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import { setLanguage, getCountry, getState, getLanguage } from "@/app/lib/user";
 import { supabase } from "@/app/lib/supabaseClient";
+import { readPlan, cancelPlan } from "@/app/lib/payment";
 
 
 interface Chat {
@@ -18,6 +19,17 @@ type SideProps = {
   setOpenMap: (open: boolean) => void;
 };
 
+interface PlanData {
+  plan: string;
+  status: string;
+  currentPeriodEnd: number;
+  cancelAtPeriodEnd: boolean;
+  amount: number;
+  currency: string;
+  subscriptionId: string;
+  trialEnd?: number | null;
+}
+
 export default function Side({ setOpenMap }: SideProps) {
   const t = useTranslations("Side");
   const [isOpen, setIsOpen] = useState(false);
@@ -28,8 +40,11 @@ export default function Side({ setOpenMap }: SideProps) {
   const [state, setSelectedState] = useState<string | null>("N/A");
   const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfile] = useState(false);
+  const [planData, setPlanData] = useState<PlanData | null>(null);
+  const [isLoadingPlan, setIsLoadingPlan] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const router = useRouter();
-  const locale = useLocale()
+  const locale = useLocale();
   
 
   const languages = [
@@ -99,6 +114,68 @@ export default function Side({ setOpenMap }: SideProps) {
   };
 
   const handleChatClick = (id: string) => router.push(`/${locale}/chat/${id}`);
+
+  const profileClick = async () => {
+    if (!userId) return;
+    
+    setProfile(true);
+    setIsLoadingPlan(true);
+    
+    try {
+      const plan = await readPlan(userId);
+      if (plan) {
+        setPlanData(plan);
+      }
+    } catch (error) {
+      console.error("Error fetching plan:", error);
+    } finally {
+      setIsLoadingPlan(false);
+    }
+  };
+
+  const handleCancelPlan = async () => {
+    if (!planData?.subscriptionId || !userId) return;
+    
+    if (!confirm("Are you sure you want to cancel your subscription? You'll still have access until the end of your billing period.")) {
+      return;
+    }
+
+    setIsCancelling(true);
+    
+    try {
+      await cancelPlan(planData.subscriptionId);
+      
+      // Refresh plan data
+      const updatedPlan = await readPlan(userId);
+      if (updatedPlan) {
+        setPlanData(updatedPlan);
+      }
+      
+      alert("Subscription cancelled successfully. You'll have access until the end of your billing period.");
+    } catch (error) {
+      console.error("Error cancelling plan:", error);
+      alert("Failed to cancel subscription. Please try again or contact support.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  // Format currency
+  const formatPrice = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount / 100); // Amount is in cents
+  };
+
+  // Format date
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   return (
     <>
@@ -217,7 +294,7 @@ export default function Side({ setOpenMap }: SideProps) {
             <div className="p-4 border-t border-gold/20 space-y-3">
               {/* Profile Button */}
               <motion.button
-                onClick={() => setProfile(true)}
+                onClick={profileClick}
                 className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-2.5 transition-all duration-300"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -231,163 +308,197 @@ export default function Side({ setOpenMap }: SideProps) {
         )}
       </AnimatePresence>
 
-        {/* Profile Modal */}
-        <AnimatePresence>
-  {profile && (
-    <>
-      {/* Modal Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={() => setProfile(false)}
-        className="fixed inset-0 bg-black/70 backdrop-blur-md z-50"
-      />
-
-      {/* Modal Content */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-black rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] border border-gold/30 overflow-y-auto">
-          
-          {/* Header */}
-          <div className="sticky top-0 bg-black/95 backdrop-blur border-b border-gold/30 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-gold tracking-tight">
-              Your Profile
-            </h2>
-            <button
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {profile && (
+          <>
+            {/* Modal Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setProfile(false)}
-              className="text-gold/60 hover:text-gold transition-colors"
+              className="fixed inset-0 bg-black/70 backdrop-blur-md z-50"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="p-6 space-y-8">
-            
-            {/* Plan Summary */}
-            <div className="bg-black rounded-xl p-6 space-y-4 border border-gold/30 shadow-[0_0_30px_rgba(212,175,55,0.05)]">
-              <div className="text-xl font-semibold text-gold">
-                Plan Details
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <div className="font-medium text-gold/60">Plan Name</div>
-                  <div className="mt-1 text-white">Pro</div>
+              <div className="bg-black rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] border border-gold/30 overflow-y-auto">
+                
+                {/* Header */}
+                <div className="sticky top-0 bg-black/95 backdrop-blur border-b border-gold/30 px-6 py-4 flex items-center justify-between">
+                  <h2 className="text-3xl font-bold text-gold tracking-tight">
+                    Your Profile
+                  </h2>
+                  <button
+                    onClick={() => setProfile(false)}
+                    className="text-gold/60 hover:text-gold transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
 
-                <div>
-                  <div className="font-medium text-gold/60">Plan Price</div>
-                  <div className="mt-1 text-white">$29 / month</div>
-                </div>
+                <div className="p-6 space-y-8">
+                  
+                  {/* Plan Summary */}
+                  <div className="bg-black rounded-xl p-6 space-y-4 border border-gold/30 shadow-[0_0_30px_rgba(212,175,55,0.05)]">
+                    <div className="text-xl font-semibold text-gold">
+                      Plan Details
+                    </div>
 
-                <div>
-                  <div className="font-medium text-gold/60">Next Due Date</div>
-                  <div className="mt-1 text-white">Feb 8, 2026</div>
-                </div>
-              </div>
+                    {isLoadingPlan ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto"></div>
+                        <p className="text-gold/60 mt-4">Loading plan details...</p>
+                      </div>
+                    ) : planData ? (
+                      <>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="font-medium text-gold/60">Plan Name</div>
+                            <div className="mt-1 text-white capitalize">{planData.plan}</div>
+                          </div>
 
-              {/* Status */}
-              <div className="mt-4 flex items-center gap-3">
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gold/15 text-gold border border-gold/30">
-                  Active
-                </span>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold/80 border border-gold/20">
-                  Trial ends: Jan 15, 2026
-                </span>
-              </div>
+                          <div>
+                            <div className="font-medium text-gold/60">Plan Price</div>
+                            <div className="mt-1 text-white">{formatPrice(planData.amount, planData.currency)} / month</div>
+                          </div>
 
-              <div className="mt-4">
-                <button className="bg-red-950/40 border border-red-500/40 text-red-200 px-4 py-2 rounded-md hover:bg-red-900/60 transition-colors">
-                  Cancel Plan
-                </button>
-              </div>
-            </div>
+                          <div>
+                            <div className="font-medium text-gold/60">Next Due Date</div>
+                            <div className="mt-1 text-white">{formatDate(planData.currentPeriodEnd)}</div>
+                          </div>
+                        </div>
 
-            {/* Language Selector */}
-            <div className="relative">
-              <motion.button
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/50 px-4 py-2.5 transition-all duration-300 rounded-lg"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{currentLanguage.flag}</span>
-                    <span className="text-white text-sm font-medium">
-                      {currentLanguage.name}
-                    </span>
+                        {/* Status */}
+                        <div className="mt-4 flex items-center gap-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                            planData.status === 'active' 
+                              ? 'bg-green-500/15 text-green-400 border-green-500/30'
+                              : planData.status === 'canceled'
+                              ? 'bg-red-500/15 text-red-400 border-red-500/30'
+                              : 'bg-gold/15 text-gold border-gold/30'
+                          }`}>
+                            {planData.status.toUpperCase()}
+                          </span>
+
+                          {planData.cancelAtPeriodEnd && (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                              Cancels on {formatDate(planData.currentPeriodEnd)}
+                            </span>
+                          )}
+
+                          {planData.trialEnd && planData.trialEnd > Date.now() / 1000 && (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold/80 border border-gold/20">
+                              Trial ends: {formatDate(planData.trialEnd)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Cancel Button */}
+                        {planData.status === 'active' && !planData.cancelAtPeriodEnd && (
+                          <div className="mt-4">
+                            <button 
+                              className="bg-red-950/40 border border-red-500/40 text-red-200 px-4 py-2 rounded-md hover:bg-red-900/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                              onClick={handleCancelPlan}
+                              disabled={isCancelling}
+                            >
+                              {isCancelling ? 'Cancelling...' : 'Cancel Plan'}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gold/60">No active subscription found</p>
+                      </div>
+                    )}
                   </div>
-                  <motion.svg
-                    className="w-4 h-4 text-gold"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ rotate: isLangOpen ? 180 : 0 }}
+
+                  {/* Language Selector */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() => setIsLangOpen(!isLangOpen)}
+                      className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/50 px-4 py-2.5 transition-all duration-300 rounded-lg"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{currentLanguage.flag}</span>
+                          <span className="text-white text-sm font-medium">
+                            {currentLanguage.name}
+                          </span>
+                        </div>
+                        <motion.svg
+                          className="w-4 h-4 text-gold"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          animate={{ rotate: isLangOpen ? 180 : 0 }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </motion.svg>
+                      </div>
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {isLangOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                          className="absolute bottom-full left-0 right-0 mb-2 bg-black/95 backdrop-blur-lg border border-gold/30 rounded-lg overflow-hidden shadow-xl"
+                        >
+                          {languages.map((language, index) => (
+                            <motion.button
+                              key={language.code}
+                              onClick={() => handleLanguageChange(language.code)}
+                              className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-all ${
+                                lang === language.code
+                                  ? 'bg-gold/20 text-gold'
+                                  : 'text-white hover:bg-gold/10'
+                              }`}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                            >
+                              <span className="text-2xl">{language.flag}</span>
+                              <span className="text-sm font-medium">{language.name}</span>
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Logout */}
+                  <motion.button
+                    onClick={handleLogout}
+                    className="w-full group relative overflow-hidden bg-linear-to-r from-red-950/40 to-red-900/40 hover:from-red-900/60 hover:to-red-800/60 border border-red-500/30 hover:border-red-500/50 px-4 py-2.5 rounded-lg transition-all duration-300"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </motion.svg>
+                    <span className="text-white text-sm font-medium group-hover:text-red-200 transition-colors">
+                      {t('logout')}
+                    </span>
+                  </motion.button>
+
                 </div>
-              </motion.button>
-
-              <AnimatePresence>
-                {isLangOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute bottom-full left-0 right-0 mb-2 bg-black/95 backdrop-blur-lg border border-gold/30 rounded-lg overflow-hidden shadow-xl"
-                  >
-                    {languages.map((language, index) => (
-                      <motion.button
-                        key={language.code}
-                        onClick={() => handleLanguageChange(language.code)}
-                        className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-all ${
-                          lang === language.code
-                            ? 'bg-gold/20 text-gold'
-                            : 'text-white hover:bg-gold/10'
-                        }`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <span className="text-2xl">{language.flag}</span>
-                        <span className="text-sm font-medium">{language.name}</span>
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Logout */}
-            <motion.button
-              onClick={handleLogout}
-              className="w-full group relative overflow-hidden bg-linear-to-r from-red-950/40 to-red-900/40 hover:from-red-900/60 hover:to-red-800/60 border border-red-500/30 hover:border-red-500/50 px-4 py-2.5 rounded-lg transition-all duration-300"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="text-white text-sm font-medium group-hover:text-red-200 transition-colors">
-                {t('logout')}
-              </span>
-            </motion.button>
-
-          </div>
-        </div>
-      </motion.div>
-    </>
-  )}
-</AnimatePresence>
-
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
