@@ -3,8 +3,10 @@
 
 import { CaseList } from "@/app/[locale]/component/case-list"
 import { motion } from "framer-motion"
+import { useState } from "react"
 
 export default function CasesPage() {
+  const [newCase, setNewCase] = useState(false);
   return (
     <div className="min-h-screen bg-black text-white bg-[url('/marble.jpg')] bg-cover bg-center">
 
@@ -21,9 +23,9 @@ export default function CasesPage() {
           </div>
 
           <motion.button
-            onClick={() => {}}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
+            onClick={() => setNewCase(true)}
             className="
               bg-linear-to-r from-gold/25 to-gold/10
               hover:from-gold/35 hover:to-gold/20
@@ -55,6 +57,125 @@ export default function CasesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
+          {newCase && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+              onClick={() => setNewCase(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="
+                  w-full max-w-lg
+                  bg-black/90
+                  border border-gold/30
+                  shadow-[0_0_40px_rgba(212,175,55,0.15)]
+                  p-8
+                "
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight">Create New Case</h2>
+                    <p className="text-sm text-white/50 mt-1">
+                      Start a new matter and attach documents later
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setNewCase(false)}
+                    className="text-white/40 hover:text-white transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Form */}
+                <form className="space-y-6">
+                  {/* Case Name */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="name"
+                      className="text-sm font-medium text-white/80"
+                    >
+                      Case Name
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      placeholder="e.g. State v. Johnson"
+                      className="
+                        w-full
+                        bg-black/60
+                        border border-gold/20
+                        px-4 py-3
+                        text-white
+                        placeholder-white/30
+                        focus:outline-none
+                        focus:border-gold
+                        focus:ring-1 focus:ring-gold/40
+                        transition
+                      "
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="description"
+                      className="text-sm font-medium text-white/80"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      rows={4}
+                      placeholder="Brief summary of the case, charges, or context…"
+                      className="
+                        w-full
+\                        bg-black/60
+                        border border-gold/20
+                        px-4 py-3
+                        text-white
+                        placeholder-white/30
+                        resize-none
+                        focus:outline-none
+                        focus:border-gold
+                        focus:ring-1 focus:ring-gold/40
+                        transition
+                      "
+                    />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-4 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      type="submit"
+                      className="
+                        px-6 py-3
+                        bg-linear-to-r from-gold/30 to-gold/15
+                        border border-gold/40
+                        text-sm font-medium
+                        shadow-[0_0_20px_rgba(212,175,55,0.25)]
+                        hover:from-gold/40 hover:to-gold/25
+                        transition-all
+                      "
+                    >
+                      Create Case
+                    </motion.button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
           <CaseList />
         </motion.div>
       </main>
