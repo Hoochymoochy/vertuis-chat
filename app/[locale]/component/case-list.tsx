@@ -60,7 +60,7 @@ export function CaseList() {
           href={`/case/${caseItem.id}`}
           className="group block"
         >
-          <div className="h-full border border-white/10 bg-black/40 p-6 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
+          <div className="h-full border border-white/10 bg-black/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
             {/* Header */}
             <div className="mb-10 flex items-start justify-between gap-3">
               <h3 className="text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#d4af37]">
