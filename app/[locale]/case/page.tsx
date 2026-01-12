@@ -1,7 +1,6 @@
 "use client"
 
-import Link from "next/link"
-import VeritusButton from "@/app/[locale]/component/VeritusButton"
+
 import { CaseList } from "@/app/[locale]/component/case-list"
 import { motion } from "framer-motion"
 
@@ -9,7 +8,8 @@ export default function CasesPage() {
   return (
     <div className="min-h-screen bg-black text-white bg-[url('/marble.jpg')] bg-cover bg-center">
 
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+      
       {/* Header */}
       <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-gold/10">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
