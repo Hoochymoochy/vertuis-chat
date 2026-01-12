@@ -1,80 +1,80 @@
 import Link from "next/link"
 
-const cases = [
-  {
-    id: 1,
-    name: "Smith v. TechCorp Industries",
-    description:
-      "Patent infringement case involving AI technology and intellectual property rights in the telecommunications sector.",
-    status: "Open",
-    lastUpdated: "2 hours ago",
-  },
-  {
-    id: 2,
-    name: "Johnson & Associates v. State",
-    description:
-      "Class action lawsuit regarding environmental regulations and corporate compliance violations.",
-    status: "Open",
-    lastUpdated: "1 day ago",
-  },
-  {
-    id: 3,
-    name: "Davis Estate Settlement",
-    description:
-      "Complex estate planning matter involving multiple beneficiaries and international assets.",
-    status: "Closed",
-    lastUpdated: "3 days ago",
-  },
-  {
-    id: 4,
-    name: "Reynolds Medical Malpractice",
-    description:
-      "Professional liability case concerning medical procedures and standard of care documentation.",
-    status: "Open",
-    lastUpdated: "5 days ago",
-  },
-  {
-    id: 5,
-    name: "Carter Merger & Acquisition",
-    description:
-      "Corporate M&A due diligence and contract negotiation for multi-million dollar transaction.",
-    status: "Open",
-    lastUpdated: "1 week ago",
-  },
-  {
-    id: 6,
-    name: "Martinez Employment Dispute",
-    description:
-      "Wrongful termination case involving employment contracts and non-compete agreements.",
-    status: "Closed",
-    lastUpdated: "2 weeks ago",
-  },
-]
+/* =======================
+   Types
+======================= */
 
-export function CaseList() {
+type Case = {
+  id: number
+  title: string
+  description: string
+  status: boolean // true = Open, false = Closed
+  updated_at: string // ISO date string
+}
+
+/* =======================
+   Utils
+======================= */
+
+// Normalize time into minutes / hours / days / months / years
+function formatUpdatedTime(dateString: string) {
+  const updated = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - updated.getTime()
+
+  const minutes = Math.floor(diffMs / (1000 * 60))
+  if (minutes < 1) return "just now"
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`
+
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} day${days !== 1 ? "s" : ""} ago`
+
+  const months = Math.floor(days / 30)
+  if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`
+
+  const years = Math.floor(months / 12)
+  return `${years} year${years !== 1 ? "s" : ""} ago`
+}
+
+/* =======================
+   Component
+======================= */
+
+export function CaseList({ cases }: { cases: Case[] }) {
+  // 🔥 newest → oldest
+  const sortedCases = [...cases].sort(
+    (a, b) =>
+      new Date(b.updated_at).getTime() -
+      new Date(a.updated_at).getTime()
+  )
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {cases.map((caseItem) => (
+      {sortedCases.map((caseItem) => (
         <Link
           key={caseItem.id}
           href={`/case/${caseItem.id}`}
           className="group block"
         >
           <div className="h-full border border-white/10 bg-black/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
+            
             {/* Header */}
             <div className="mb-10 flex items-start justify-between gap-3">
               <h3 className="text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#d4af37]">
-                {caseItem.name}
+                {caseItem.title}
               </h3>
 
               <span
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                  caseItem.status === "Open"
+                  caseItem.status
                     ? "bg-[#d4af37]/15 text-[#d4af37]"
                     : "bg-white/10 text-white/70"
                 }`}
               >
-                {caseItem.status}
+                {caseItem.status ? "Open" : "Closed"}
               </span>
             </div>
 
@@ -85,8 +85,9 @@ export function CaseList() {
 
             {/* Footer */}
             <div className="text-xs text-white/40">
-              Updated {caseItem.lastUpdated}
+              Updated {formatUpdatedTime(caseItem.updated_at)}
             </div>
+
           </div>
         </Link>
       ))}

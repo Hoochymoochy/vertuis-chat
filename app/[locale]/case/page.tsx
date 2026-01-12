@@ -1,12 +1,49 @@
 "use client"
 
-
 import { CaseList } from "@/app/[locale]/component/case-list"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { addCase, getCases } from "@/app/lib/case"
+import useAuth  from "@/app/hooks/useAuth"
+
+export interface Chat {
+  id: string;
+  user_id: string;
+  title: string;
+  discription: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function CasesPage() {
   const [newCase, setNewCase] = useState(false);
+  const [cases, setCases] = useState<Case[]>([]);
+  const { userId, isCheckingAuth } = useAuth();
+
+  useEffect(() => {
+    if (userId) {
+      const fetchCases = async () => {
+        const cases = await getCases(userId);
+        setCases(cases);
+      };
+      fetchCases();
+    }
+  }, [userId]);
+
+  const handleAddCase = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    
+    if (!title || !description) return;
+    
+    const newCaseData = await addCase(title, description, userId);
+    setCases([...cases, newCaseData]);
+    setNewCase(false);
+  };
+  
+
   return (
     <div className="min-h-screen bg-black text-white bg-[url('/marble.jpg')] bg-cover bg-center">
 
@@ -51,7 +88,7 @@ export default function CasesPage() {
       </div>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-6 py-10 index-40">
+      <main className="max-w-7xl mx-auto px-6 py-10 z-40 relative">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -96,7 +133,7 @@ export default function CasesPage() {
                 </div>
 
                 {/* Form */}
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleAddCase}>
                   {/* Case Name */}
                   <div className="space-y-2">
                     <label
@@ -139,7 +176,7 @@ export default function CasesPage() {
                       placeholder="Brief summary of the case, charges, or context…"
                       className="
                         w-full
-\                        bg-black/60
+                        bg-black/60
                         border border-gold/20
                         px-4 py-3
                         text-white
@@ -176,11 +213,9 @@ export default function CasesPage() {
               </motion.div>
             </motion.div>
           )}
-          <CaseList />
+          <CaseList cases={cases} />
         </motion.div>
       </main>
     </div>
   )
 }
-
-
