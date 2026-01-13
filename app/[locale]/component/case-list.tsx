@@ -1,4 +1,6 @@
 import Link from "next/link"
+import { useTranslations, useLocale } from "next-intl";
+
 
 /* =======================
    Types
@@ -44,6 +46,8 @@ function formatUpdatedTime(dateString: string) {
 ======================= */
 
 export function CaseList({ cases }: { cases: Case[] }) {
+  const locale = useLocale();
+
   // 🔥 newest → oldest
   const sortedCases = [...cases].sort(
     (a, b) =>
@@ -56,7 +60,7 @@ export function CaseList({ cases }: { cases: Case[] }) {
       {sortedCases.map((caseItem) => (
         <Link
           key={caseItem.id}
-          href={`/case/${caseItem.id}`}
+          href={`/${locale}/case/${caseItem.id}`}
           className="group block"
         >
           <div className="h-full border border-white/10 bg-black/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
