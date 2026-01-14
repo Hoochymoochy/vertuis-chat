@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { FileText, File, FileType, ChevronLeft, Plus, Clock } from "lucide-react";
-import { useLocale } from "next-intl";
+import { FileText, File, FileType, ChevronLeft, Plus, Clock, Sparkles } from "lucide-react";
 
 type Case = {
     id: number
@@ -39,7 +38,6 @@ const documents = [
     },
 ]
 
-// Mock case data for demo
 const mockCase: Case = {
     id: 1,
     title: "Smith v. Corporation Inc.",
@@ -59,11 +57,12 @@ const getFileIcon = (type: string) => {
 
 export default function CasesPage() {
     const [caseItem, setCaseItem] = useState<Case>(mockCase);
-    const locale = useLocale();
+    const [selectedDoc, setSelectedDoc] = useState(documents[0]);
+    const [showSummary, setShowSummary] = useState(false);
 
     return (
         <div className="relative min-h-screen bg-black text-white">
-            {/* Background with marble texture */}
+            {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
             <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
             <div className="absolute inset-0 backdrop-blur-sm"></div>
@@ -117,7 +116,12 @@ export default function CasesPage() {
                         {documents.map((document) => (
                             <button
                                 key={document.id}
-                                className="w-full text-left bg-gradient-to-r from-[#d4af37]/5 to-transparent hover:from-[#d4af37]/15 hover:to-[#d4af37]/5 border border-white/10 hover:border-[#d4af37]/30 rounded-lg p-4 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] group"
+                                onClick={() => setSelectedDoc(document)}
+                                className={`w-full text-left bg-gradient-to-r from-[#d4af37]/5 to-transparent hover:from-[#d4af37]/15 hover:to-[#d4af37]/5 border rounded-lg p-4 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] group ${
+                                    selectedDoc.id === document.id 
+                                        ? 'border-[#d4af37]/30 bg-[#d4af37]/10' 
+                                        : 'border-white/10 hover:border-[#d4af37]/30'
+                                }`}
                             >
                                 <div className="flex items-start gap-3">
                                     <div className="mt-1 text-[#d4af37]">
@@ -145,12 +149,73 @@ export default function CasesPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="relative ml-80 p-8">
-                <div className="max-w-4xl">
-                    <h2 className="text-3xl font-bold mb-4 text-white">Case Overview</h2>
-                    <p className="text-white/60 text-lg">
-                        Select a document from the sidebar to view details and AI-generated summaries.
+            <div className="relative ml-80 p-8 min-h-screen space-y-6">
+                {/* Case Summary Section */}
+                <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-2xl font-bold text-white">Case Summary</h2>
+                        <button 
+                            onClick={() => setShowSummary(!showSummary)}
+                            className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all"
+                        >
+                            <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                            <span className="text-sm font-medium text-[#d4af37]">
+                                {showSummary ? 'Hide' : 'Generate'} Summary
+                            </span>
+                        </button>
+                    </div>
+
+                    <p className="text-white/60 mb-4">
+                        This section contains a brief summary of the case, including key details and recent updates.
                     </p>
+
+                    {showSummary && (
+                        <div className="mt-6 bg-black/50 border border-[#d4af37]/20 rounded-lg p-5">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                                <h3 className="font-semibold text-white">AI-Generated Summary</h3>
+                            </div>
+                            <p className="text-white/70 leading-relaxed">
+                                The plaintiff alleges that the defendant engaged in discriminatory hiring practices based on age and gender. Key events include the initial complaint filing on January 5, 2024, followed by a discovery motion submitted on January 10, 2024. Expert witness testimony is scheduled for February 15, 2024. The case is currently open and active.
+                            </p>
+                            <div className="mt-4 text-xs text-white/40">
+                                Last generated: January 20, 2024
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Document Content Section */}
+                <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
+                        {selectedDoc.hasSummary && (
+                            <button className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all">
+                                <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                                <span className="text-sm font-medium text-[#d4af37]">View Summary</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex gap-4 mb-6 border-b border-white/10">
+                        <button className="pb-3 px-1 border-b-2 border-[#d4af37] text-white font-medium text-sm">
+                            Original Text
+                        </button>
+                        {selectedDoc.hasSummary && (
+                            <button className="pb-3 px-1 border-b-2 border-transparent text-white/50 hover:text-white font-medium text-sm transition-colors">
+                                AI Summary
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Document Content */}
+                    <div className="bg-black/30 border border-white/5 rounded-lg p-6 min-h-[400px]">
+                        <p className="text-white/60 leading-relaxed">
+                            Document content would appear here. This could be the full text of the legal document, 
+                            extracted from the PDF, DOCX, or TXT file that was uploaded.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
