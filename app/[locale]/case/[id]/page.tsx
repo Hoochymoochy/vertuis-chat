@@ -59,6 +59,9 @@ export default function CasesPage() {
     const [caseItem, setCaseItem] = useState<Case>(mockCase);
     const [selectedDoc, setSelectedDoc] = useState(documents[0]);
     const [showSummary, setShowSummary] = useState(false);
+    const [switchingTab, setSwitchingTab] = useState(false);
+
+    
 
     return (
         <div className="relative min-h-screen bg-black text-white">
@@ -199,22 +202,50 @@ export default function CasesPage() {
 
                     {/* Tabs */}
                     <div className="flex gap-4 mb-6 border-b border-white/10">
-                        <button className="pb-3 px-1 border-b-2 border-[#d4af37] text-white font-medium text-sm">
-                            Original Text
+                        <button
+                            onClick={() => {
+                                setSwitchingTab(false);
+                            }}
+                            className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
+                                !switchingTab
+                                    ? "bg-[#d4af37]/10 text-[#d4af37]"
+                                    : "text-white/60"
+                            }`}
+                        >
+                            <span>Original Text</span>
                         </button>
-                        {selectedDoc.hasSummary && (
-                            <button className="pb-3 px-1 border-b-2 border-transparent text-white/50 hover:text-white font-medium text-sm transition-colors">
-                                AI Summary
-                            </button>
-                        )}
+                        <button
+                            onClick={() => {
+                                setSwitchingTab(true);
+                            }}
+                            className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
+                                switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
+                            }`}
+                        >
+                            <Sparkles className="w-4 h-4" />
+                            <span>AI-Generated Summary</span>
+                        </button>
                     </div>
 
                     {/* Document Content */}
                     <div className="bg-black/30 border border-white/5 rounded-lg p-6 min-h-[400px]">
-                        <p className="text-white/60 leading-relaxed">
-                            Document content would appear here. This could be the full text of the legal document, 
-                            extracted from the PDF, DOCX, or TXT file that was uploaded.
-                        </p>
+                        {switchingTab ? (
+                            <div>
+                                <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
+                                <p className="text-white/60 leading-relaxed">
+                                    Document content would appear here. This could be the summary of the legal document, 
+                                    extracted from the PDF, DOCX, or TXT file that was uploaded.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <h3 className="font-semibold text-white mb-4">Original Text</h3>
+                                <p className="text-white/60 leading-relaxed">
+                                    Document content would appear here. This could be the full text of the legal document, 
+                                    extracted from the PDF, DOCX, or TXT file that was uploaded.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
