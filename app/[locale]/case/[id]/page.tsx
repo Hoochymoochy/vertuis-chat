@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileText, File, FileType, ChevronLeft, Plus, Clock } from "lucide-react";
+import { useLocale } from "next-intl";
 
 type Case = {
     id: number
@@ -58,12 +59,13 @@ const getFileIcon = (type: string) => {
 
 export default function CasesPage() {
     const [caseItem, setCaseItem] = useState<Case>(mockCase);
+    const locale = useLocale();
 
     return (
         <div className="relative min-h-screen bg-black text-white">
             {/* Background with marble texture */}
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200')] bg-cover bg-center opacity-10"></div>
+            <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
             <div className="absolute inset-0 backdrop-blur-sm"></div>
 
             {/* Sidebar */}
