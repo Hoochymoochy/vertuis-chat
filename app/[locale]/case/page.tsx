@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { addCase, getCases } from "@/app/lib/case"
 import useAuth  from "@/app/hooks/useAuth"
 
-export interface Chat {
+export interface Case {
   id: string;
   user_id: string;
   title: string;
