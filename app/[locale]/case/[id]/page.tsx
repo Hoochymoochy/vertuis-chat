@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { FileText, File, FileType, ChevronLeft, Plus, Clock, Sparkles } from "lucide-react";
+import { FileText, File, FileType, ChevronLeft, Plus, Clock, Sparkles, X, Upload } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 
-import { getDocument, getAllDocument } from "@/app/lib/document";
+import { getAllDocument, addDocument as addDocumentAPI } from "@/app/lib/document";
 import { getCase } from "@/app/lib/case";
 
 type Case = {
@@ -45,6 +45,12 @@ export default function CasesPage() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [switchingTab, setSwitchingTab] = useState(false);
+  const [showAddDocument, setShowAddDocument] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [documentTitle, setDocumentTitle] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [lang, setLang] = useState("en");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const params = useParams();
   const locale = useLocale();
@@ -56,7 +62,7 @@ export default function CasesPage() {
     if (params.id) {
       const fetchCase = async () => {
         const fetchedCase = await getCase(params.id as string);
-        setCaseItem(fetchedCase.data);
+        setCaseItem(fetchedCase.data[0]);
       };
       fetchCase();
     }
@@ -73,12 +79,189 @@ export default function CasesPage() {
     }
   }, [params.id]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      // Auto-fill title from filename if not already set
+      if (!documentTitle) {
+        const nameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
+        setDocumentTitle(nameWithoutExt);
+      }
+    }
+  };
+
+  const handleAddDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!documentTitle || (!file && !fileUrl)) {
+      alert("Please provide a document title and either upload a file or provide a URL");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await addDocumentAPI(
+        params.id as string,
+        documentTitle,
+        file,
+        fileUrl,
+        lang
+      );
+      
+      setDocuments([...documents, response.data]);
+      
+      // Reset form
+      setShowAddDocument(false);
+      setFile(null);
+      setDocumentTitle("");
+      setFileUrl("");
+      setLang("en");
+      
+      // Select the newly added document
+      setSelectedDoc(response.data);
+    } catch (error) {
+      console.error("Error adding document:", error);
+      alert("Failed to add document. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeAddDocumentModal = () => {
+    setShowAddDocument(false);
+    setFile(null);
+    setDocumentTitle("");
+    setFileUrl("");
+    setLang("en");
+  };
+
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-zinc-900 via-black to-zinc-900"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
       <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
       <div className="absolute inset-0 backdrop-blur-sm"></div>
+
+      {/* Add Document Modal */}
+      {showAddDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg p-8 w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Add New Document</h2>
+              <button
+                onClick={closeAddDocumentModal}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddDocument} className="space-y-6">
+              {/* Document Title */}
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-2">
+                  Document Title *
+                </label>
+                <input
+                  type="text"
+                  value={documentTitle}
+                  onChange={(e) => setDocumentTitle(e.target.value)}
+                  placeholder="e.g., Employment Contract"
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#d4af37]/50"
+                  required
+                />
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-2">
+                  Upload File
+                </label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.docx,.txt"
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="flex items-center justify-center gap-2 w-full bg-black/50 border border-white/10 hover:border-[#d4af37]/30 rounded-lg px-4 py-8 cursor-pointer transition-all group"
+                  >
+                    <Upload className="w-5 h-5 text-[#d4af37] group-hover:scale-110 transition-transform" />
+                    <span className="text-white/60 group-hover:text-[#d4af37] transition-colors">
+                      {file ? file.name : "Click to upload PDF, DOCX, or TXT"}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* OR Divider */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-white/10"></div>
+                <span className="text-white/40 text-sm">OR</span>
+                <div className="flex-1 h-px bg-white/10"></div>
+              </div>
+
+              {/* File URL */}
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-2">
+                  Document URL
+                </label>
+                <input
+                  type="url"
+                  value={fileUrl}
+                  onChange={(e) => setFileUrl(e.target.value)}
+                  placeholder="https://example.com/document.pdf"
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#d4af37]/50"
+                />
+              </div>
+
+              {/* Language */}
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-2">
+                  Language
+                </label>
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]/50"
+                >
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="zh">Chinese</option>
+                  <option value="ja">Japanese</option>
+                </select>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={closeAddDocumentModal}
+                  className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-4 py-3 text-white transition-all"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-3 text-[#d4af37] font-medium transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Adding..." : "Add Document"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar */}
       <div className="absolute left-0 top-0 h-full w-80 bg-black/80 backdrop-blur-xl border-r border-white/10 flex flex-col">
@@ -116,7 +299,10 @@ export default function CasesPage() {
 
         {/* Add Document Button */}
         <div className="p-6 border-b border-white/10">
-          <button className="w-full flex items-center justify-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-3 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+          <button 
+            onClick={() => setShowAddDocument(true)}
+            className="w-full flex items-center justify-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-3 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+          >
             <Plus className="w-5 h-5 text-[#d4af37]" />
             <span className="font-medium text-[#d4af37]">Add Document</span>
           </button>
