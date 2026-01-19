@@ -5,6 +5,7 @@ import { FileText, File, FileType, ChevronLeft, Plus, Clock, Sparkles } from "lu
 import { useLocale } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 
+import { getDocument, getAllDocument } from "@/app/lib/document";
 import { getCase } from "@/app/lib/case";
 
 type Case = {
@@ -15,11 +16,12 @@ type Case = {
   updated_at: string;
 };
 
-const documents = [
-  { name: "Document 1", type: "pdf", date: "2023-01-01" },
-  { name: "Document 2", type: "docx", date: "2023-02-01" },
-  { name: "Document 3", type: "txt", date: "2023-03-01" },
-];
+type Document = {
+  id: number;
+  title: string;
+  type: string;
+  hasSummary: boolean;
+};
 
 const getFileIcon = (type: string) => {
   switch (type) {
@@ -35,11 +37,12 @@ export default function CasesPage() {
     id: 0,
     title: "",
     description: "",
-    status: true, // default new case is "Open"
+    status: true,
     updated_at: new Date().toISOString(),
   });
 
-  const [selectedDoc, setSelectedDoc] = useState(documents[0]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [switchingTab, setSwitchingTab] = useState(false);
 
@@ -50,20 +53,30 @@ export default function CasesPage() {
   const handleBack = () => router.push(`/${locale}/case`);
 
   useEffect(() => {
-    // Only fetch if an ID exists (editing an existing case)
     if (params.id) {
       const fetchCase = async () => {
         const fetchedCase = await getCase(params.id as string);
-        setCaseItem(fetchedCase);
+        setCaseItem(fetchedCase.data);
       };
       fetchCase();
+    }
+  }, [params.id]);
+
+  useEffect(() => {
+    if (params.id) {
+      const fetchDocuments = async () => {
+        const fetchedDocuments = await getAllDocument(params.id as string);
+        console.log(fetchedDocuments);
+        setDocuments(fetchedDocuments);
+      };
+      fetchDocuments();
     }
   }, [params.id]);
 
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-zinc-900 via-black to-zinc-900"></div>
       <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
       <div className="absolute inset-0 backdrop-blur-sm"></div>
 
@@ -111,40 +124,49 @@ export default function CasesPage() {
 
         {/* Documents List */}
         <div className="flex-1 overflow-y-auto p-6">
-          <h2 className="font-bold text-sm text-white/50 mb-4 uppercase tracking-wider">
-            Documents ({documents.length})
-          </h2>
-          <div className="space-y-3">
-            {documents.map((document) => (
-              <button
-                key={document.id}
-                onClick={() => setSelectedDoc(document)}
-                className={`w-full text-left bg-gradient-to-r from-[#d4af37]/5 to-transparent hover:from-[#d4af37]/15 hover:to-[#d4af37]/5 border rounded-lg p-4 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] group ${
-                  selectedDoc.id === document.id
-                    ? "border-[#d4af37]/30 bg-[#d4af37]/10"
-                    : "border-white/10 hover:border-[#d4af37]/30"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 text-[#d4af37]">{getFileIcon(document.type)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white group-hover:text-[#d4af37] transition-colors mb-1 truncate">
-                      {document.title}
+          {documents.length === 0 && (
+            <h2 className="font-bold text-sm text-white/50 mb-4 uppercase tracking-wider">
+              No documents found
+            </h2>
+          )}
+          {documents.length > 0 && (
+            <>
+              <h2 className="font-bold text-sm text-white/50 mb-4 uppercase tracking-wider">
+                Documents ({documents.length})
+              </h2>
+              <div className="space-y-3">
+                {documents.map((document) => (
+                  <button
+                    key={document.id}
+                    onClick={() => setSelectedDoc(document)}
+                    className={`w-full text-left bg-gradient-to-r from-[#d4af37]/5 to-transparent hover:from-[#d4af37]/15 hover:to-[#d4af37]/5 border rounded-lg p-4 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] group ${
+                      selectedDoc?.id === document.id
+                        ? "border-[#d4af37]/30 bg-[#d4af37]/10"
+                        : "border-white/10 hover:border-[#d4af37]/30"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 text-[#d4af37]">{getFileIcon(document.type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-white group-hover:text-[#d4af37] transition-colors mb-1 truncate">
+                          {document.title}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-white/40 uppercase">{document.type}</span>
+                          {document.hasSummary && (
+                            <>
+                              <span className="text-white/20">•</span>
+                              <span className="text-[#d4af37]/70">AI Summary</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-white/40 uppercase">{document.type}</span>
-                      {document.hasSummary && (
-                        <>
-                          <span className="text-white/20">•</span>
-                          <span className="text-[#d4af37]/70">AI Summary</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -186,59 +208,61 @@ export default function CasesPage() {
         </div>
 
         {/* Document Content */}
-        <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
-            {selectedDoc.hasSummary && (
-              <button className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all">
-                <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                <span className="text-sm font-medium text-[#d4af37]">View Summary</span>
+        {selectedDoc && (
+          <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
+              {selectedDoc.hasSummary && (
+                <button className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all">
+                  <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                  <span className="text-sm font-medium text-[#d4af37]">View Summary</span>
+                </button>
+              )}
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-4 mb-6 border-b border-white/10">
+              <button
+                onClick={() => setSwitchingTab(false)}
+                className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
+                  !switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
+                }`}
+              >
+                <span>Original Text</span>
               </button>
-            )}
-          </div>
+              <button
+                onClick={() => setSwitchingTab(true)}
+                className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
+                  switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>AI-Generated Summary</span>
+              </button>
+            </div>
 
-          {/* Tabs */}
-          <div className="flex gap-4 mb-6 border-b border-white/10">
-            <button
-              onClick={() => setSwitchingTab(false)}
-              className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
-                !switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
-              }`}
-            >
-              <span>Original Text</span>
-            </button>
-            <button
-              onClick={() => setSwitchingTab(true)}
-              className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
-                switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>AI-Generated Summary</span>
-            </button>
+            {/* Document Content */}
+            <div className="bg-black/30 border border-white/5 rounded-lg p-6 min-h-[400px]">
+              {switchingTab ? (
+                <div>
+                  <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
+                  <p className="text-white/60 leading-relaxed">
+                    Document content would appear here. This could be the summary of the legal document, 
+                    extracted from the PDF, DOCX, or TXT file that was uploaded.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <h3 className="font-semibold text-white mb-4">Original Text</h3>
+                  <p className="text-white/60 leading-relaxed">
+                    Document content would appear here. This could be the full text of the legal document, 
+                    extracted from the PDF, DOCX, or TXT file that was uploaded.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-
-          {/* Document Content */}
-          <div className="bg-black/30 border border-white/5 rounded-lg p-6 min-h-[400px]">
-            {switchingTab ? (
-              <div>
-                <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
-                <p className="text-white/60 leading-relaxed">
-                  Document content would appear here. This could be the summary of the legal document, 
-                  extracted from the PDF, DOCX, or TXT file that was uploaded.
-                </p>
-              </div>
-            ) : (
-              <div>
-                <h3 className="font-semibold text-white mb-4">Original Text</h3>
-                <p className="text-white/60 leading-relaxed">
-                  Document content would appear here. This could be the full text of the legal document, 
-                  extracted from the PDF, DOCX, or TXT file that was uploaded.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
