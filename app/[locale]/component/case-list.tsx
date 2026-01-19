@@ -6,12 +6,14 @@ import { useTranslations, useLocale } from "next-intl";
    Types
 ======================= */
 
-type Case = {
-  id: number
-  title: string
-  description: string
-  status: boolean // true = Open, false = Closed
-  updated_at: string // ISO date string
+interface Case {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;  // fix typo
+  status: boolean;      // add this field
+  created_at: string;
+  updated_at: string;
 }
 
 /* =======================

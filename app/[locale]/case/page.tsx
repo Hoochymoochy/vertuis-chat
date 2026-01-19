@@ -3,14 +3,15 @@
 import { CaseList } from "@/app/[locale]/component/case-list"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
-import { addCase, getCases } from "@/app/lib/case"
+import { addCase, getAllCase } from "@/app/lib/case"
 import useAuth  from "@/app/hooks/useAuth"
 
 export interface Case {
   id: string;
   user_id: string;
   title: string;
-  discription: string;
+  description: string;  // fix typo
+  status: boolean;      // add this field
   created_at: string;
   updated_at: string;
 }
@@ -18,13 +19,14 @@ export interface Case {
 export default function CasesPage() {
   const [newCase, setNewCase] = useState(false);
   const [cases, setCases] = useState<Case[]>([]);
-  const { userId, isCheckingAuth } = useAuth();
+  const { userId } = useAuth();
+
 
   useEffect(() => {
     if (userId) {
       const fetchCases = async () => {
-        const cases = await getCases(userId);
-        setCases(cases);
+        const cases = await getAllCase(userId);
+        setCases(cases.cases);
       };
       fetchCases();
     }
@@ -39,6 +41,7 @@ export default function CasesPage() {
     if (!title || !description) return;
     
     const newCaseData = await addCase(title, description, userId);
+    // Make sure newCaseData has the right structure, then:
     setCases([...cases, newCaseData]);
     setNewCase(false);
   };
