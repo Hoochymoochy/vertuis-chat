@@ -10,14 +10,12 @@ export const addDocument = async (
   case_id: string,
   title: string,
   file: File,
-  file_url: string,
   lang: string
 ) => {
   const formData = new FormData()
   formData.append("case_id", case_id)
   formData.append("title", title)
   formData.append("file", file)
-  formData.append("file_url", file_url)
   formData.append("lang", lang)
 
   const res = await fetch(`${backendUrl}/document`, {
@@ -29,8 +27,7 @@ export const addDocument = async (
     throw new Error("Failed to add document")
   }
 
-  return res.json()
-}
+  return res.json()}
 
 /* =======================
    GET ALL DOCUMENTS

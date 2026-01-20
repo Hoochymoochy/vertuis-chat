@@ -19,8 +19,8 @@ type Case = {
 type Document = {
   id: number;
   title: string;
-  type: string;
-  hasSummary: boolean;
+  file_path: string;
+  file_type: string;
 };
 
 const getFileIcon = (type: string) => {
@@ -72,8 +72,8 @@ export default function CasesPage() {
     if (params.id) {
       const fetchDocuments = async () => {
         const fetchedDocuments = await getAllDocument(params.id as string);
-        console.log(fetchedDocuments);
-        setDocuments(fetchedDocuments);
+        console.log("Fetched documents:", fetchedDocuments);
+        setDocuments(fetchedDocuments.documents);
       };
       fetchDocuments();
     }
@@ -107,11 +107,10 @@ export default function CasesPage() {
         params.id as string,
         documentTitle,
         file,
-        fileUrl,
         lang
       );
-      
-      setDocuments([...documents, response.data]);
+
+      setDocuments([...documents, response.documents]);
       
       // Reset form
       setShowAddDocument(false);
@@ -141,7 +140,7 @@ export default function CasesPage() {
   return (
     <div className="relative min-h-screen bg-black text-white">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-zinc-900 via-black to-zinc-900"></div>
       <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
       <div className="absolute inset-0 backdrop-blur-sm"></div>
 
@@ -205,39 +204,6 @@ export default function CasesPage() {
                 <div className="flex-1 h-px bg-white/10"></div>
                 <span className="text-white/40 text-sm">OR</span>
                 <div className="flex-1 h-px bg-white/10"></div>
-              </div>
-
-              {/* File URL */}
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">
-                  Document URL
-                </label>
-                <input
-                  type="url"
-                  value={fileUrl}
-                  onChange={(e) => setFileUrl(e.target.value)}
-                  placeholder="https://example.com/document.pdf"
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#d4af37]/50"
-                />
-              </div>
-
-              {/* Language */}
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">
-                  Language
-                </label>
-                <select
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]/50"
-                >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
-                  <option value="zh">Chinese</option>
-                  <option value="ja">Japanese</option>
-                </select>
               </div>
 
               {/* Buttons */}
@@ -339,12 +305,6 @@ export default function CasesPage() {
                         </div>
                         <div className="flex items-center gap-2 text-xs">
                           <span className="text-white/40 uppercase">{document.type}</span>
-                          {document.hasSummary && (
-                            <>
-                              <span className="text-white/20">•</span>
-                              <span className="text-[#d4af37]/70">AI Summary</span>
-                            </>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -398,12 +358,6 @@ export default function CasesPage() {
           <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
-              {selectedDoc.hasSummary && (
-                <button className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all">
-                  <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                  <span className="text-sm font-medium text-[#d4af37]">View Summary</span>
-                </button>
-              )}
             </div>
 
             {/* Tabs */}
@@ -433,17 +387,18 @@ export default function CasesPage() {
                 <div>
                   <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
                   <p className="text-white/60 leading-relaxed">
-                    Document content would appear here. This could be the summary of the legal document, 
-                    extracted from the PDF, DOCX, or TXT file that was uploaded.
+                  {selectedDoc.summary}
                   </p>
                 </div>
               ) : (
                 <div>
                   <h3 className="font-semibold text-white mb-4">Original Text</h3>
-                  <p className="text-white/60 leading-relaxed">
-                    Document content would appear here. This could be the full text of the legal document, 
-                    extracted from the PDF, DOCX, or TXT file that was uploaded.
-                  </p>
+                  <iframe
+                    src={selectedDoc.signed_url}
+                    width="100%"
+                    height="400"
+                    className="border border-white/10 rounded-lg"
+                  ></iframe>
                 </div>
               )}
             </div>
