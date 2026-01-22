@@ -6,7 +6,9 @@ import { useLocale } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 
 import { getAllDocument, addDocument as addDocumentAPI } from "@/app/lib/document";
+import { getCaseSummaries } from "@/app/lib/case";
 import { getCase } from "@/app/lib/case";
+import ReactMarkdown from "react-markdown";
 
 type Case = {
   id: number;
@@ -51,6 +53,8 @@ export default function CasesPage() {
   const [fileUrl, setFileUrl] = useState("");
   const [lang, setLang] = useState("en");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [caseId, setCaseId] = useState("");
+  const [caseSummaries, setCaseSummaries] = useState("");
 
   const params = useParams();
   const locale = useLocale();
@@ -63,6 +67,7 @@ export default function CasesPage() {
       const fetchCase = async () => {
         const fetchedCase = await getCase(params.id as string);
         setCaseItem(fetchedCase.data[0]);
+        setCaseId(fetchedCase.data[0].id);
       };
       fetchCase();
     }
@@ -72,7 +77,6 @@ export default function CasesPage() {
     if (params.id) {
       const fetchDocuments = async () => {
         const fetchedDocuments = await getAllDocument(params.id as string);
-        console.log("Fetched documents:", fetchedDocuments);
         setDocuments(fetchedDocuments.documents);
       };
       fetchDocuments();
@@ -110,7 +114,9 @@ export default function CasesPage() {
         lang
       );
 
-      setDocuments([...documents, response.documents]);
+      console.log("New document added:", response.data[0]);
+
+      setDocuments([...documents, response.data[0]]);
       
       // Reset form
       setShowAddDocument(false);
@@ -120,7 +126,7 @@ export default function CasesPage() {
       setLang("en");
       
       // Select the newly added document
-      setSelectedDoc(response.data);
+      setSelectedDoc(response.data[0]);
     } catch (error) {
       console.error("Error adding document:", error);
       alert("Failed to add document. Please try again.");
@@ -135,6 +141,18 @@ export default function CasesPage() {
     setDocumentTitle("");
     setFileUrl("");
     setLang("en");
+  };
+
+  const handleCaseSummary = async () => {
+    try {
+      const response = await getCaseSummaries(caseId, lang);
+      setCaseSummaries(response.data);
+      setShowSummary(true);
+      setSwitchingTab(true);
+    } catch (error) {
+      console.error("Error fetching case summary:", error);
+      alert("Failed to fetch case summary. Please try again.");
+    }
   };
 
   return (
@@ -323,20 +341,18 @@ export default function CasesPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white">Case Summary</h2>
             <button
-              onClick={() => setShowSummary(!showSummary)}
+              onClick={() =>  handleCaseSummary() }
               className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all"
             >
               <Sparkles className="w-4 h-4 text-[#d4af37]" />
               <span className="text-sm font-medium text-[#d4af37]">
-                {showSummary ? "Hide" : "Generate"} Summary
+                {showSummary ? "Hide" : "Generate"} {caseItem.title ? "Summary" : "Case Summary"}
               </span>
             </button>
           </div>
 
           <p className="text-white/60 mb-4">
-            {caseItem.title
-              ? "This section contains a brief summary of the case, including key details and recent updates."
-              : "Start filling out the case details to see the summary here."}
+            {caseSummaries}
           </p>
 
           {showSummary && caseItem.title && (
@@ -386,9 +402,85 @@ export default function CasesPage() {
               {switchingTab ? (
                 <div>
                   <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
-                  <p className="text-white/60 leading-relaxed">
-                  {selectedDoc.summary}
-                  </p>
+                  <div className="overflow-hidden">
+                    <ReactMarkdown
+                      components={{
+                        // Links
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold underline hover:text-gold/80 transition-colors"
+                          />
+                        ),
+                        // Paragraphs
+                        p: ({ children }) => (
+                          <p className="text-white/80 text-sm leading-relaxed mb-3 last:mb-0">
+                            {children}
+                          </p>
+                        ),
+                        // Unordered lists
+                        ul: ({ children }) => (
+                          <ul className="text-white/80 text-sm space-y-1.5 ml-4 mb-3 list-disc">
+                            {children}
+                          </ul>
+                        ),
+                        // Ordered lists
+                        ol: ({ children }) => (
+                          <ol className="text-white/80 text-sm space-y-1.5 ml-4 mb-3 list-decimal">
+                            {children}
+                          </ol>
+                        ),
+                        // List items
+                        li: ({ children }) => (
+                          <li className="text-white/80 text-sm leading-relaxed">
+                            {children}
+                          </li>
+                        ),
+                        // Bold text
+                        strong: ({ children }) => (
+                          <strong className="text-white font-semibold">
+                            {children}
+                          </strong>
+                        ),
+                        // Inline code
+                        code: ({ children }) => (
+                          <code className="bg-white/5 text-gold px-1.5 py-0.5 rounded text-xs font-mono">
+                            {children}
+                          </code>
+                        ),
+                        // Headings
+                        h1: ({ children }) => (
+                          <h1 className="text-white text-xl font-bold mb-3 mt-4 first:mt-0">
+                            {children}
+                          </h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2 className="text-white text-lg font-semibold mb-3 mt-4 first:mt-0">
+                            {children}
+                          </h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3 className="text-white text-base font-semibold mb-2 mt-3 first:mt-0">
+                            {children}
+                          </h3>
+                        ),
+                        // Blockquotes
+                        blockquote: ({ children }) => (
+                          <blockquote className="border-l-2 border-gold/30 pl-4 my-3 text-white/70 italic">
+                            {children}
+                          </blockquote>
+                        ),
+                        // Horizontal rule
+                        hr: () => (
+                          <hr className="border-t border-white/10 my-4" />
+                        ),
+                      }}
+                    >
+                      {selectedDoc.summary}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               ) : (
                 <div>
@@ -402,6 +494,7 @@ export default function CasesPage() {
                 </div>
               )}
             </div>
+
           </div>
         )}
       </div>

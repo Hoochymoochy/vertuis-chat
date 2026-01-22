@@ -17,6 +17,8 @@ export interface Case {
   updated_at: string;
 }
 
+
+
 export default function CasesPage() {
   const [newCase, setNewCase] = useState(false);
   const [cases, setCases] = useState<Case[]>([]);
@@ -65,25 +67,23 @@ export default function CasesPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900"></div>
-      <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
-      <div className="absolute inset-0 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
       
       {/* Header */}
-      <div className="relative z-40 border-b border-white/10 bg-black/40 backdrop-blur-xl">
+      <div className="absolute top-0 left-0 w-full z-40 border-b bg-black/80 backdrop-blur-xl border-gold/20">
         <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-white">Cases</h1>
-            <p className="text-sm text-white/50 mt-2">
+            <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)] text-gradient">Cases</h1>
+            <p className="text-sm text-gold mt-2">
               Manage, review, and analyze your active matters
             </p>
           </div>
 
           <button
             onClick={() => setNewCase(true)}
-            className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-6 py-3 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+            className=" bg-linear-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 border border-gold/30 px-4 py-3 text-white font-medium transition-all duration-200 flex items-center gap-3"
           >
             <Plus className="w-5 h-5 text-[#d4af37]" />
             <span className="font-medium text-[#d4af37]">New Case</span>

@@ -68,13 +68,16 @@ export const deleteCase = async (case_id: string) => {
 
 /* -------------------- SUMMARIES -------------------- */
 export const getCaseSummaries = async (
-  user_id: string,
+  case_id: string,
   lang: string
 ) => {
   const res = await fetch(
-    `${backendUrl}/case/summaries/${user_id}?lang=${encodeURIComponent(lang)}`,
+    `${backendUrl}/case/${case_id}/summaries/${lang}`,
     {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
   )
 
