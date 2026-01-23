@@ -14,8 +14,10 @@ type Case = {
   id: number;
   title: string;
   description: string;
+  summary: string;
   status: boolean;
   updated_at: string;
+  summary_updated: string;
 };
 
 type Document = {
@@ -39,8 +41,10 @@ export default function CasesPage() {
     id: 0,
     title: "",
     description: "",
+    summary: "",
     status: true,
     updated_at: new Date().toISOString(),
+    summary_updated: new Date().toISOString(),
   });
 
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -55,6 +59,7 @@ export default function CasesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [caseId, setCaseId] = useState("");
   const [caseSummaries, setCaseSummaries] = useState("");
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   const params = useParams();
   const locale = useLocale();
@@ -88,7 +93,6 @@ export default function CasesPage() {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
       
-      // Auto-fill title from filename if not already set
       if (!documentTitle) {
         const nameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
         setDocumentTitle(nameWithoutExt);
@@ -118,14 +122,12 @@ export default function CasesPage() {
 
       setDocuments([...documents, response.data[0]]);
       
-      // Reset form
       setShowAddDocument(false);
       setFile(null);
       setDocumentTitle("");
       setFileUrl("");
       setLang("en");
       
-      // Select the newly added document
       setSelectedDoc(response.data[0]);
     } catch (error) {
       console.error("Error adding document:", error);
@@ -143,23 +145,36 @@ export default function CasesPage() {
     setLang("en");
   };
 
-  const handleCaseSummary = async () => {
+  const handleGenerateNewSummary = async () => {
+    setIsGeneratingSummary(true);
     try {
       const response = await getCaseSummaries(caseId, lang);
       setCaseSummaries(response.data);
+      
+      // Update the caseItem with new summary
+      setCaseItem({
+        ...caseItem,
+        summary: response.data,
+        summary_updated: new Date().toISOString()
+      });
+      
       setShowSummary(true);
-      setSwitchingTab(true);
     } catch (error) {
-      console.error("Error fetching case summary:", error);
-      alert("Failed to fetch case summary. Please try again.");
+      console.error("Error generating case summary:", error);
+      alert("Failed to generate case summary. Please try again.");
+    } finally {
+      setIsGeneratingSummary(false);
     }
   };
 
+  const toggleShowSummary = () => {
+    setShowSummary(!showSummary);
+  };
+
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
+    <div className="relative min-h-screen flex overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
       {/* Background */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-
 
       {/* Add Document Modal */}
       {showAddDocument && (
@@ -176,7 +191,6 @@ export default function CasesPage() {
             </div>
 
             <form onSubmit={handleAddDocument} className="space-y-6">
-              {/* Document Title */}
               <div>
                 <label className="block text-sm font-medium text-white/70 mb-2">
                   Document Title *
@@ -191,7 +205,6 @@ export default function CasesPage() {
                 />
               </div>
 
-              {/* File Upload */}
               <div>
                 <label className="block text-sm font-medium text-white/70 mb-2">
                   Upload File
@@ -216,14 +229,12 @@ export default function CasesPage() {
                 </div>
               </div>
 
-              {/* OR Divider */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-white/10"></div>
                 <span className="text-white/40 text-sm">OR</span>
                 <div className="flex-1 h-px bg-white/10"></div>
               </div>
 
-              {/* Buttons */}
               <div className="flex gap-4 pt-4">
                 <button
                   type="button"
@@ -247,7 +258,7 @@ export default function CasesPage() {
       )}
 
       {/* Sidebar */}
-      <div className="absolute left-0 top-0 h-full w-80 bg-black/80 backdrop-blur-xl border-r border-gold/20 flex flex-col">
+      <div className="relative w-80 bg-black/80 backdrop-blur-xl border-r border-gold/20 flex flex-col shrink-0">
         {/* Header */}
         <div className="p-6 border-b border-gold/20">
           <button
@@ -334,168 +345,187 @@ export default function CasesPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="relative ml-80 p-8 min-h-screen space-y-6">
-        {/* Case Summary */}
-        <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">Case Summary</h2>
-            <button
-              onClick={() =>  handleCaseSummary() }
-              className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-[#d4af37]" />
-              <span className="text-sm font-medium text-[#d4af37]">
-                {showSummary ? "Hide" : "Generate"} {caseItem.title ? "Summary" : "Case Summary"}
-              </span>
-            </button>
+      <div className="relative flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto p-8 space-y-6">
+
+          {/* Case Summary */}
+          <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Case Summary</h2>
+              <div className="flex items-center gap-3">
+                {caseItem.summary && caseItem.title && (
+                  <button
+                    onClick={toggleShowSummary}
+                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg px-4 py-2 transition-all"
+                  >
+                    <span className="text-sm font-medium text-white">
+                      {showSummary ? "Hide Summary" : "Show Summary"}
+                    </span>
+                  </button>
+                )}
+                <button
+                  onClick={handleGenerateNewSummary}
+                  disabled={isGeneratingSummary}
+                  className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className={`w-4 h-4 text-[#d4af37] ${isGeneratingSummary ? 'animate-spin' : ''}`} />
+                  <span className="text-sm font-medium text-[#d4af37]">
+                    {isGeneratingSummary ? "Generating..." : "Generate New Summary"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {showSummary && caseItem.summary && caseItem.title && (
+              <div className="mt-6 bg-black/50 border border-[#d4af37]/20 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                  <h3 className="font-semibold text-white">AI-Generated Summary</h3>
+                </div>
+                <p className="text-white/70 leading-relaxed">
+                  {caseItem.summary}
+                </p>
+                <div className="mt-4 text-xs text-white/40">Last generated: {new Date(caseItem.summary_updated).toLocaleDateString()}</div>
+              </div>
+            )}
+
+            {isGeneratingSummary && (
+              <div className="mt-6 bg-black/50 border border-[#d4af37]/20 rounded-lg p-5">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 text-[#d4af37] animate-spin" />
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">Generating Summary...</h3>
+                    <p className="text-white/60 text-sm">This may take a few moments</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          <p className="text-white/60 mb-4">
-            {caseSummaries}
-          </p>
-
-          {showSummary && caseItem.title && (
-            <div className="mt-6 bg-black/50 border border-[#d4af37]/20 rounded-lg p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                <h3 className="font-semibold text-white">AI-Generated Summary</h3>
+          {/* Document Content */}
+          {selectedDoc && (
+            <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden">
+              <div className="p-6 border-b border-white/10">
+                <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
               </div>
-              <p className="text-white/70 leading-relaxed">
-                The plaintiff alleges that the defendant engaged in discriminatory hiring practices based on age and gender. Key events include the initial complaint filing on January 5, 2024, followed by a discovery motion submitted on January 10, 2024. Expert witness testimony is scheduled for February 15, 2024. The case is currently open and active.
-              </p>
-              <div className="mt-4 text-xs text-white/40">Last generated: January 20, 2024</div>
-            </div>
-          )}
-        </div>
 
-        {/* Document Content */}
-        {selectedDoc && (
-          <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
-            </div>
+              {/* Tabs */}
+              <div className="flex gap-1 px-6 border-b border-white/10">
+                <button
+                  onClick={() => setSwitchingTab(false)}
+                  className={`flex items-center gap-2 py-3 px-4 text-sm font-medium transition-all relative ${
+                    !switchingTab 
+                      ? "text-[#d4af37]" 
+                      : "text-white/60 hover:text-white/80"
+                  }`}
+                >
+                  <span>Original Text</span>
+                  {!switchingTab && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setSwitchingTab(true)}
+                  className={`flex items-center gap-2 py-3 px-4 text-sm font-medium transition-all relative ${
+                    switchingTab 
+                      ? "text-[#d4af37]" 
+                      : "text-white/60 hover:text-white/80"
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>AI-Generated Summary</span>
+                  {switchingTab && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
+                  )}
+                </button>
+              </div>
 
-            {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-white/10">
-              <button
-                onClick={() => setSwitchingTab(false)}
-                className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
-                  !switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
-                }`}
-              >
-                <span>Original Text</span>
-              </button>
-              <button
-                onClick={() => setSwitchingTab(true)}
-                className={`flex items-center gap-2 py-2 px-4 text-sm font-medium transition-colors ${
-                  switchingTab ? "bg-[#d4af37]/10 text-[#d4af37]" : "text-white/60"
-                }`}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>AI-Generated Summary</span>
-              </button>
-            </div>
-
-            {/* Document Content */}
-            <div className="bg-black/30 border border-white/5 rounded-lg p-6 min-h-[400px]">
-              {switchingTab ? (
-                <div>
-                  <h3 className="font-semibold text-white mb-4">AI-Generated Summary</h3>
-                  <div className="overflow-hidden">
+              {/* Document Content */}
+              <div className="p-6">
+                {switchingTab ? (
+                  <div className="prose prose-invert max-w-none">
                     <ReactMarkdown
                       components={{
-                        // Links
                         a: ({ node, ...props }) => (
                           <a
                             {...props}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-gold underline hover:text-gold/80 transition-colors"
+                            className="text-[#d4af37] underline hover:text-[#d4af37]/80 transition-colors"
                           />
                         ),
-                        // Paragraphs
                         p: ({ children }) => (
-                          <p className="text-white/80 text-sm leading-relaxed mb-3 last:mb-0">
+                          <p className="text-white/80 leading-relaxed mb-4 last:mb-0">
                             {children}
                           </p>
                         ),
-                        // Unordered lists
                         ul: ({ children }) => (
-                          <ul className="text-white/80 text-sm space-y-1.5 ml-4 mb-3 list-disc">
+                          <ul className="text-white/80 space-y-2 ml-6 mb-4 list-disc">
                             {children}
                           </ul>
                         ),
-                        // Ordered lists
                         ol: ({ children }) => (
-                          <ol className="text-white/80 text-sm space-y-1.5 ml-4 mb-3 list-decimal">
+                          <ol className="text-white/80 space-y-2 ml-6 mb-4 list-decimal">
                             {children}
                           </ol>
                         ),
-                        // List items
                         li: ({ children }) => (
-                          <li className="text-white/80 text-sm leading-relaxed">
+                          <li className="text-white/80 leading-relaxed">
                             {children}
                           </li>
                         ),
-                        // Bold text
                         strong: ({ children }) => (
                           <strong className="text-white font-semibold">
                             {children}
                           </strong>
                         ),
-                        // Inline code
                         code: ({ children }) => (
-                          <code className="bg-white/5 text-gold px-1.5 py-0.5 rounded text-xs font-mono">
+                          <code className="bg-white/5 text-[#d4af37] px-2 py-0.5 rounded text-sm font-mono">
                             {children}
                           </code>
                         ),
-                        // Headings
                         h1: ({ children }) => (
-                          <h1 className="text-white text-xl font-bold mb-3 mt-4 first:mt-0">
+                          <h1 className="text-white text-2xl font-bold mb-4 mt-6 first:mt-0">
                             {children}
                           </h1>
                         ),
                         h2: ({ children }) => (
-                          <h2 className="text-white text-lg font-semibold mb-3 mt-4 first:mt-0">
+                          <h2 className="text-white text-xl font-semibold mb-3 mt-5 first:mt-0">
                             {children}
                           </h2>
                         ),
                         h3: ({ children }) => (
-                          <h3 className="text-white text-base font-semibold mb-2 mt-3 first:mt-0">
+                          <h3 className="text-white text-lg font-semibold mb-3 mt-4 first:mt-0">
                             {children}
                           </h3>
                         ),
-                        // Blockquotes
                         blockquote: ({ children }) => (
-                          <blockquote className="border-l-2 border-gold/30 pl-4 my-3 text-white/70 italic">
+                          <blockquote className="border-l-2 border-[#d4af37]/30 pl-4 my-4 text-white/70 italic">
                             {children}
                           </blockquote>
                         ),
-                        // Horizontal rule
                         hr: () => (
-                          <hr className="border-t border-white/10 my-4" />
+                          <hr className="border-t border-white/10 my-6" />
                         ),
                       }}
                     >
                       {selectedDoc.summary}
                     </ReactMarkdown>
                   </div>
-                </div>
-              ) : (
-                <div>
-                  <h3 className="font-semibold text-white mb-4">Original Text</h3>
-                  <iframe
-                    src={selectedDoc.signed_url}
-                    width="100%"
-                    height="400"
-                    className="border border-white/10 rounded-lg"
-                  ></iframe>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-black/30 border border-white/5 rounded-lg overflow-hidden" style={{ height: '600px' }}>
+                    <iframe
+                      src={selectedDoc.signed_url}
+                      width="100%"
+                      height="100%"
+                      className="w-full h-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
