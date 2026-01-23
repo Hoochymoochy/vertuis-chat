@@ -156,11 +156,10 @@ export default function CasesPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
       {/* Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-zinc-900 via-black to-zinc-900"></div>
-      <div className="absolute inset-0 bg-[url('/marble.jpg')] bg-cover bg-center opacity-10"></div>
-      <div className="absolute inset-0 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+
 
       {/* Add Document Modal */}
       {showAddDocument && (
@@ -248,9 +247,9 @@ export default function CasesPage() {
       )}
 
       {/* Sidebar */}
-      <div className="absolute left-0 top-0 h-full w-80 bg-black/80 backdrop-blur-xl border-r border-white/10 flex flex-col">
+      <div className="absolute left-0 top-0 h-full w-80 bg-black/80 backdrop-blur-xl border-r border-gold/20 flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 border-b border-gold/20">
           <button
             className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-6 group"
             onClick={handleBack}
@@ -282,7 +281,7 @@ export default function CasesPage() {
         </div>
 
         {/* Add Document Button */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 border-b border-gold/20">
           <button 
             onClick={() => setShowAddDocument(true)}
             className="w-full flex items-center justify-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-3 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"

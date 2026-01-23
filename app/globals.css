@@ -264,3 +264,37 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes gold-spin {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gold-spin {
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(212, 175, 55, 0.6),
+    transparent 70%
+  );
+  background-size: 300% 300%;
+  animation: gold-spin 6s linear infinite;
+}
+
+.animate-gold-spin {
+  animation:
+    gold-spin 6s linear infinite,
+    pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
