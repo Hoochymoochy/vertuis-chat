@@ -94,7 +94,7 @@ export default function CasesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="relative w-full max-w-2xl">
             {/* Subtle animated gold glow */}
-            <div className="absolute -inset-[1px] rounded-xl animate-gold-spin opacity-40 blur-sm" />
+            <div className="absolute inset-0 -z-10 bg-gradient-radial from-gold/10 via-transparent to-transparent blur-inset-[1px] rounded-xl animate-gold-spin opacity-40 blur-sm" />
 
             {/* Actual modal */}
             <div className="relative bg-black/95 backdrop-blur-xl p-8 rounded-xl border border-white/10 shadow-2xl">

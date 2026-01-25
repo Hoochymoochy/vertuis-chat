@@ -74,7 +74,7 @@ export function CaseList({ cases }: { cases: Case[] }) {
               </h3>
 
               <span
-                className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                className={`shrink-0 px-2.5 py-1 text-xs font-medium ${
                   caseItem.status
                     ? "bg-[#d4af37]/15 text-[#d4af37]"
                     : "bg-white/10 text-white/70"
