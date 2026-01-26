@@ -1,12 +1,15 @@
-import { menuSections } from "./menu.config";
-import  { MenuSection }  from "./MenuSection";
+// SidebarLeft.tsx - Handle section clicks
+import { sidebarSections } from "./menu.config";
+import { MenuSection } from "./MenuSection";
 import { Settings } from "@carbon/icons-react";
-import Avatar  from "./Avatar";
+import Avatar from "./Avatar";
 import { SidebarLeftProps } from "./type";
 
 export default function SidebarLeft({
   expandedItems,
   toggleExpanded,
+  activeSection,
+  setSection,
 }: SidebarLeftProps) {
   return (
     <div
@@ -14,13 +17,15 @@ export default function SidebarLeft({
       style={{ width: "80px" }}
     >
       <div className="flex-1 overflow-y-auto px-2 pt-4">
-        {menuSections.map((section) => (
+        {sidebarSections.map((section) => (
           <MenuSection
             key={section.title}
             section={section}
             expandedItems={expandedItems}
             onToggleExpanded={toggleExpanded}
             isCollapsed
+            onSectionChange={setSection}
+            activeSection={activeSection}
           />
         ))}
       </div>

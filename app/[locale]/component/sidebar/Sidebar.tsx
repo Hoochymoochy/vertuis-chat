@@ -1,6 +1,7 @@
+// Sidebar.tsx - Pass activeSection to child components
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
-import { useSidebar }  from "./useSidebar";
+import { useSidebar } from "./useSidebar";
 
 export function Sidebar() {
   const sidebar = useSidebar();
@@ -8,8 +9,10 @@ export function Sidebar() {
   return (
     <div className="flex h-screen w-full">
       <SidebarLeft
-      expandedItems={Array.from(sidebar.expandedItems)}
-      toggleExpanded={sidebar.toggleExpanded}
+        expandedItems={Array.from(sidebar.expandedItems)}
+        toggleExpanded={sidebar.toggleExpanded}
+        activeSection={sidebar.activeSection}
+        setSection={sidebar.setSection}
       />
 
       <SidebarRight
@@ -17,6 +20,7 @@ export function Sidebar() {
         toggleCollapse={sidebar.toggleCollapse}
         expandedItems={sidebar.expandedItems}
         toggleExpanded={sidebar.toggleExpanded}
+        activeSection={sidebar.activeSection}
       />
     </div>
   );

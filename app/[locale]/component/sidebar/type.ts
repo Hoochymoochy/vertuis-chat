@@ -1,43 +1,43 @@
-
+// type.ts - Update your types to include the new props
 export interface SidebarLeftProps {
-    expandedItems: string[];
-    toggleExpanded: (item: string) => void;
+  expandedItems: string[];
+  toggleExpanded: (key: string) => void;
+  activeSection: string;
+  setSection: (section: string) => void;
 }
 
 export interface SidebarRightProps {
-    isCollapsed: boolean;
-    toggleCollapse: () => void;
-    expandedItems: Set<string>;
-    toggleExpanded: (key: string) => void;
-  }
+  isCollapsed: boolean;
+  toggleCollapse: () => void;
+  expandedItems: Set<string>;
+  toggleExpanded: (key: string) => void;
+  activeSection: string;
+}
 
 export interface MenuSectionProps {
-    key?: string;
-    section: {
-      title: string;
-      items: {
-        id: string;
-        label: string;
-        icon: React.ElementType;
-      }[];
-    };
-    expandedItems: Set<string>;
-    onToggleExpanded: (key: string) => void;
-    isCollapsed: boolean;
-  }
+  section: {
+    title: string;
+    items: MenuItem[];
+  };
+  expandedItems: string[] | Set<string>;
+  onToggleExpanded: (key: string) => void;
+  isCollapsed: boolean;
+  onSectionChange?: (section: string) => void;
+  activeSection?: string;
+}
 
-  export interface MenuItemProps {
-    item: {
-      icon: React.ElementType;
-      hasDropdown: boolean;
-      label: string;
-      id: string;
-      isActive: boolean;
-    };
-    isExpanded: boolean;
-    onToggleExpanded: () => void;
-    onItemClick: () => void;
-    isCollapsed: boolean;
-    onToggle: () => void;
-  }
-  
+export interface MenuItem {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  isActive?: boolean;
+  id: number;
+  hasDropdown?: boolean;
+  sectionType?: string;
+}
+
+export interface MenuItemProps {
+  item: MenuItem;
+  onToggle?: () => void;
+  onItemClick?: () => void;
+  isCollapsed: boolean;
+}

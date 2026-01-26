@@ -1,5 +1,10 @@
+// SidebarRight.tsx - Dynamically render sections based on activeSection
 import { ChartBar } from "@carbon/icons-react";
-import { menuSections } from "./menu.config";
+import { 
+  casebarSections, 
+  chatbarSections, 
+  homebarSections 
+} from "./menu.config";
 import { MenuSection } from "./MenuSection";
 import { SearchContainer } from "./SearchContainer";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
@@ -10,7 +15,26 @@ export default function SidebarRight({
   toggleCollapse,
   expandedItems,
   toggleExpanded,
+  activeSection,
 }: SidebarRightProps) {
+  // Map section types to their corresponding menu configurations
+  const sectionMap = {
+    home: homebarSections,
+    chat: chatbarSections,
+    case: casebarSections,
+  };
+
+  const currentSections = sectionMap[activeSection as keyof typeof sectionMap] || homebarSections;
+
+  // Get title based on active section
+  const sectionTitles = {
+    home: "Home",
+    chat: "Chat",
+    case: "Cases",
+  };
+
+  const currentTitle = sectionTitles[activeSection as keyof typeof sectionTitles] || "Workspace";
+
   return (
     <aside
       className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-full z-10 transition-all"
@@ -33,7 +57,7 @@ export default function SidebarRight({
           }}
         >
           <span className="text-lg font-medium text-neutral-50">
-            Workspace
+            {currentTitle}
           </span>
         </div>
 
@@ -58,9 +82,9 @@ export default function SidebarRight({
         <SearchContainer isCollapsed={isCollapsed} />
       </div>
 
-      {/* Menu */}
+      {/* Menu - Dynamically rendered based on activeSection */}
       <nav className="flex-1 overflow-y-auto px-2">
-        {menuSections.map((section) => (
+        {currentSections.map((section) => (
           <MenuSection
             key={section.title}
             section={section}
