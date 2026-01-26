@@ -1,8 +1,8 @@
-// menu.config.ts - Update to include an identifier for each section type
 import {
   Home,
   IbmWatsonAssistant,
   Task,
+  Settings, // Import Settings icon
 } from "@carbon/icons-react";
 
 export const sidebarSections = [
@@ -14,13 +14,19 @@ export const sidebarSections = [
       { icon: Task, label: "Case", id: 3, sectionType: "case" },
     ],
   },
+  {
+    title: "Settings", // Add Settings section
+    items: [
+      { icon: Settings, label: "Settings", id: 4, sectionType: "settings" },
+    ],
+  },
 ];
 
 // Keep your existing chatbarSections and casebarSections
 import {
   Chat,
   WatsonHealthAiResults,
-  Notification,
+  KeepDry,
 } from "@carbon/icons-react";
 
 export const chatbarSections = [
@@ -29,7 +35,7 @@ export const chatbarSections = [
     items: [
       { icon: Chat, label: "Messages", isActive: true, id: 1 },
       { icon: WatsonHealthAiResults, label: "AI Assistant", id: 2 },
-      { icon: Notification, label: "Notifications", id: 3 },
+      { icon: KeepDry, label: "Notifications", id: 3 },
     ],
   },
 ];
@@ -65,6 +71,25 @@ export const homebarSections = [
       { icon: Dashboard, label: "Dashboard", isActive: true, id: 1 },
       { icon: Analytics, label: "Analytics", id: 2 },
       { icon: Report, label: "Reports", id: 3 },
+    ],
+  },
+];
+// In menu.config.ts - Add this
+import {
+  UserSettings,
+  Notification,
+  Security,
+  ColorPalette,
+} from "@carbon/icons-react";
+
+export const settingsbarSections = [
+  {
+    title: "Settings",
+    items: [
+      { icon: UserSettings, label: "Profile", isActive: true, id: 1 },
+      { icon: Notification, label: "Notifications", id: 2 },
+      { icon: Security, label: "Privacy & Security", id: 3 },
+      { icon: ColorPalette, label: "Appearance", id: 4 },
     ],
   },
 ];

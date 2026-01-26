@@ -1,9 +1,10 @@
-// SidebarRight.tsx - Dynamically render sections based on activeSection
+// SidebarRight.tsx - Fix the typo
 import { ChartBar } from "@carbon/icons-react";
 import { 
   casebarSections, 
   chatbarSections, 
-  homebarSections 
+  homebarSections,
+  settingsbarSections
 } from "./menu.config";
 import { MenuSection } from "./MenuSection";
 import { SearchContainer } from "./SearchContainer";
@@ -22,6 +23,7 @@ export default function SidebarRight({
     home: homebarSections,
     chat: chatbarSections,
     case: casebarSections,
+    settings: settingsbarSections // Changed from "setting" to "settings"
   };
 
   const currentSections = sectionMap[activeSection as keyof typeof sectionMap] || homebarSections;
@@ -31,6 +33,7 @@ export default function SidebarRight({
     home: "Home",
     chat: "Chat",
     case: "Cases",
+    settings: "Settings" // Changed from "setting" to "settings"
   };
 
   const currentTitle = sectionTitles[activeSection as keyof typeof sectionTitles] || "Workspace";

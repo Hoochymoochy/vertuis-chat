@@ -5,7 +5,6 @@ import { MenuSectionProps } from "./type";
 
 export function MenuSection({
   section,
-  expandedItems,
   onToggleExpanded,
   isCollapsed,
   onSectionChange,
