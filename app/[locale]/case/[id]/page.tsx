@@ -9,7 +9,7 @@ import { getAllDocument, addDocument as addDocumentAPI } from "@/app/lib/documen
 import { getCaseSummaries } from "@/app/lib/case";
 import { getCase } from "@/app/lib/case";
 import ReactMarkdown from "react-markdown";
-import Spinner from "@/app/[locale]/component/spinner";
+import Spinner from "@/app/[locale]/component/global/spinner";
 
 type Case = {
   id: number;

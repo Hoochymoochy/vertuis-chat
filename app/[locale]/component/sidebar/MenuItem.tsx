@@ -4,7 +4,6 @@ import { MenuItemProps } from "./type";
 
 export function MenuItem({
   item,
-  isExpanded,
   onToggle,
   onItemClick,
   isCollapsed,
@@ -80,7 +79,6 @@ export function MenuItem({
               style={{
                 transitionDuration: `${ANIMATION.DURATION}ms`,
                 transitionTimingFunction: ANIMATION.EASING,
-                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
               }}
             />
           </div>

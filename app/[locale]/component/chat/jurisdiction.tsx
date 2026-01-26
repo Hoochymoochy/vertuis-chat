@@ -7,7 +7,7 @@ import {
   ComposableMap,
   Geographies,
   Geography,
-} from '@/app/[locale]/component/SimpleMapClient'
+} from '@/app/[locale]/component/chat/SimpleMapClient'
 import { setCountry as saveCountry, setState as saveState, getCountry, getState } from "@/app/lib/user"
 import { supabase } from '@/app/lib/supabaseClient'
 import { getOnbaording, setOnbaording } from '@/app/lib/user'

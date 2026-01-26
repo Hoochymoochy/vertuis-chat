@@ -30,13 +30,10 @@ export function MenuSection({
       {/* Items */}
       {section.items.map((item) => {
         const key = `${section.title}:${item.id}`;
-        const isExpanded = expandedItems.has(key);
-
         return (
           <MenuItem
             key={key}
             item={item}
-            isExpanded={isExpanded}
             isCollapsed={isCollapsed}
             onToggle={() => onToggleExpanded(key)}
             onItemClick={() => onToggleExpanded(key)}

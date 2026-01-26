@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation"
-import SideBar from "../component/sideBar";
+import { Sidebar } from "../component/sidebar/Sidebar";
 
 
 
@@ -19,7 +19,7 @@ export default function Home() {
         
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-        <SideBar/>
+        <Sidebar/>
       </div>
     );
   }
