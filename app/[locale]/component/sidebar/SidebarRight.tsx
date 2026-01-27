@@ -1,4 +1,4 @@
-// SidebarRight.tsx - Fix the typo
+// SidebarRight.tsx - Enhanced with chat section support
 import { ChartBar } from "@carbon/icons-react";
 import { 
   casebarSections, 
@@ -8,6 +8,7 @@ import {
 } from "./menu.config";
 import { MenuSection } from "./MenuSection";
 import { SearchContainer } from "./SearchContainer";
+import { ChatSection } from "./chat/ChatSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { SidebarRightProps } from "./type";
 
@@ -17,13 +18,27 @@ export default function SidebarRight({
   expandedItems,
   toggleExpanded,
   activeSection,
+  setSubSection,
+  // Chat-specific props
+  chats,
+  onNewChat,
+  onChatClick,
+  onOpenMap,
+  onLogout,
+  country,
+  state,
+  lang,
+  isLangOpen,
+  onToggleLang,
+  onLanguageChange,
+  t,
 }: SidebarRightProps) {
   // Map section types to their corresponding menu configurations
   const sectionMap = {
     home: homebarSections,
     chat: chatbarSections,
     case: casebarSections,
-    settings: settingsbarSections // Changed from "setting" to "settings"
+    settings: settingsbarSections,
   };
 
   const currentSections = sectionMap[activeSection as keyof typeof sectionMap] || homebarSections;
@@ -33,10 +48,13 @@ export default function SidebarRight({
     home: "Home",
     chat: "Chat",
     case: "Cases",
-    settings: "Settings" // Changed from "setting" to "settings"
+    settings: "Settings",
   };
 
   const currentTitle = sectionTitles[activeSection as keyof typeof sectionTitles] || "Workspace";
+
+  // When in chat section, render the chat-specific UI
+  const isChatSection = activeSection === "chat";
 
   return (
     <aside
@@ -80,23 +98,47 @@ export default function SidebarRight({
         </button>
       </header>
 
-      {/* Search */}
-      <div className="px-4 pb-4 shrink-0">
-        <SearchContainer isCollapsed={isCollapsed} />
-      </div>
+      {/* Conditional rendering based on active section */}
+      {isChatSection ? (
+        // Chat-specific layout
+        <ChatSection
+          isCollapsed={isCollapsed}
+          chats={chats || []}
+          onNewChat={onNewChat || (() => {})}
+          onChatClick={onChatClick || (() => {})}
+          onOpenMap={onOpenMap || (() => {})}
+          onLogout={onLogout || (() => {})}
+          country={country || "World"}
+          state={state || "N/A"}
+          lang={lang || "en"}
+          isLangOpen={isLangOpen || false}
+          onToggleLang={onToggleLang || (() => {})}
+          onLanguageChange={onLanguageChange || (() => {})}
+          t={t || ((key: string) => key)}
+        />
+      ) : (
+        // Standard menu layout
+        <>
+          {/* Search */}
+          <div className="px-4 pb-4 shrink-0">
+            <SearchContainer isCollapsed={isCollapsed} />
+          </div>
 
-      {/* Menu - Dynamically rendered based on activeSection */}
-      <nav className="flex-1 overflow-y-auto px-2">
-        {currentSections.map((section) => (
-          <MenuSection
-            key={section.title}
-            section={section}
-            expandedItems={expandedItems}
-            onToggleExpanded={toggleExpanded}
-            isCollapsed={isCollapsed}
-          />
-        ))}
-      </nav>
+          {/* Menu - Dynamically rendered based on activeSection */}
+          <nav className="flex-1 overflow-y-auto px-2">
+            {currentSections.map((section) => (
+              <MenuSection
+                key={section.title}
+                section={section}
+                expandedItems={expandedItems}
+                onToggleExpanded={toggleExpanded}
+                isCollapsed={isCollapsed}
+                onSectionChange={setSubSection}
+              />
+            ))}
+          </nav>
+        </>
+      )}
     </aside>
   );
 }

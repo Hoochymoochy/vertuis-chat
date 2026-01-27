@@ -21,6 +21,7 @@ export function Sidebar() {
         expandedItems={sidebar.expandedItems}
         toggleExpanded={sidebar.toggleExpanded}
         activeSection={sidebar.activeSection}
+        setSubSection={sidebar.setSubSection}
       />
     </div>
   );

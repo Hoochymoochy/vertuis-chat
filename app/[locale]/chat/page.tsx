@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
-import Side from "@/app/[locale]/component/global/side";
+import { Sidebar } from "@/app/[locale]/component/sidebar/Sidebar";
 import Map from "@/app/[locale]/component/chat/map";
 import Spinner from "@/app/[locale]/component/global/spinner";
 import InputBox from "@/app/[locale]/component/chat/inputbox";
@@ -65,7 +65,7 @@ export default function Chat() {
         className="absolute inset-0 bg-black/60 backdrop-blur-md"
       />
       <Overlay isDragging={isDragging} />
-      <Side setOpenMap={setOpenMap} />
+      <Sidebar />
       <Map openMap={openMap} setOpenMap={setOpenMap} needsOnboarding={needsOnboarding} />
 
       {/* Onboarding overlay */}

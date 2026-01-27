@@ -2,7 +2,8 @@ import {
   Home,
   IbmWatsonAssistant,
   Task,
-  Settings, // Import Settings icon
+  Settings,
+  EarthFilled, // Import Settings icon
 } from "@carbon/icons-react";
 
 export const sidebarSections = [
@@ -25,17 +26,16 @@ export const sidebarSections = [
 // Keep your existing chatbarSections and casebarSections
 import {
   Chat,
-  WatsonHealthAiResults,
-  KeepDry,
+  Time,
 } from "@carbon/icons-react";
 
 export const chatbarSections = [
   {
     title: "Chat",
     items: [
-      { icon: Chat, label: "Messages", isActive: true, id: 1 },
-      { icon: WatsonHealthAiResults, label: "AI Assistant", id: 2 },
-      { icon: KeepDry, label: "Notifications", id: 3 },
+      { icon: Chat, label: "New Chat", isActive: true, id: 1 },
+      { icon: Time, label: "Chat History", id: 2 },
+      { icon: EarthFilled, label: "Jurisdiction Selection", id: 3 },
     ],
   },
 ];

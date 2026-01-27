@@ -7,6 +7,7 @@ export function MenuItem({
   onToggle,
   onItemClick,
   isCollapsed,
+  setSubSection
 }: MenuItemProps) {
   const Icon = item.icon;
 
