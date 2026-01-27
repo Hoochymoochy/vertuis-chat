@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Search } from "@carbon/icons-react";
 import { ANIMATION } from "./sidebar.constants";

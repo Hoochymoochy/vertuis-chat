@@ -27,7 +27,12 @@ export default function Chat() {
     onError: (message) => alert(message),
   });
 
-  const smoothSpring: Transition = { type: "spring", stiffness: 70, damping: 18 };
+  const smoothSpring: Transition = { 
+    type: "spring", 
+    stiffness: 80, 
+    damping: 20,
+    mass: 0.8
+  };
 
   const handleSubmit = async (message: string, file?: File | null) => {
     setIsSubmitted(true);
@@ -43,10 +48,10 @@ export default function Chat() {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
+        <div className="flex flex-col items-center gap-6">
           <Spinner />
-          <p className="text-gold text-sm">{t("verifyingAuth")}</p>
+          <p className="text-gold/80 text-sm tracking-wide">{t("verifyingAuth")}</p>
         </div>
       </div>
     );
@@ -55,45 +60,60 @@ export default function Chat() {
   return (
     <motion.div
       layout
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
+      className="relative min-h-screen flex flex-col items-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
       {...dragHandlers}
     >
+      {/* Enhanced background overlay with better depth */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        transition={{ duration: 1.2 }}
+        className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70 backdrop-blur-sm"
       />
+      
+      {/* Subtle vignette effect */}
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/40 pointer-events-none" />
+      
       <Overlay isDragging={isDragging} />
-      <Sidebar />
       <Map openMap={openMap} setOpenMap={setOpenMap} needsOnboarding={needsOnboarding} />
 
-      {/* Onboarding overlay */}
+      {/* Enhanced Onboarding overlay */}
       <AnimatePresence>
         {needsOnboarding && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md z-30 flex items-center justify-center"
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-xl z-30 flex items-center justify-center px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', stiffness: 150, damping: 18 }}
-              className="bg-linear-to-br from-gold/15 to-gold/5 border border-gold/30 p-8 max-w-md text-center shadow-2xl"
+              initial={{ scale: 0.9, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ 
+                type: 'spring', 
+                stiffness: 100, 
+                damping: 20,
+                delay: 0.1 
+              }}
+              className="relative bg-gradient-to-br from-gold/10 via-transparent to-gold/5 border border-gold/20 rounded-2xl p-10 max-w-lg w-full text-center shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_80px_rgba(255,215,0,0.08)]"
             >
+              {/* Decorative corner accents */}
+              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-gold/30 rounded-tl-2xl" />
+              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-gold/30 rounded-br-2xl" />
+              
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-gold/20 border-t-gold shadow-[0_0_25px_rgba(255,215,0,0.2)]"
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="w-20 h-20 mx-auto mb-8 rounded-full border-[3px] border-gold/15 border-t-gold/60 shadow-[0_0_30px_rgba(255,215,0,0.15),inset_0_0_20px_rgba(255,215,0,0.05)]"
               />
-              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              
+              <h2 className="text-4xl font-serif font-bold text-white mb-4 tracking-tight">
                 {t("welcomeTitle")}
               </h2>
-              <p className="text-gold/80 text-sm">
+              
+              <p className="text-gold/70 text-base leading-relaxed max-w-md mx-auto">
                 {t("welcomeMessage")}
               </p>
             </motion.div>
@@ -101,85 +121,122 @@ export default function Chat() {
         )}
       </AnimatePresence>
 
-      {/* Main Chat Zone */}
+      {/* Main Chat Container with improved layout */}
       <motion.div
         layout
-        className={`relative flex flex-col items-center w-full transition-all duration-500 ${
-          isSubmitted ? 'justify-end pb-16' : 'justify-center'
-        } ${needsOnboarding ? 'pointer-events-none opacity-50' : ''}`}
+        className={`relative flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 transition-all duration-700 ease-out ${
+          isSubmitted 
+            ? 'justify-start pt-16 pb-8 min-h-screen' 
+            : 'justify-center min-h-screen'
+        } ${needsOnboarding ? 'pointer-events-none opacity-40' : ''}`}
       >
-        {/* Logo */}
+        {/* Logo with enhanced animations */}
         <motion.div
           layout
-          animate={{ y: isSubmitted ? '-100%' : 0 }}
+          animate={{ 
+            y: isSubmitted ? 0 : 0,
+            scale: isSubmitted ? 0.75 : 1
+          }}
           transition={smoothSpring}
-          className="flex items-center justify-center mb-6"
+          className={`flex items-center justify-center mb-8 ${
+            isSubmitted ? 'mt-0' : 'mt-0'
+          }`}
         >
           <motion.h1
             layout
-            animate={{ scale: isSubmitted ? 0.9 : 1 }}
-            transition={smoothSpring}
-            className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]"
+            className="relative text-7xl sm:text-8xl lg:text-9xl font-serif font-bold tracking-tight"
+            style={{
+              textShadow: '0 0 40px rgba(255, 215, 0, 0.2), 0 0 80px rgba(255, 215, 0, 0.1)'
+            }}
           >
-            <span className="text-gradient">VERITUS</span>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-gradient inline-block"
+            >
+              VERITUS
+            </motion.span>
+            
+            {/* Subtle glow effect on hover */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
+              aria-hidden="true"
+            />
           </motion.h1>
         </motion.div>
 
-        {/* Error Toast */}
-        <AnimatePresence>
+        {/* Improved Error Toast */}
+        <AnimatePresence mode="wait">
           {failed && (
             <motion.div
               key="error-toast"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="flex justify-center items-center mb-4"
+              initial={{ opacity: 0, y: -20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="flex justify-center items-center mb-6 w-full"
             >
               <motion.div
                 layout
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-                className="max-w-xs bg-gold/15 backdrop-blur-sm border border-gold/30 rounded-2xl px-4 py-3 shadow-lg"
+                className="max-w-md w-full bg-gradient-to-br from-red-500/15 via-red-600/10 to-red-500/15 backdrop-blur-md border border-red-400/30 rounded-xl px-5 py-4 shadow-[0_8px_32px_rgba(239,68,68,0.15)]"
               >
-                <p className="text-white text-sm text-center">
-                  {t("errorMessage")}
-                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                  <p className="text-white/90 text-sm font-medium">
+                    {t("errorMessage")}
+                  </p>
+                </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input Bar */}
-        <InputBox
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-          disabled={needsOnboarding}
-          placeholder={t("placeholder")}
-          filePlaceholder={t("filePlaceholder")}
-          acceptedFileTypes=".pdf,.docx,.txt"
-          showFileUpload={true}
-          maxFileSize={10}
-          droppedFile={droppedFile}
-        />
+        {/* Enhanced Input Box with better spacing */}
+        <motion.div
+          layout
+          className="w-full max-w-3xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          <InputBox
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            disabled={needsOnboarding}
+            placeholder={t("placeholder")}
+            filePlaceholder={t("filePlaceholder")}
+            acceptedFileTypes=".pdf,.docx,.txt"
+            showFileUpload={true}
+            maxFileSize={10}
+            droppedFile={droppedFile}
+          />
+        </motion.div>
       </motion.div>
 
-      {/* Tagline */}
+      {/* Enhanced Tagline with better typography */}
       <AnimatePresence>
         {!isSubmitted && (
           <motion.div
             key="tagline"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className={`z-20 text-center mt-12 space-y-1 ${needsOnboarding ? 'opacity-50' : ''}`}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ 
+              duration: 0.8, 
+              ease: [0.4, 0, 0.2, 1],
+              delay: 0.4 
+            }}
+            className={`fixed bottom-8 left-0 right-0 z-10 text-center px-4 space-y-2 ${
+              needsOnboarding ? 'opacity-30' : ''
+            }`}
           >
-            <p className="text-gold text-lg sm:text-xl font-medium uppercase tracking-widest">
+            <p className="text-gold/90 text-base sm:text-lg font-medium uppercase tracking-[0.25em] drop-shadow-lg">
               {t("tagline")}
             </p>
-            <p className="text-white/70 text-xs italic">{t("disclaimer")}</p>
+            <p className="text-white/50 text-xs sm:text-sm italic tracking-wide">
+              {t("disclaimer")}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

@@ -58,7 +58,7 @@ export default function SidebarRight({
 
   return (
     <aside
-      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-full z-10 transition-all"
+      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-screen z-10 transition-all"
       style={{
         width: isCollapsed
           ? `${SIDEBAR.COLLAPSED_WIDTH}px`

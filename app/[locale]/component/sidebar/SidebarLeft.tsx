@@ -16,7 +16,7 @@ export default function SidebarLeft({
 
   return (
     <div
-      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-full z-10"
+      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-screen  z-10"
       style={{ width: "80px" }}
     >
       {/* Main sections */}

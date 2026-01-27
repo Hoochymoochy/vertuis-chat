@@ -1,7 +1,11 @@
 // type.ts - Enhanced type definitions with chat support
 import { ComponentType } from "react";
 import { Chat } from "./useSidebar";
+import { ReactNode } from "react";
 
+export interface SidebarContent {
+  children: ReactNode;
+}
 export interface MenuItem {
   id: string;
   label: string;
