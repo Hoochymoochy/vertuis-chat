@@ -25,7 +25,7 @@ const languages = [
   { code: "pt", name: "Português", flag: "🇧🇷" },
 ];
 
-export function ChatSection({
+export function SettingSection({
   isCollapsed,
   chats,
   onNewChat,
@@ -135,63 +135,128 @@ export function ChatSection({
             </motion.button>
           ))}
         </motion.div>
-      </div>
 
-      {/* Jurisdiction Section */}
+        {/* Language & Logout Section */}
       <div
-        className={`shrink-0 border-t border-neutral-800 transition-all
+        className={`shrink-0 border-t border-neutral-800 space-y-2 transition-all
           ${isCollapsed ? "p-2" : "p-4"}`}
         style={{
           transitionDuration: `${ANIMATION.DURATION}ms`,
           transitionTimingFunction: ANIMATION.EASING,
         }}
       >
+        {/* Language Selector */}
+        <div className="relative">
+          <motion.button
+            onClick={onToggleLang}
+            className={`
+              w-full group relative overflow-hidden
+              bg-gradient-to-r from-amber-900/10 to-amber-800/5
+              hover:from-amber-900/20 hover:to-amber-800/10
+              border border-amber-600/30 hover:border-amber-600/40
+              transition-all
+              ${isCollapsed ? "h-10 rounded-lg flex items-center justify-center" : "rounded-lg px-4 py-2.5"}
+            `}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            title={isCollapsed ? currentLanguage.name : undefined}
+          >
+            {isCollapsed ? (
+              <Language size={20} className="text-amber-500" />
+            ) : (
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{currentLanguage.flag}</span>
+                  <span className="text-neutral-50 text-sm font-medium">
+                    {currentLanguage.name}
+                  </span>
+                </div>
+                <motion.svg
+                  className="w-4 h-4 text-amber-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  animate={{ rotate: isLangOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </motion.svg>
+              </div>
+            )}
+          </motion.button>
+
+          {!isCollapsed && (
+            <AnimatePresence>
+              {isLangOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute bottom-full left-0 right-0 mb-2 bg-neutral-900/95 backdrop-blur-lg border border-amber-600/30 rounded-lg overflow-hidden shadow-xl"
+                >
+                  {languages.map((language, index) => (
+                    <motion.button
+                      key={language.code}
+                      onClick={() => onLanguageChange(language.code)}
+                      className={`
+                        w-full px-4 py-3 text-left transition-all
+                        flex items-center gap-3
+                        ${
+                          lang === language.code
+                            ? "bg-amber-900/20 text-amber-500"
+                            : "text-neutral-50 hover:bg-amber-900/10"
+                        }
+                      `}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ x: 4 }}
+                    >
+                      <span className="text-2xl">{language.flag}</span>
+                      <span className="text-sm font-medium">{language.name}</span>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* Logout */}
         <motion.button
-          onClick={onOpenMap}
+          onClick={onLogout}
           className={`
             w-full group relative overflow-hidden
-            bg-gradient-to-r from-amber-900/10 to-amber-800/5
-            hover:from-amber-900/20 hover:to-amber-800/10
-            border border-amber-600/30 hover:border-amber-600/40
+            bg-gradient-to-r from-red-950/40 to-red-900/40
+            hover:from-red-900/60 hover:to-red-800/60
+            border border-red-500/30 hover:border-red-500/50
             transition-all
-            ${isCollapsed ? "h-10 rounded-lg flex items-center justify-center" : "rounded-lg p-3"}
+            ${isCollapsed ? "h-10 rounded-lg flex items-center justify-center" : "rounded-lg px-4 py-2.5"}
           `}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          title={isCollapsed ? t("jurisdiction") : undefined}
+          title={isCollapsed ? t("logout") : undefined}
         >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/10 to-transparent"
-            initial={{ x: "-100%" }}
-            whileHover={{ x: "100%" }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-          />
-          
           {isCollapsed ? (
-            <Location size={20} className="text-amber-500" />
+            <Logout size={20} className="text-neutral-50" />
           ) : (
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Location size={16} className="text-amber-500" />
-                <span className="text-amber-500 text-xs uppercase tracking-wider font-semibold">
-                  {t("jurisdiction")}
-                </span>
-              </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("country")}:</span> {country || t("global")}
-              </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("state")}:</span> {state || "N/A"}
-              </div>
-              <div className="mt-2 text-xs text-amber-500/60 group-hover:text-amber-500/80 transition-colors">
-                {t("clickToChange")}
-              </div>
+            <div className="relative flex items-center justify-center gap-2">
+              <Logout size={16} />
+              <span className="text-neutral-50 text-sm font-medium group-hover:text-red-100 transition-colors">
+                {t("logout")}
+              </span>
             </div>
           )}
         </motion.button>
       </div>
-
       
+      </div>
     </div>
   );
 }

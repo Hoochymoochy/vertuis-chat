@@ -25,7 +25,7 @@ const languages = [
   { code: "pt", name: "Português", flag: "🇧🇷" },
 ];
 
-export function ChatSection({
+export function HomeSection({
   isCollapsed,
   chats,
   onNewChat,
@@ -136,62 +136,6 @@ export function ChatSection({
           ))}
         </motion.div>
       </div>
-
-      {/* Jurisdiction Section */}
-      <div
-        className={`shrink-0 border-t border-neutral-800 transition-all
-          ${isCollapsed ? "p-2" : "p-4"}`}
-        style={{
-          transitionDuration: `${ANIMATION.DURATION}ms`,
-          transitionTimingFunction: ANIMATION.EASING,
-        }}
-      >
-        <motion.button
-          onClick={onOpenMap}
-          className={`
-            w-full group relative overflow-hidden
-            bg-gradient-to-r from-amber-900/10 to-amber-800/5
-            hover:from-amber-900/20 hover:to-amber-800/10
-            border border-amber-600/30 hover:border-amber-600/40
-            transition-all
-            ${isCollapsed ? "h-10 rounded-lg flex items-center justify-center" : "rounded-lg p-3"}
-          `}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          title={isCollapsed ? t("jurisdiction") : undefined}
-        >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/10 to-transparent"
-            initial={{ x: "-100%" }}
-            whileHover={{ x: "100%" }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-          />
-          
-          {isCollapsed ? (
-            <Location size={20} className="text-amber-500" />
-          ) : (
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Location size={16} className="text-amber-500" />
-                <span className="text-amber-500 text-xs uppercase tracking-wider font-semibold">
-                  {t("jurisdiction")}
-                </span>
-              </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("country")}:</span> {country || t("global")}
-              </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("state")}:</span> {state || "N/A"}
-              </div>
-              <div className="mt-2 text-xs text-amber-500/60 group-hover:text-amber-500/80 transition-colors">
-                {t("clickToChange")}
-              </div>
-            </div>
-          )}
-        </motion.button>
-      </div>
-
-      
     </div>
   );
 }

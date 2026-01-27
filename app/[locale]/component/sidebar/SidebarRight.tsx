@@ -9,6 +9,9 @@ import {
 import { MenuSection } from "./MenuSection";
 import { SearchContainer } from "./SearchContainer";
 import { ChatSection } from "./chat/ChatSection";
+import { CaseSection } from "./case/CaseSection";
+import { SettingSection } from "./setting/SettingSection";
+import { HomeSection } from "./home/page";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { SidebarRightProps } from "./type";
 
@@ -55,6 +58,12 @@ export default function SidebarRight({
 
   // When in chat section, render the chat-specific UI
   const isChatSection = activeSection === "chat";
+
+  const isCaseSection = activeSection === "case";
+
+  const isSettingsSection = activeSection === "settings";
+
+  const isHomeSection = activeSection === "home";
 
   return (
     <aside
@@ -139,6 +148,61 @@ export default function SidebarRight({
           </nav>
         </>
       )}
+      {
+        isCaseSection && (
+        <CaseSection
+          isCollapsed={isCollapsed} 
+          chats={chats || []}
+          onNewChat={onNewChat || (() => {})}
+          onChatClick={onChatClick || (() => {})}
+          onOpenMap={onOpenMap || (() => {})}
+          onLogout={onLogout || (() => {})}
+          country={country || "World"}
+          state={state || "N/A"}
+          lang={lang || "en"}
+          isLangOpen={isLangOpen || false}
+          onToggleLang={onToggleLang || (() => {})}
+          onLanguageChange={onLanguageChange || (() => {})}
+          t={t || ((key: string) => key)}
+        />
+        )
+      } {
+        isSettingsSection && (
+        <SettingSection
+          isCollapsed={isCollapsed}     
+          chats={chats || []}
+          onNewChat={onNewChat || (() => {})}
+          onChatClick={onChatClick || (() => {})}
+          onOpenMap={onOpenMap || (() => {})}
+          onLogout={onLogout || (() => {})}
+          country={country || "World"}
+          state={state || "N/A"}
+          lang={lang || "en"}
+          isLangOpen={isLangOpen || false}
+          onToggleLang={onToggleLang || (() => {})}
+          onLanguageChange={onLanguageChange || (() => {})}
+          t={t || ((key: string) => key)}
+        />
+        )
+      } {
+        isHomeSection && (
+        <HomeSection
+          isCollapsed={isCollapsed}     
+          chats={chats || []}
+          onNewChat={onNewChat || (() => {})}
+          onChatClick={onChatClick || (() => {})}
+          onOpenMap={onOpenMap || (() => {})}
+          onLogout={onLogout || (() => {})}
+          country={country || "World"}
+          state={state || "N/A"}
+          lang={lang || "en"}
+          isLangOpen={isLangOpen || false}
+          onToggleLang={onToggleLang || (() => {})}
+          onLanguageChange={onLanguageChange || (() => {})}
+          t={t || ((key: string) => key)}
+        />
+        )
+      }
     </aside>
   );
 }

@@ -11,7 +11,7 @@ export function Sidebar({ children }: { children: SidebarContent }) {
   const sidebar = useSidebar();
 
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-screen">
       <SidebarLeft
         expandedItems={Array.from(sidebar.expandedItems)}
         toggleExpanded={sidebar.toggleExpanded}
