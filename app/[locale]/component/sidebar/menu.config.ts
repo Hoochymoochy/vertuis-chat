@@ -10,9 +10,9 @@ export const sidebarSections = [
   {
     title: "Main",
     items: [
-      { icon: Home, label: "Home", isActive: true, id: 1, sectionType: "home" },
-      { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "chat" },
-      { icon: Task, label: "Case", id: 3, sectionType: "case" },
+      { icon: Home, label: "Home", isActive: true, id: 1, sectionType: "home", route: "/" },
+      { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "chat", route: "/chat" },
+      { icon: Task, label: "Case", id: 3, sectionType: "case", route: "/case" },
     ],
   },
   {

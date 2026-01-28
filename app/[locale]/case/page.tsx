@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { addCase, getAllCase } from "@/app/lib/case"
 import useAuth from "@/app/hooks/useAuth"
-import { Plus, X } from "lucide-react"
+import { X } from "lucide-react"
 
 export interface Case {
   id: string;
@@ -78,14 +78,6 @@ export default function CasesPage() {
               Manage, review, and analyze your active matters
             </p>
           </div>
-
-          <button
-            onClick={() => setNewCase(true)}
-            className="bg-linear-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 border border-gold/30 px-4 py-3 text-white font-medium transition-all duration-200 flex items-center gap-3"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">New Case</span>
-          </button>
         </div>
       </div>
 

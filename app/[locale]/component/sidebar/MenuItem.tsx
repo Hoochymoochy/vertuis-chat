@@ -1,6 +1,10 @@
 import { ChevronDown } from "@carbon/icons-react";
 import { ANIMATION } from "./sidebar.constants";
 import { MenuItemProps } from "./type";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+
+
 
 export function MenuItem({
   item,
@@ -10,6 +14,9 @@ export function MenuItem({
   setSubSection
 }: MenuItemProps) {
   const Icon = item.icon;
+  const locale = useLocale();
+  const router = useRouter();
+  
 
   const handleClick = () => {
     if (item.hasDropdown && onToggle) {
@@ -46,9 +53,16 @@ export function MenuItem({
         }}
       >
         {/* Icon */}
-        <div className="flex items-center justify-center shrink-0">
+        <button
+          className="flex items-center justify-center shrink-0"
+          onClick={() => {
+            if (item.route) {
+              router.push(`/${locale}/${item.route}`);
+            }
+          }}
+        >
           <Icon size={16} className="text-neutral-50" />
-        </div>
+        </button>
 
         {/* Label */}
         <div

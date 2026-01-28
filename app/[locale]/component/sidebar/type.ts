@@ -13,6 +13,7 @@ export interface MenuItem {
   hasDropdown?: boolean;
   sectionType?: string;
   isActive?: boolean;
+  route?: string;
 }
 
 export interface MenuSection {
