@@ -32,6 +32,10 @@ export function ChatSection({
   t,
 }: ChatSectionProps) {
 
+  if(isCollapsed) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* New Chat Button */}

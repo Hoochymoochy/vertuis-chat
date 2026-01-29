@@ -6,6 +6,10 @@ import { ANIMATION } from "./sidebar.constants";
 export function SearchContainer({ isCollapsed = false }) {
   const [searchValue, setSearchValue] = useState("");
 
+  if(isCollapsed) {
+    return null;
+  }
+
   return (
     <div
       className={`relative shrink-0 transition-all ${

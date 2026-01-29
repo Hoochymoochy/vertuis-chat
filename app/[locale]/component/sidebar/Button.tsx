@@ -7,6 +7,9 @@ type Props = {
 }
 
 export function AddButton({ onClick, isCollapsed, label }: Props) {
+    if (isCollapsed) {
+        return null;
+    }
     return (
     <button
         onClick={onClick}

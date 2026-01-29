@@ -13,6 +13,7 @@ export function Sidebar({ children }: { children: SidebarContent }) {
   return (
     <div className="flex h-screen">
       <SidebarLeft
+        isCollapsed={sidebar.isCollapsed}
         expandedItems={Array.from(sidebar.expandedItems)}
         toggleExpanded={sidebar.toggleExpanded}
         activeSection={sidebar.activeSection}

@@ -95,7 +95,7 @@ export default function SidebarRight({
           onClick={toggleCollapse}
           className={`
             p-2 rounded-lg hover:bg-neutral-900 transition-all
-            ${isCollapsed ? "absolute left-1/2 -translate-x-1/2" : ""}
+            ${isCollapsed ? "absolute left-1/2 -translate-x-1/2" : "ml-2"}
           `}
           style={{
             transitionDuration: `${ANIMATION.DURATION}ms`,
@@ -111,6 +111,7 @@ export default function SidebarRight({
       <div className="px-4 pb-4 shrink-0">
         <SearchContainer isCollapsed={isCollapsed} />
       </div>
+      
       {isChatSection && (
         // Chat-specific layout
         <ChatSection
@@ -129,7 +130,7 @@ export default function SidebarRight({
           t={t || ((key: string) => key)}
         />
       ) }
-      
+
       {
         isCaseSection && (
         <CaseSection
