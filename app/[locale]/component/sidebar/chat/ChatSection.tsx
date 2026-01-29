@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Add, Chat as ChatIcon, Location, Logout, Language } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { Chat } from "../useSidebar";
-
+import { AddButton } from "../Button";
 interface ChatSectionProps {
   isCollapsed: boolean;
   chats: Chat[];
@@ -20,10 +20,6 @@ interface ChatSectionProps {
   t: (key: string) => string;
 }
 
-const languages = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "pt", name: "Português", flag: "🇧🇷" },
-];
 
 export function ChatSection({
   isCollapsed,
@@ -31,16 +27,10 @@ export function ChatSection({
   onNewChat,
   onChatClick,
   onOpenMap,
-  onLogout,
   country,
   state,
-  lang,
-  isLangOpen,
-  onToggleLang,
-  onLanguageChange,
   t,
 }: ChatSectionProps) {
-  const currentLanguage = languages.find((l) => l.code === lang) || languages[0];
 
   return (
     <div className="flex flex-col h-full">
@@ -54,25 +44,7 @@ export function ChatSection({
           transitionTimingFunction: ANIMATION.EASING,
         }}
       >
-        <motion.button
-          onClick={onNewChat}
-          className={`
-            w-full bg-gradient-to-r from-amber-900/20 to-amber-800/10
-            hover:from-amber-900/30 hover:to-amber-800/20
-            border border-amber-600/30 hover:border-amber-600/50
-            text-neutral-50 font-medium transition-all
-            flex items-center justify-center gap-3
-            ${isCollapsed ? "h-10 rounded-lg" : "h-12 rounded-lg px-4"}
-          `}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          title={isCollapsed ? t("newChat") : undefined}
-        >
-          <Add size={20} className="shrink-0" />
-          {!isCollapsed && (
-            <span className="text-sm">{t("newChat")}</span>
-          )}
-        </motion.button>
+        <AddButton onClick={onNewChat} isCollapsed={isCollapsed} label="Chat" />
       </div>
 
       {/* Chat List */}
@@ -82,8 +54,8 @@ export function ChatSection({
       >
         {!isCollapsed && (
           <div className="px-2 mb-2">
-            <h3 className="text-amber-600 text-xs uppercase tracking-wider font-semibold">
-              {t("recentChats")}
+            <h3 className="text-gold text-xs uppercase tracking-wider font-semibold">
+              {t("recent Chats")}
             </h3>
           </div>
         )}
