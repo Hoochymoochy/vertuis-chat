@@ -110,60 +110,28 @@ export function ChatSection({
       </div>
 
       {/* Jurisdiction Section */}
-      <div
-        className={`shrink-0 border-t border-neutral-800 transition-all
-          ${isCollapsed ? "p-2" : "p-4"}`}
-        style={{
-          transitionDuration: `${ANIMATION.DURATION}ms`,
-          transitionTimingFunction: ANIMATION.EASING,
-        }}
-      >
-        <motion.button
-          onClick={onOpenMap}
-          className={`
-            w-full group relative overflow-hidden
-            bg-gradient-to-r from-amber-900/10 to-amber-800/5
-            hover:from-amber-900/20 hover:to-amber-800/10
-            border border-amber-600/30 hover:border-amber-600/40
-            transition-all
-            ${isCollapsed ? "h-10 rounded-lg flex items-center justify-center" : "rounded-lg p-3"}
-          `}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          title={isCollapsed ? t("jurisdiction") : undefined}
-        >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-600/10 to-transparent"
-            initial={{ x: "-100%" }}
-            whileHover={{ x: "100%" }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-          />
-          
-          {isCollapsed ? (
-            <Location size={20} className="text-amber-500" />
-          ) : (
+      <div className="p-4 border-t border-gold/20">
+          <motion.button
+            onClick={() => setOpenMap(true)}
+            className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div className="absolute inset-0 bg-linear-to-r from-transparent via-gold/10 to-transparent" initial={{ x: "-100%" }} whileHover={{ x: "100%" }} transition={{ duration: 0.6, ease: "easeInOut" }} />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
-                <Location size={16} className="text-amber-500" />
-                <span className="text-amber-500 text-xs uppercase tracking-wider font-semibold">
-                  {t("jurisdiction")}
-                </span>
+                <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-gold text-xs uppercase tracking-wider font-semibold">{t("jurisdiction")}</span>
               </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("country")}:</span> {country || t("global")}
-              </div>
-              <div className="text-neutral-50 text-sm">
-                <span className="text-amber-500/80">{t("state")}:</span> {state || "N/A"}
-              </div>
-              <div className="mt-2 text-xs text-amber-500/60 group-hover:text-amber-500/80 transition-colors">
-                {t("clickToChange")}
-              </div>
+              <div className="text-white text-sm"><span className="text-gold/80">{t("country")}:</span> {country || t("global")}</div>
+              <div className="text-white text-sm"><span className="text-gold/80">{t("state")}:</span> {state || "N/A"}</div>
+              <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">{t("clickToChange")}</div>
             </div>
-          )}
-        </motion.button>
-      </div>
-
-      
+          </motion.button>
+        </div>
     </div>
   );
 }

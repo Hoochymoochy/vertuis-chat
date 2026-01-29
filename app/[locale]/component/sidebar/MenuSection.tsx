@@ -24,7 +24,7 @@ export function MenuSection({
         }}
       >
         <div className="h-10 flex items-center px-4">
-          <p className="text-sm text-neutral-400">{section.title}</p>
+          <p className="text-sm text-gold">{section.title}</p>
         </div>
       </div>
 

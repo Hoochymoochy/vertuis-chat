@@ -67,7 +67,7 @@ export default function SidebarRight({
 
   return (
     <aside
-      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-screen z-10 transition-all"
+      className="bg-neutral-950 border-r border-gold-20 flex flex-col h-screen z-10 transition-all"
       style={{
         width: isCollapsed
           ? `${SIDEBAR.COLLAPSED_WIDTH}px`
@@ -86,7 +86,7 @@ export default function SidebarRight({
             transitionDuration: `${ANIMATION.DURATION}ms`,
           }}
         >
-          <span className="text-lg font-medium text-neutral-50">
+          <span className="text-lg font-medium text-gold">
             {currentTitle}
           </span>
         </div>
@@ -103,12 +103,15 @@ export default function SidebarRight({
           }}
           aria-label="Toggle sidebar"
         >
-          <ChartBar size={16} className="text-neutral-50" />
+          <ChartBar size={16} className="text-gold" />
         </button>
       </header>
 
-      {/* Conditional rendering based on active section */}
-      {isChatSection ? (
+      {/* Search */}
+      <div className="px-4 pb-4 shrink-0">
+        <SearchContainer isCollapsed={isCollapsed} />
+      </div>
+      {isChatSection && (
         // Chat-specific layout
         <ChatSection
           isCollapsed={isCollapsed}
@@ -125,29 +128,8 @@ export default function SidebarRight({
           onLanguageChange={onLanguageChange || (() => {})}
           t={t || ((key: string) => key)}
         />
-      ) : (
-        // Standard menu layout
-        <>
-          {/* Search */}
-          <div className="px-4 pb-4 shrink-0">
-            <SearchContainer isCollapsed={isCollapsed} />
-          </div>
-
-          {/* Menu - Dynamically rendered based on activeSection */}
-          <nav className="flex-1 overflow-y-auto px-2">
-            {currentSections.map((section) => (
-              <MenuSection
-                key={section.title}
-                section={section}
-                expandedItems={expandedItems}
-                onToggleExpanded={toggleExpanded}
-                isCollapsed={isCollapsed}
-                onSectionChange={setSubSection}
-              />
-            ))}
-          </nav>
-        </>
-      )}
+      ) }
+      
       {
         isCaseSection && (
         <CaseSection
