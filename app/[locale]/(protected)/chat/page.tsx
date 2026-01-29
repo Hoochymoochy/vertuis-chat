@@ -68,7 +68,7 @@ export default function Chat() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2 }}
-        className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-linear-to-b from-black/70 via-black/60 to-black/70 backdrop-blur-sm"
       />
       
       {/* Subtle vignette effect */}
