@@ -9,8 +9,7 @@ export function MenuSection({
   isCollapsed,
   onSectionChange,
   activeSection,
-  setSubSection,
-  pathroute
+  
 }: MenuSectionProps) {
   return (
     <div className="flex flex-col w-full">

@@ -18,7 +18,7 @@ export const sidebarSections = [
   {
     title: "Settings", // Add Settings section
     items: [
-      { icon: Settings, label: "Settings", id: 4, sectionType: "settings" },
+      { icon: Settings, label: "Settings", id: 4, sectionType: "settings", route: "/settings" },
     ],
   },
 ];

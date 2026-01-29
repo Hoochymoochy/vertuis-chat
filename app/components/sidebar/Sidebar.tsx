@@ -3,7 +3,6 @@
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import { useSidebar } from "../../hooks/Global/UseSidebar";
-import { SidebarContent } from "./type";
 import React from "react";
 
 
@@ -20,7 +19,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       activeSection={sidebar.activeSection} 
       setSection={sidebar.setSection} 
       />
-      {/* <SidebarRight activeSection={sidebar.activeSection} /> */}
+      <SidebarRight activeSection={sidebar.activeSection} 
+      isCollapsed={sidebar.isCollapsed}
+      toggleCollapse={sidebar.toggleCollapse}
+      />
       
 
       <div className="flex-1 overflow-auto">
