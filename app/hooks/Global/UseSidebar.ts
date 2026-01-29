@@ -1,21 +1,22 @@
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { supabase } from "@/app/lib/supabaseClient";
 
 import { useSidebarUI } from "../Ui/useSidebarUI";
-import { useUser } from "../Auth/useUser";
+import { useAuth } from "../Auth/useAuth";
 import { useUserPreferences } from "../Setting/useUserPreferences";
 import { useChats } from "../Chat/useChat";
 
 import { useMapUI } from "../Ui/useMapUI";
+import { p } from "framer-motion/client";
 
 export function useSidebar() {
   const ui = useSidebarUI();
   const mapUI = useMapUI();
-  const { user } = useUser();
-  const prefs = useUserPreferences(user.id);
-  const chats = useChats(user.id);
+  const { userId } = useAuth();
+  const prefs = useUserPreferences(userId);
+  const chats = useChats(userId);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -38,7 +39,7 @@ export function useSidebar() {
     ...prefs,
     ...chats,
     ...mapUI,
-    user,
+    pathname,
     handleLogout: logout,
   };
 }

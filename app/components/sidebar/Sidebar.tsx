@@ -18,8 +18,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       expandedItems={sidebar.expandedItems} 
       toggleExpanded={sidebar.toggleExpanded} 
       activeSection={sidebar.activeSection} 
-      setSection={sidebar.setSection} />
-
+      setSection={sidebar.setSection} 
+      />
       {/* <SidebarRight activeSection={sidebar.activeSection} /> */}
       
 

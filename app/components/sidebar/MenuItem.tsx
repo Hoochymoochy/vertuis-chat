@@ -35,8 +35,13 @@ export function MenuItem({
         transitionDuration: `${ANIMATION.DURATION}ms`,
         transitionTimingFunction: ANIMATION.EASING,
       }}
+      onClick={() => {
+        if (item.route) {
+          router.push(`/${locale}/${item.route}`);
+        }
+      }}
     >
-      <div
+      <button
         onClick={handleClick}
         title={isCollapsed ? item.label : undefined}
         className={`
@@ -53,16 +58,11 @@ export function MenuItem({
         }}
       >
         {/* Icon */}
-        <button
+        <div
           className="flex items-center justify-center shrink-0"
-          onClick={() => {
-            if (item.route) {
-              router.push(`/${locale}/${item.route}`);
-            }
-          }}
         >
           <Icon size={16} className="text-neutral-50" />
-        </button>
+        </div>
 
         {/* Label */}
         <div
@@ -79,26 +79,7 @@ export function MenuItem({
             {item.label}
           </span>
         </div>
-
-        {/* Dropdown Chevron */}
-        {item.hasDropdown && (
-          <div
-            className={`
-              shrink-0 transition-opacity
-              ${isCollapsed ? "opacity-0 w-0" : "opacity-100 ml-2"}
-            `}
-          >
-            <ChevronDown
-              size={16}
-              className="text-neutral-50 transition-transform"
-              style={{
-                transitionDuration: `${ANIMATION.DURATION}ms`,
-                transitionTimingFunction: ANIMATION.EASING,
-              }}
-            />
-          </div>
-        )}
-      </div>
+      </button>
     </div>
   );
 }

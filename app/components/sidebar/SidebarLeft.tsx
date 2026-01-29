@@ -10,6 +10,7 @@ export default function SidebarLeft({
   toggleExpanded,
   activeSection,
   setSection,
+  pathroute
 }: SidebarLeftProps) {
   // Separate settings section from main sections
   const mainSections = sidebarSections.filter(section => section.title !== "Settings");
@@ -21,7 +22,7 @@ export default function SidebarLeft({
 
   return (
     <div
-      className="bg-neutral-950 border-r border-neutral-800 flex flex-col h-screen  z-10"
+      className="bg-neutral-950 border-r border-gold-20 flex flex-col h-screen  z-10"
       style={{ width: "80px" }}
     >
       {/* Main sections */}
@@ -35,12 +36,13 @@ export default function SidebarLeft({
             isCollapsed
             onSectionChange={setSection}
             activeSection={activeSection}
+            pathroute={pathroute}
           />
         ))}
       </div>
 
       {/* Bottom section with Settings and Avatar */}
-      <div className="border-t border-neutral-800 shrink-0">
+      <div className="border-t border-gold-20 shrink-0 pb-2">
         {settingsSection && (
           <div className="px-2 pt-4">
             <MenuSection
@@ -51,13 +53,10 @@ export default function SidebarLeft({
               isCollapsed
               onSectionChange={setSection}
               activeSection={activeSection}
+              pathroute={pathroute}
             />
           </div>
         )}
-        
-        <div className="p-4 flex flex-col gap-4 items-center">
-          <Avatar />
-        </div>
       </div>
     </div>
   );

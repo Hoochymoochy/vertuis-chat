@@ -15,7 +15,7 @@ export function AuthGuard({
   const auth = useAuth();
 
   useEffect(() => {
-    if (!auth.user) {
+    if (!auth.user === null) {
       router.push(`/${locale}/login`);
     }
   }, [auth.user, locale, router]);
