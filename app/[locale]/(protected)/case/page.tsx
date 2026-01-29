@@ -4,7 +4,7 @@ import { CaseList } from "@/app/[locale]/component/case/case-list"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { addCase, getAllCase } from "@/app/lib/case"
-import useAuth from "@/app/hooks/useAuth"
+import useAuth from "@/app/hooks/Auth/useAuth"
 import { X } from "lucide-react"
 
 export interface Case {

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Add, Chat as ChatIcon, Location, Logout, Language } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { Chat } from "../useSidebar";
-import { Case } from "@/app/[locale]/case/page";
+import { Case } from "@/app/[locale]/(protected)/case/page";
 import { CaseSectionProps } from "./type";
 import { AddButton } from "../Button";
 

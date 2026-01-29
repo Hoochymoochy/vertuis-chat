@@ -9,12 +9,12 @@ import Side from "@/app/[locale]/component/global/side";
 import Map from "@/app/[locale]/component/chat/map";
 import InputBox from "@/app/[locale]/component/chat/inputbox";
 import Overlay from "@/app/[locale]/component/chat/overlay";
-import useAuth  from "@/app/hooks/useAuth";
-import useChatMessages from "@/app/hooks/useChatMessages";
-import useAIResponse from "@/app/hooks/useAIResponse";
-import useFirstMessage from "@/app/hooks/useFirstMessage";
-import useChatSubmit from "@/app/hooks/useChatSubmit";
-import useFileDrop from "@/app/hooks/useFileDrop";
+import useAuth  from "@/app/hooks/Auth/useAuth";
+import useChatMessages from "@/app/hooks/Chat/useChatMessages";
+import useAIResponse from "@/app/hooks/Chat/useAIResponse";
+import useFirstMessage from "@/app/hooks/Chat/useFirstMessage";
+import useChatSubmit from "@/app/hooks/Chat/useChatSubmit";
+import useFileDrop from "@/app/hooks/Case/useFileDrop";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
