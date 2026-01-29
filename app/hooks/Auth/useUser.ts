@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 
-export default function useUser() {
+export function useUser() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

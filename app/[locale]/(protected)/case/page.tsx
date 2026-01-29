@@ -1,6 +1,6 @@
 "use client"
 
-import { CaseList } from "@/app/[locale]/component/case/case-list"
+import { CaseList } from "../../../components/case/case-list"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { addCase, getAllCase } from "@/app/lib/case"

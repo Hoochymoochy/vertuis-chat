@@ -3,16 +3,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { supabase } from "@/app/lib/supabaseClient";
 
-import { useSidebarUI } from "./useSidebarUI";
-import { useUserSession } from "./useUserSession";
-import { useUserPreferences } from "./useUserPreferences";
-import { useChats } from "./useChats";
+import { useSidebarUI } from "../Ui/useSidebarUI";
+import { useUser } from "../Auth/useUser";
+import { useUserPreferences } from "../Setting/useUserPreferences";
+import { useChats } from "../Chat/useChat";
 
 export function useSidebar() {
   const ui = useSidebarUI();
-  const { userId } = useUserSession();
-  const prefs = useUserPreferences(userId);
-  const chats = useChats(userId);
+  const { user } = useUser();
+  const prefs = useUserPreferences(user.id);
+  const chats = useChats(user.id);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -34,7 +34,7 @@ export function useSidebar() {
     ...ui,
     ...prefs,
     ...chats,
-    userId,
+    user,
     handleLogout: logout,
   };
 }

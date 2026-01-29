@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
-import { Sidebar } from "@/app/[locale]/component/sidebar/Sidebar";
-import Map from "@/app/[locale]/component/chat/map";
-import Spinner from "@/app/[locale]/component/global/spinner";
-import InputBox from "@/app/[locale]/component/chat/inputbox";
+import { Sidebar } from "../../../components/sidebar/Sidebar";
+import Map from "../../../components/chat/map";
+import Spinner from "../../../components/global/spinner";
+import InputBox from "../../../components/chat/inputbox";
 import useAuth from "@/app/hooks/Auth/useAuth";
 import useInitialChat from "@/app/hooks/Chat/useInitialChat";
 import useFileDrop from "@/app/hooks/Case/useFileDrop";
-import Overlay from "@/app/[locale]/component/chat/overlay";
+import Overlay from "../../../components/chat/overlay";
 
 export default function Chat() {
   const t = useTranslations("Chat");
