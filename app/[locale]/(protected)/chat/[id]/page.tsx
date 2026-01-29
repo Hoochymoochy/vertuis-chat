@@ -9,7 +9,7 @@ import Side from "../../../../components/global/side";
 import Map from "../../../../components/chat/map";
 import InputBox from "../../../../components/chat/inputbox";
 import Overlay from "../../../../components/chat/overlay";
-import useAuth  from "@/app/hooks/Auth/useAuth";
+import { useAuth } from "@/app/hooks/Auth/useAuth";
 import useChatMessages from "@/app/hooks/Chat/useChatMessages";
 import useAIResponse from "@/app/hooks/Chat/useAIResponse";
 import useFirstMessage from "@/app/hooks/Chat/useFirstMessage";

@@ -63,10 +63,11 @@ export interface SidebarRightProps {
 }
 
 export interface SidebarLeftProps {
-  expandedItems: string[];
-  toggleExpanded: (key: string) => void;
-  activeSection: string;
-  setSection: (section: string) => void;
+    isCollapsed: boolean;
+    expandedItems: Set<string>;
+    toggleExpanded: (key: string) => void;
+    activeSection: string;
+    setSection: (section: string) => void;
 }
 
 export interface SearchContainerProps {

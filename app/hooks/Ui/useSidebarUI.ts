@@ -19,9 +19,9 @@ export function useSidebarUI() {
 
   return {
     isCollapsed,
-    toggleCollapse,
     expandedItems,
     toggleExpanded,
+    toggleCollapse,
     activeSection,
     setActiveSection,
   };

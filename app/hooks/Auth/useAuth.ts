@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import { getOnbaording } from "@/app/lib/user";
 
-export default function useAuth() {
+export function useAuth() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);

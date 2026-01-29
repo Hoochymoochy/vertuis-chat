@@ -8,8 +8,11 @@ import { useUser } from "../Auth/useUser";
 import { useUserPreferences } from "../Setting/useUserPreferences";
 import { useChats } from "../Chat/useChat";
 
+import { useMapUI } from "../Ui/useMapUI";
+
 export function useSidebar() {
   const ui = useSidebarUI();
+  const mapUI = useMapUI();
   const { user } = useUser();
   const prefs = useUserPreferences(user.id);
   const chats = useChats(user.id);
@@ -34,6 +37,7 @@ export function useSidebar() {
     ...ui,
     ...prefs,
     ...chats,
+    ...mapUI,
     user,
     handleLogout: logout,
   };

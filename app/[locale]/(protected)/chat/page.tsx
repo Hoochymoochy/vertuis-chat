@@ -7,7 +7,7 @@ import { Sidebar } from "../../../components/sidebar/Sidebar";
 import Map from "../../../components/chat/map";
 import Spinner from "../../../components/global/spinner";
 import InputBox from "../../../components/chat/inputbox";
-import useAuth from "@/app/hooks/Auth/useAuth";
+import { useAuth } from "@/app/hooks/Auth/useAuth";
 import useInitialChat from "@/app/hooks/Chat/useInitialChat";
 import useFileDrop from "@/app/hooks/Case/useFileDrop";
 import Overlay from "../../../components/chat/overlay";

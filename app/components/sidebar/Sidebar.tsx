@@ -2,32 +2,27 @@
 "use client";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
-import { useSidebar } from "./useSidebar";
+import { useSidebar } from "../../hooks/Global/UseSidebar";
 import { SidebarContent } from "./type";
+import React from "react";
 
 
-export function Sidebar({ children }: { children: SidebarContent }) {
+export function Sidebar({ children }: { children: React.ReactNode }) {
 
   const sidebar = useSidebar();
 
   return (
     <div className="flex h-screen">
-      <SidebarLeft
-        isCollapsed={sidebar.isCollapsed}
-        expandedItems={Array.from(sidebar.expandedItems)}
-        toggleExpanded={sidebar.toggleExpanded}
-        activeSection={sidebar.activeSection}
-        setSection={sidebar.setSection}
-      />
+      <SidebarLeft 
+      isCollapsed={sidebar.isCollapsed} 
+      expandedItems={sidebar.expandedItems} 
+      toggleExpanded={sidebar.toggleExpanded} 
+      activeSection={sidebar.activeSection} 
+      setSection={sidebar.setSection} />
 
-      <SidebarRight
-        isCollapsed={sidebar.isCollapsed}
-        toggleCollapse={sidebar.toggleCollapse}
-        expandedItems={sidebar.expandedItems}
-        toggleExpanded={sidebar.toggleExpanded}
-        activeSection={sidebar.activeSection}
-        setSubSection={sidebar.setSubSection}
-      />
+      {/* <SidebarRight activeSection={sidebar.activeSection} /> */}
+      
+
       <div className="flex-1 overflow-auto">
         {children}
       </div>
