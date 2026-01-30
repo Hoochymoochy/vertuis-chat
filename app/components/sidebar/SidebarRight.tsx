@@ -1,4 +1,4 @@
-import { ChartBar } from "@carbon/icons-react";
+import { BorderBottom, ChevronDownOutline } from "@carbon/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   casebarSections, 
@@ -91,7 +91,11 @@ export default function SidebarRight({
       }}
     >
       {/* Header */}
-      <header className="relative flex items-center justify-between h-16 p-4 shrink-0">
+        <header
+          className={`relative flex items-center justify-between h-16 p-4 pt-2 shrink-0
+            ${!isCollapsed ? "border-b border-gold-20" : "border-none"}
+          `}
+        >
         <AnimatePresence mode="wait">
           {!isCollapsed && (
             <motion.div
@@ -122,7 +126,7 @@ export default function SidebarRight({
                 
                 {/* Subtle glow effect */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
+                  className="absolute inset-0 bg-linear-to-r from-gold/0 via-gold/10 to-gold/0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
                   aria-hidden="true"
                 />
               </motion.h1>
@@ -132,12 +136,11 @@ export default function SidebarRight({
 
         <motion.button
           onClick={toggleCollapse}
-          className="p-2 rounded-lg hover:bg-neutral-900 transition-all"
+          className="p-2 rounded-lg hover:bg-neutral-900 transition-all relative "
           animate={{
-            position: isCollapsed ? "absolute" : "relative",
-            left: isCollapsed ? "50%" : "auto",
+            left: isCollapsed ? "50%" : "0%",
             x: isCollapsed ? "-50%" : 0,
-            marginLeft: isCollapsed ? 0 : 8,
+            marginLeft: isCollapsed ? 0 : "-0.5rem",
           }}
           transition={{
             duration: ANIMATION.DURATION / 1000,
@@ -147,14 +150,15 @@ export default function SidebarRight({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ChartBar size={16} className="text-gold" />
+          <ChevronDownOutline size={24} className={`text-gold
+            ${!isCollapsed ? "rotate-90" : "rotate-270"}`}/>
         </motion.button>
       </header>
 
       {/* Search */}
-      <div className="px-4 pb-4 shrink-0">
+      {/* <div className="px-4 pb-4 shrink-0">
         <SearchContainer isCollapsed={isCollapsed} />
-      </div>
+      </div> */}
       
       {/* Dynamic Section Content */}
       <AnimatePresence mode="wait">
@@ -167,7 +171,7 @@ export default function SidebarRight({
             duration: ANIMATION.DURATION / 1000,
             ease: [0.4, 0, 0.2, 1],
           }}
-          className="flex-1 overflow-hidden"
+          className="flex-1 overflow-hidden mt-10"
         >
           <SectionComponent {...sectionProps} />
         </motion.div>

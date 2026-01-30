@@ -69,17 +69,6 @@ export default function CasesPage() {
       {/* Background */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
       
-      {/* Header */}
-      <div className="w-full z-40 border-b bg-black/80 backdrop-blur-xl border-gold/20">
-        <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)] text-gradient">Cases</h1>
-            <p className="text-sm text-gold mt-2 font-bold">
-              Manage, review, and analyze your active matters
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Add Case Modal */}
       {newCase && (
