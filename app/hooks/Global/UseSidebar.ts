@@ -9,6 +9,7 @@ import { useUserPreferences } from "../Setting/useUserPreferences";
 import { useChats } from "../Chat/useChat";
 
 import { useMapUI } from "../Ui/useMapUI";
+import { useAddCase } from "../Case/useAddCase";
 
 export function useSidebar() {
   const ui = useSidebarUI();
@@ -16,6 +17,8 @@ export function useSidebar() {
   const { userId } = useAuth();
   const prefs = useUserPreferences(userId);
   const chats = useChats(userId);
+  const addCase = useAddCase();
+
 
   const pathname = usePathname();
   const router = useRouter();
@@ -38,6 +41,7 @@ export function useSidebar() {
     ...prefs,
     ...chats,
     ...mapUI,
+    ...addCase,
     handleLogout: logout,
   };
 }

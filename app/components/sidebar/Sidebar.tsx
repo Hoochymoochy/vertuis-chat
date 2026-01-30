@@ -22,6 +22,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       <SidebarRight activeSection={sidebar.activeSection} 
       isCollapsed={sidebar.isCollapsed}
       toggleCollapse={sidebar.toggleCollapse}
+      onChatClick={sidebar.onChatClick}
+      onNewChat={sidebar.newChat}
+      chats={sidebar.chats}
+      onAddCase={sidebar.toggleAddCase}
       />
       
 

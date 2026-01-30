@@ -60,6 +60,9 @@ export interface SidebarRightProps {
   onToggleLang?: () => void;
   onLanguageChange?: (langCode: string) => void;
   t?: (key: string) => string;
+
+  // Case-specific props
+  onAddCase?: () => void;
 }
 
 export interface SidebarLeftProps {
@@ -72,4 +75,9 @@ export interface SidebarLeftProps {
 
 export interface SearchContainerProps {
   isCollapsed: boolean;
+}
+
+export interface CaseSectionProps {
+  isCollapsed: boolean;
+  onAddCase: () => void;
 }

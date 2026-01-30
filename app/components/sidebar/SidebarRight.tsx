@@ -50,6 +50,7 @@ export default function SidebarRight({
   onChatClick = () => {},
   onOpenMap = () => {},
   onLogout = () => {},
+  onAddCase = () => {},
   country = "World",
   state = "N/A",
   lang = "en",
@@ -76,6 +77,7 @@ export default function SidebarRight({
     onToggleLang,
     onLanguageChange,
     t,
+    onAddCase,
   };
 
   return (
