@@ -8,8 +8,11 @@ import { useRouter, useParams } from "next/navigation";
 import { getAllDocument, addDocument as addDocumentAPI } from "@/app/lib/document";
 import { getCaseSummaries } from "@/app/lib/case";
 import { getCase } from "@/app/lib/case";
-import ReactMarkdown from "react-markdown";
+
 import Spinner from "../../../../components/global/spinner";
+import { AddDocument } from "../../../../components/case/AddDocument";
+import { CaseSummary } from "../../../../components/case/CaseSummary";
+import { DocumentContent } from "../../../../components/case/DocumentContent";
 
 type Case = {
   id: number;
@@ -98,8 +101,6 @@ export default function CasesPage() {
     fetchData();
   }, [params.id]);
   
-
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
@@ -198,89 +199,18 @@ export default function CasesPage() {
       ) : (
         <>
           {/* Add Document Modal */}
-          {showAddDocument && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-              <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg p-8 w-full max-w-2xl mx-4">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">Add New Document</h2>
-                  <button
-                    onClick={closeAddDocumentModal}
-                    className="text-white/60 hover:text-white transition-colors"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-  
-                <form onSubmit={handleAddDocument} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-2">
-                      Document Title *
-                    </label>
-                    <input
-                      type="text"
-                      value={documentTitle}
-                      onChange={(e) => setDocumentTitle(e.target.value)}
-                      placeholder="e.g., Employment Contract"
-                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#d4af37]/50"
-                      required
-                    />
-                  </div>
-  
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-2">
-                      Upload File
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        accept=".pdf,.docx,.txt"
-                        className="hidden"
-                        id="file-upload"
-                      />
-                      <label
-                        htmlFor="file-upload"
-                        className="flex items-center justify-center gap-2 w-full bg-black/50 border border-white/10 hover:border-[#d4af37]/30 rounded-lg px-4 py-8 cursor-pointer transition-all group"
-                      >
-                        <Upload className="w-5 h-5 text-[#d4af37] group-hover:scale-110 transition-transform" />
-                        <span className="text-white/60 group-hover:text-[#d4af37] transition-colors">
-                          {file ? file.name : "Click to upload PDF, DOCX, or TXT"}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-  
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-px bg-white/10"></div>
-                    <span className="text-white/40 text-sm">OR</span>
-                    <div className="flex-1 h-px bg-white/10"></div>
-                  </div>
-  
-                  <div className="flex gap-4 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeAddDocumentModal}
-                      className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-4 py-3 text-white transition-all"
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 rounded-lg px-4 py-3 text-[#d4af37] font-medium transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Adding..." : "Add Document"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-  
+          <AddDocument
+            showAddDocument={showAddDocument}
+            closeAddDocumentModal={closeAddDocumentModal}
+            handleAddDocument={handleAddDocument}
+            documentTitle={documentTitle}
+            setDocumentTitle={setDocumentTitle}
+            file={file}
+            isSubmitting={isSubmitting}
+          />
+
           {/* Sidebar */}
-          <div className="relative w-80 bg-black/80 backdrop-blur-xl border-r border-gold/20 flex flex-col shrink-0">
-            {/* Header */}
+          {/* <div className="relative w-80 bg-black/80 backdrop-blur-xl border-r border-gold/20 flex flex-col shrink-0">
             <div className="p-6 border-b border-gold/20">
               <button
                 className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-6 group"
@@ -312,7 +242,6 @@ export default function CasesPage() {
               </div>
             </div>
   
-            {/* Add Document Button */}
             <div className="p-6 border-b border-gold/20">
               <button 
                 onClick={() => setShowAddDocument(true)}
@@ -323,7 +252,6 @@ export default function CasesPage() {
               </button>
             </div>
   
-            {/* Documents List */}
             <div className="flex-1 overflow-y-auto p-6">
               {documents.length === 0 && (
                 <h2 className="font-bold text-sm text-white/50 mb-4 uppercase tracking-wider">
@@ -363,255 +291,26 @@ export default function CasesPage() {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
   
           {/* Main Content Area */}
           <div className="relative flex-1 overflow-y-auto">
             <div className="max-w-6xl mx-auto p-8 space-y-6">
   
               {/* Case Summary */}
-              <div className="bg-black/40 backdrop-blur-sm border border-white/10 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white">Case Summary</h2>
-                  <div className="flex items-center gap-3">
-                    {caseSummaries && caseItem.title && (
-                      <button
-                        onClick={toggleShowSummary}
-                        className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 px-4 py-2 transition-all"
-                      >
-                        <span className="text-sm font-medium text-white">
-                          {showSummary ? "Hide Summary" : "Show Summary"}
-                        </span>
-                      </button>
-                    )}
-                    <button
-                      onClick={handleGenerateNewSummary}
-                      disabled={isGeneratingSummary}
-                      className="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Sparkles className={`w-4 h-4 text-[#d4af37] ${isGeneratingSummary ? 'animate-spin' : ''}`} />
-                      <span className="text-sm font-medium text-[#d4af37]">
-                        {isGeneratingSummary ? "Generating..." : "Generate New Summary"}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-  
-                {showSummary && caseSummaries && caseItem.title && (
-                  <div className="mt-6 bg-black/50 border border-[#d4af37]/20 p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                      <h3 className="font-semibold text-white">AI-Generated Summary</h3>
-                    </div>
-                    <ReactMarkdown
-                      components={{
-                        a: ({ node, ...props }) => (
-                          <a
-                            {...props}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[#d4af37] underline hover:text-[#d4af37]/80 transition-colors"
-                          />
-                        ),
-                        p: ({ children }) => (
-                          <p className="text-white/80 leading-relaxed mb-4 last:mb-0">
-                            {children}
-                          </p>
-                        ),
-                        ul: ({ children }) => (
-                          <ul className="text-white/80 space-y-2 ml-6 mb-4 list-disc">
-                            {children}
-                          </ul>
-                        ),
-                        ol: ({ children }) => (
-                          <ol className="text-white/80 space-y-2 ml-6 mb-4 list-decimal">
-                            {children}
-                          </ol>
-                        ),
-                        li: ({ children }) => (
-                          <li className="text-white/80 leading-relaxed">
-                            {children}
-                          </li>
-                        ),
-                        strong: ({ children }) => (
-                          <strong className="text-white font-semibold">
-                            {children}
-                          </strong>
-                        ),
-                        code: ({ children }) => (
-                          <code className="bg-white/5 text-[#d4af37] px-2 py-0.5 rounded text-sm font-mono">
-                            {children}
-                          </code>
-                        ),
-                        h1: ({ children }) => (
-                          <h1 className="text-white text-2xl font-bold mb-4 mt-6 first:mt-0">
-                            {children}
-                          </h1>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="text-white text-xl font-semibold mb-3 mt-5 first:mt-0">
-                            {children}
-                          </h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="text-white text-lg font-semibold mb-3 mt-4 first:mt-0">
-                            {children}
-                          </h3>
-                        ),
-                        blockquote: ({ children }) => (
-                          <blockquote className="border-l-2 border-[#d4af37]/30 pl-4 my-4 text-white/70 italic">
-                            {children}
-                          </blockquote>
-                        ),
-                        hr: () => (
-                          <hr className="border-t border-white/10 my-6" />
-                        ),
-                      }}
-                    >
-                      {caseSummaries}
-                    </ReactMarkdown>
-                    <div className="mt-4 text-xs text-[#d4af37] font-bold">
-                      Last generated: {new Date(caseItem.summary_updated).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-  
-                {isGeneratingSummary && (
-                  <div className="mt-6 bg-black/50 border border-[#d4af37]/20 rounded-lg p-5">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="w-5 h-5 text-[#d4af37] animate-spin" />
-                      <div>
-                        <h3 className="font-semibold text-white mb-1">Generating Summary...</h3>
-                        <p className="text-white/60 text-sm">This may take a few moments</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <CaseSummary 
+                caseSummaries = {caseSummaries} 
+                caseItem = {caseItem} 
+                toggleShowSummary = {toggleShowSummary} 
+                showSummary = {showSummary} 
+                handleGenerateNewSummary = {handleGenerateNewSummary} 
+                isGeneratingSummary = {isGeneratingSummary} />
   
               {/* Document Content */}
-              {selectedDoc && (
-                <div className="bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden">
-                  <div className="p-6 border-b border-white/10">
-                    <h2 className="text-2xl font-bold text-white">{selectedDoc.title}</h2>
-                  </div>
-  
-                  {/* Tabs */}
-                  <div className="flex gap-1 px-6 border-b border-white/10">
-                    <button
-                      onClick={() => setSwitchingTab(false)}
-                      className={`flex items-center gap-2 py-3 px-4 text-sm font-medium transition-all relative ${
-                        !switchingTab 
-                          ? "text-[#d4af37]" 
-                          : "text-white/60 hover:text-white/80"
-                      }`}
-                    >
-                      <span>Original Text</span>
-                      {!switchingTab && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setSwitchingTab(true)}
-                      className={`flex items-center gap-2 py-3 px-4 text-sm font-medium transition-all relative ${
-                        switchingTab 
-                          ? "text-[#d4af37]" 
-                          : "text-white/60 hover:text-white/80"
-                      }`}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      <span>AI-Generated Summary</span>
-                      {switchingTab && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#d4af37]" />
-                      )}
-                    </button>
-                  </div>
-  
-                  {/* Document Content */}
-                  <div className="p-6">
-                    {switchingTab ? (
-                      <div className="prose prose-invert max-w-none">
-                        <ReactMarkdown
-                          components={{
-                            a: ({ node, ...props }) => (
-                              <a
-                                {...props}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#d4af37] underline hover:text-[#d4af37]/80 transition-colors"
-                              />
-                            ),
-                            p: ({ children }) => (
-                              <p className="text-white/80 leading-relaxed mb-4 last:mb-0">
-                                {children}
-                              </p>
-                            ),
-                            ul: ({ children }) => (
-                              <ul className="text-white/80 space-y-2 ml-6 mb-4 list-disc">
-                                {children}
-                              </ul>
-                            ),
-                            ol: ({ children }) => (
-                              <ol className="text-white/80 space-y-2 ml-6 mb-4 list-decimal">
-                                {children}
-                              </ol>
-                            ),
-                            li: ({ children }) => (
-                              <li className="text-white/80 leading-relaxed">
-                                {children}
-                              </li>
-                            ),
-                            strong: ({ children }) => (
-                              <strong className="text-white font-semibold">
-                                {children}
-                              </strong>
-                            ),
-                            code: ({ children }) => (
-                              <code className="bg-white/5 text-[#d4af37] px-2 py-0.5 rounded text-sm font-mono">
-                                {children}
-                              </code>
-                            ),
-                            h1: ({ children }) => (
-                              <h1 className="text-white text-2xl font-bold mb-4 mt-6 first:mt-0">
-                                {children}
-                              </h1>
-                            ),
-                            h2: ({ children }) => (
-                              <h2 className="text-white text-xl font-semibold mb-3 mt-5 first:mt-0">
-                                {children}
-                              </h2>
-                            ),
-                            h3: ({ children }) => (
-                              <h3 className="text-white text-lg font-semibold mb-3 mt-4 first:mt-0">
-                                {children}
-                              </h3>
-                            ),
-                            blockquote: ({ children }) => (
-                              <blockquote className="border-l-2 border-[#d4af37]/30 pl-4 my-4 text-white/70 italic">
-                                {children}
-                              </blockquote>
-                            ),
-                            hr: () => (
-                              <hr className="border-t border-white/10 my-6" />
-                            ),
-                          }}
-                        >
-                          {selectedDoc.summary}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="bg-black/30 overflow-hidden" style={{ height: '600px' }}>
-                        <iframe
-                          src={selectedDoc.signed_url}
-                          width="100%"
-                          height="100%"
-                          className="w-full h-full"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              <DocumentContent 
+                selectedDoc = {selectedDoc} 
+                switchingTab = {switchingTab} 
+                setSwitchingTab = {setSwitchingTab}/>
             </div>
           </div>
         </>

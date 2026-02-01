@@ -10,13 +10,13 @@ export const sidebarSections = [
   {
     title: "Main",
     items: [
-      // { icon: Home, label: "Home", isActive: true, id: 1, sectionType: "home", route: "/" },
-      { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "chat", route: "/chat" },
+      { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "documents", route: "/chat" },
       { icon: Task, label: "Case", id: 3, sectionType: "case", route: "/case" },
+      { icon: Document, label: "Documents", id: 5, sectionType: "documents", route: "/case/3" }, // Add this
     ],
   },
   {
-    title: "Settings", // Add Settings section
+    title: "Settings",
     items: [
       { icon: Settings, label: "Settings", id: 4, sectionType: "settings", route: "/settings" },
     ],
@@ -90,6 +90,26 @@ export const settingsbarSections = [
       { icon: Notification, label: "Notifications", id: 2 },
       { icon: Security, label: "Privacy & Security", id: 3 },
       { icon: ColorPalette, label: "Appearance", id: 4 },
+    ],
+  },
+];
+
+// In menu.config.ts - Add this for documents
+import {
+  DocumentAdd,
+  DocumentBlank,
+  FolderOpen,
+  Upload,
+} from "@carbon/icons-react";
+
+export const documentsbarSections = [
+  {
+    title: "Documents",
+    items: [
+      { icon: DocumentBlank, label: "All Documents", isActive: true, id: 1 },
+      { icon: FolderOpen, label: "By Case", id: 2 },
+      { icon: Upload, label: "Recent Uploads", id: 3 },
+      { icon: DocumentAdd, label: "Add Document", id: 4 },
     ],
   },
 ];

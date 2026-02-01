@@ -10,6 +10,7 @@ import { useChats } from "../Chat/useChat";
 
 import { useMapUI } from "../Ui/useMapUI";
 import { useAddCase } from "../Case/useAddCase";
+import { useDocuments } from "../Case/useDocument"
 
 export function useSidebar() {
   const ui = useSidebarUI();
@@ -18,6 +19,7 @@ export function useSidebar() {
   const prefs = useUserPreferences(userId);
   const chats = useChats(userId);
   const addCase = useAddCase();
+  const documents = useDocuments()
 
 
   const pathname = usePathname();
@@ -26,8 +28,9 @@ export function useSidebar() {
 
   useEffect(() => {
     if (pathname.includes("/chat")) ui.setActiveSection("chat");
-    else if (pathname.includes("/case")) ui.setActiveSection("case");
+    else if (pathname.includes("/case")) ui.setActiveSection("documents");  
     else if (pathname.includes("/settings")) ui.setActiveSection("settings");
+    
     else ui.setActiveSection("home");
   }, [pathname]);
 
@@ -42,6 +45,7 @@ export function useSidebar() {
     ...chats,
     ...mapUI,
     ...addCase,
+    ...documents,
     handleLogout: logout,
   };
 }

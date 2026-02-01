@@ -11,6 +11,7 @@ import { useAuth } from "@/app/hooks/Auth/useAuth";
 import useInitialChat from "@/app/hooks/Chat/useInitialChat";
 import useFileDrop from "@/app/hooks/Case/useFileDrop";
 import Overlay from "../../../components/chat/overlay";
+import { Tagline } from "@/app/components/chat/Tagline";
 
 export default function Chat() {
   const t = useTranslations("Chat");
@@ -215,31 +216,11 @@ export default function Chat() {
       </motion.div>
 
       {/* Enhanced Tagline with better typography */}
-      <AnimatePresence>
-        {!isSubmitted && (
-          <motion.div
-            key="tagline"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ 
-              duration: 0.8, 
-              ease: [0.4, 0, 0.2, 1],
-              delay: 0.4 
-            }}
-            className={`fixed bottom-8 left-0 right-0 z-10 text-center px-4 space-y-2 ${
-              needsOnboarding ? 'opacity-30' : ''
-            }`}
-          >
-            <p className="text-gold/90 text-base sm:text-lg font-medium uppercase tracking-[0.25em] drop-shadow-lg">
-              {t("tagline")}
-            </p>
-            <p className="text-white/50 text-xs sm:text-sm italic tracking-wide">
-              {t("disclaimer")}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Tagline
+        needsOnboarding={needsOnboarding}
+        isSubmitted={isSubmitted}
+        t={t}
+      />
     </motion.div>
   );
 }

@@ -63,6 +63,12 @@ export interface SidebarRightProps {
 
   // Case-specific props
   onAddCase?: () => void;
+
+  // Doucment-specific props
+  handleBack?: () => void;
+  selectedDoc?: string
+  setShowAddDocument: () => void,
+  setSelectedDoc: string,
 }
 
 export interface SidebarLeftProps {

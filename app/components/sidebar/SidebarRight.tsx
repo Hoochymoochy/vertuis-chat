@@ -4,10 +4,12 @@ import {
   casebarSections, 
   chatbarSections, 
   homebarSections,
-  settingsbarSections
+  settingsbarSections,
+  documentsbarSections
 } from "./menu.config";
 import { ChatSection } from "./chat/ChatSection";
 import { CaseSection } from "./case/CaseSection";
+import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
 import { HomeSection } from "./home/page";
 import { SearchContainer } from "./SearchContainer";
@@ -36,6 +38,12 @@ const SECTION_CONFIG = {
     sections: settingsbarSections,
     Component: SettingSection,
   },
+  documents: {
+    title: "Documents",
+    sections: documentsbarSections,  // ✅ "sections" to match other configs
+    Component: DocumentSection
+  }
+
 } as const;
 
 export default function SidebarRight({
@@ -58,6 +66,10 @@ export default function SidebarRight({
   onToggleLang = () => {},
   onLanguageChange = () => {},
   t = (key: string) => key,
+  handleBack = () => {},
+  selectedDoc,
+  setShowAddDocument,
+  setSelectedDoc,
 }: SidebarRightProps) {
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.home;
   const SectionComponent = currentConfig.Component;
@@ -77,7 +89,12 @@ export default function SidebarRight({
     onToggleLang,
     onLanguageChange,
     t,
+
+    handleBack,
     onAddCase,
+    selectedDoc,
+    setShowAddDocument,
+    setSelectedDoc,
   };
 
   return (
