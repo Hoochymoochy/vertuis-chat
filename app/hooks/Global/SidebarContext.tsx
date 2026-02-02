@@ -15,7 +15,9 @@ export interface Chat {
 type SidebarContextType = {
   // Modal states
   isAdding: boolean;
+  isAddingDocument: boolean;
   toggleAddCase: () => void;
+  toggleAddDocument: () => void;
   closeAddCase: () => void;
 
   // Active section
@@ -72,7 +74,7 @@ export function SidebarProvider({
 }) {
   // Modal state (from useAddCase)
   const [isAdding, setIsAdding] = useState(false);
-
+  const [isAddingDocument, setIsAddingDocument] = useState(false);
   // Active section (from useSidebarUI)
   const [activeSection, setActiveSection] = useState("home");
 
@@ -136,6 +138,9 @@ export function SidebarProvider({
   const toggleAddCase = useCallback(() => setIsAdding((v) => !v), []);
   const closeAddCase = useCallback(() => setIsAdding(false), []);
 
+  const toggleAddDocument = useCallback(() => setIsAddingDocument((v) => !v), []);
+  const closeAddDocument = useCallback(() => setIsAddingDocument(false), []);
+
   // Sidebar UI actions
   const toggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
   
@@ -197,6 +202,9 @@ export function SidebarProvider({
         isAdding,
         toggleAddCase,
         closeAddCase,
+        isAddingDocument,
+        toggleAddDocument,
+        
         
         // Active section
         activeSection,

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { useTranslations, useLocale } from "next-intl";
-
+import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
 /* =======================
    Types
@@ -49,6 +49,7 @@ function formatUpdatedTime(dateString: string) {
 
 export function CaseList({ cases }: { cases: Case[] }) {
   const locale = useLocale();
+  const { setActiveSection } = useSidebar();
 
   // 🔥 newest → oldest
   const sortedCases = [...cases].sort(
@@ -64,6 +65,7 @@ export function CaseList({ cases }: { cases: Case[] }) {
           key={caseItem.id}
           href={`/${locale}/case/${caseItem.id}`}
           className="group block"
+          onClick={() => setActiveSection("documents")}
         >
           <div className="flex h-full min-h-50 flex-col border border-white/10 bg-black/80 p-5 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
             

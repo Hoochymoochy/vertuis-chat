@@ -12,7 +12,7 @@ type Props = {
 
 export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddDocument, documentTitle, setDocumentTitle, file, isSubmitting }: Props) {
 
-    if(showAddDocument) {
+    if(!showAddDocument) {
         return <></>
     }
 
@@ -51,7 +51,7 @@ export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddD
               <div className="relative">
                 <input
                   type="file"
-                  onChange={handleFileChange}
+                  onChange={(e) => console.log(e.target.files)}
                   accept=".pdf,.docx,.txt"
                   className="hidden"
                   id="file-upload"

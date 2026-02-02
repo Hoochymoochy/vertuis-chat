@@ -53,7 +53,7 @@ export default function CasesPage() {
       const newCaseData = await addCase(title, description, userId);
       console.log("New case added:", newCaseData.data[0]);
       setCases([...cases, newCaseData.data[0]]);
-      setNewCase(false);
+      toggleAddCase();
     } catch (error) {
       console.error("Error adding case:", error);
       alert("Failed to create case. Please try again.");
