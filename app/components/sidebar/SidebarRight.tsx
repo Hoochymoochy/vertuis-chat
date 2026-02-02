@@ -146,24 +146,23 @@ export default function SidebarRight({
         </AnimatePresence>
 
         <motion.button
-          onClick={toggleCollapse}
-          className="p-2 rounded-lg hover:bg-neutral-900 transition-all relative "
-          animate={{
-            left: isCollapsed ? "50%" : "0%",
-            x: isCollapsed ? "-50%" : 0,
-            marginLeft: isCollapsed ? 0 : "-0.5rem",
-          }}
-          transition={{
-            duration: ANIMATION.DURATION / 1000,
-            ease: [0.4, 0, 0.2, 1],
-          }}
-          aria-label="Toggle sidebar"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ChevronDownOutline size={24} className={`text-gold
-            ${!isCollapsed ? "rotate-90" : "rotate-270"}`}/>
-        </motion.button>
+        onClick={() => toggleCollapse()}
+        className=" z-50 bg-black/60 backdrop-blur-sm border border-gold/30 p-2 hover:bg-black/70 transition-colors"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <motion.div animate={{ rotate: isCollapsed ? 90 : 0 }} transition={{ duration: 0.2 }}>
+          {!isCollapsed ? (
+            <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </motion.div>
+      </motion.button>
       </header>
 
       {/* Search */}
