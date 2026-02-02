@@ -6,9 +6,10 @@ import { useEffect, useState } from "react"
 import { addCase, getAllCase } from "@/app/lib/case"
 import { useAuth } from "../../../hooks/Auth/useAuth"
 import { X } from "lucide-react"
-import { useSidebar } from "../../../hooks/Global/UseSidebar"
 import { tr } from "framer-motion/client"
 import { AddCase } from "@/app/components/case/addCase"
+import { useSidebar } from "../../../hooks/Global/SidebarContext";
+
 export interface Case {
   id: string;
   user_id: string;

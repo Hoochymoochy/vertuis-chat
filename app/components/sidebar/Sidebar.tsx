@@ -2,7 +2,7 @@
 "use client";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
-import { useSidebar } from "../../hooks/Global/UseSidebar";
+import { useSidebar } from "../../hooks/Global/SidebarContext";
 import React from "react";
 
 

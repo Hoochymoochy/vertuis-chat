@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import ChatBubble from "../../../../components/chat/bubble";
-import Side from "../../../../components/global/side";
 import Map from "../../../../components/chat/map";
 import InputBox from "../../../../components/chat/inputbox";
 import Overlay from "../../../../components/chat/overlay";
@@ -88,7 +87,6 @@ export default function ChatPage() {
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
       <Overlay isDragging={isDragging} />
-      <Side setOpenMap={setOpenMap} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
       {/* Header */}

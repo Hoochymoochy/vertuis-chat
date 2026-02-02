@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import { Sidebar } from "@/app/components/sidebar/Sidebar";
 import { AuthGuard } from "@/app/components/global/AuthGaurd";
+import { SidebarWrapper } from "@/app/hooks/Global/SidebarWrapper";
 
 export default async function LocaleLayout({
   children,
@@ -24,9 +25,9 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <AuthGuard locale={locale}>
-        <Sidebar>
-          {children}
-        </Sidebar>
+        <SidebarWrapper userId={null}>
+          <Sidebar>{children}</Sidebar>
+        </SidebarWrapper>
       </AuthGuard>
     </NextIntlClientProvider>
   );

@@ -18,6 +18,7 @@ export function useChats(userId: string | null) {
     getAllChat(userId).then(setChats);
   }, [userId]);
 
+
   return {
     chats,
     newChat: () => router.push(`/${locale}/chat`),
