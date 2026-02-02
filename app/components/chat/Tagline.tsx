@@ -20,7 +20,7 @@ export function Tagline({ needsOnboarding, isSubmitted, t }: Props) {
               ease: [0.4, 0, 0.2, 1],
               delay: 0.4 
             }}
-            className={`fixed bottom-8 left-0 right-0 z-10 text-center px-4 space-y-2 ${
+            className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-center px-4 space-y-2  ${
               needsOnboarding ? 'opacity-30' : ''
             }`}
           >
