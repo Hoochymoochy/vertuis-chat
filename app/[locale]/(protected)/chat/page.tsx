@@ -12,12 +12,15 @@ import useInitialChat from "@/app/hooks/Chat/useInitialChat";
 import useFileDrop from "@/app/hooks/Case/useFileDrop";
 import Overlay from "../../../components/chat/overlay";
 import { Tagline } from "@/app/components/chat/Tagline";
+import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
 export default function Chat() {
   const t = useTranslations("Chat");
   const locale = useLocale();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [openMap, setOpenMap] = useState(false);
+
+  const { isMapCollapsed, toggleMapCollapse } = useSidebar();
+
   
   const { userId, isCheckingAuth, needsOnboarding } = useAuth();
   const { isLoading, failed, startChat } = useInitialChat(userId);
@@ -43,7 +46,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (needsOnboarding) {
-      setOpenMap(true);
+      toggleMapCollapse();
     }
   }, [needsOnboarding]);
 
@@ -76,7 +79,7 @@ export default function Chat() {
       <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/40 pointer-events-none" />
       
       <Overlay isDragging={isDragging} />
-      <Map openMap={openMap} setOpenMap={setOpenMap} needsOnboarding={needsOnboarding} />
+      <Map openMap={isMapCollapsed} setOpenMap={toggleMapCollapse} needsOnboarding={needsOnboarding} />
 
       {/* Enhanced Onboarding overlay */}
       <AnimatePresence>

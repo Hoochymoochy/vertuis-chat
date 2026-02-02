@@ -228,6 +228,7 @@ export function SidebarProvider({
         newChat,
         openChat,
         
+        
         // Documents
         castItem,
         documents,

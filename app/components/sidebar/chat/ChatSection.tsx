@@ -2,11 +2,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Add, Chat as ChatIcon, Location, Logout, Language } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
-import { Chat } from "../useSidebar";
 import { AddButton } from "../Button";
+import { useSidebar } from "../../../hooks/Global/SidebarContext";
+
 interface ChatSectionProps {
   isCollapsed: boolean;
-  chats: Chat[];
   onNewChat: () => void;
   onChatClick: (id: string) => void;
   onOpenMap: () => void;
@@ -23,14 +23,13 @@ interface ChatSectionProps {
 
 export function ChatSection({
   isCollapsed,
-  chats,
-  onNewChat,
   onChatClick,
   onOpenMap,
   country,
   state,
   t,
 }: ChatSectionProps) {
+  const { chats, openChat, newChat, toggleMapCollapse } = useSidebar();
 
   if(isCollapsed) {
     return null;
@@ -48,7 +47,7 @@ export function ChatSection({
           transitionTimingFunction: ANIMATION.EASING,
         }}
       >
-        <AddButton onClick={onNewChat} isCollapsed={isCollapsed} label="Chat" />
+        <AddButton onClick={newChat} isCollapsed={isCollapsed} label="Chat" />
       </div>
 
       {/* Chat List */}
@@ -116,7 +115,7 @@ export function ChatSection({
       {/* Jurisdiction Section */}
       <div className="p-4 border-t border-gold/20">
           <motion.button
-            onClick={() => setOpenMap(true)}
+            onClick={toggleMapCollapse}
             className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

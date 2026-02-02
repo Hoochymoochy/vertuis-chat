@@ -26,16 +26,6 @@ export default function CasesPage() {
   const { userId } = useAuth();
   const { toggleAddCase, isAdding } = useSidebar();
 
-  // 🔍 Debug what we're getting
-  // console.log("🔴 CasesPage render");
-  // console.log("  - isAdding:", isAdding);
-  // console.log("  - toggleAddCase:", toggleAddCase);
-  // console.log("  - toggleAddCase type:", typeof toggleAddCase);
-
-  // useEffect(() => {
-  //   console.log("🟣 isAdding changed to:", isAdding);
-  // }, [isAdding]);
-
   useEffect(() => {
     if (userId) {
       const fetchCases = async () => {
