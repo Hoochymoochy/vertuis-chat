@@ -1,9 +1,21 @@
 import {
-  Home,
   IbmWatsonAssistant,
   Task,
   Settings,
-  EarthFilled, // Import Settings icon
+  EarthFilled,
+  UserSettings,
+  Notification,
+  Security,
+  ColorPalette,
+  DocumentAdd,
+  DocumentBlank,
+  FolderOpen,
+  Upload,
+  Portfolio,
+  Search,
+  Document,
+  Chat,
+  Time,
 } from "@carbon/icons-react";
 
 export const sidebarSections = [
@@ -12,7 +24,6 @@ export const sidebarSections = [
     items: [
       { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "documents", route: "/chat" },
       { icon: Task, label: "Case", id: 3, sectionType: "case", route: "/case" },
-      { icon: Document, label: "Documents", id: 5, sectionType: "documents", route: "/case/3" }, // Add this
     ],
   },
   {
@@ -22,12 +33,6 @@ export const sidebarSections = [
     ],
   },
 ];
-
-// Keep your existing chatbarSections and casebarSections
-import {
-  Chat,
-  Time,
-} from "@carbon/icons-react";
 
 export const chatbarSections = [
   {
@@ -40,12 +45,6 @@ export const chatbarSections = [
   },
 ];
 
-import {
-  Portfolio,
-  Search,
-  Document,
-} from "@carbon/icons-react";
-
 export const casebarSections = [
   {
     title: "Cases",
@@ -56,31 +55,6 @@ export const casebarSections = [
     ],
   },
 ];
-
-// Add a home section
-import {
-  Dashboard,
-  Analytics,
-  Report,
-} from "@carbon/icons-react";
-
-export const homebarSections = [
-  {
-    title: "Home",
-    items: [
-      { icon: Dashboard, label: "Dashboard", isActive: true, id: 1 },
-      { icon: Analytics, label: "Analytics", id: 2 },
-      { icon: Report, label: "Reports", id: 3 },
-    ],
-  },
-];
-// In menu.config.ts - Add this
-import {
-  UserSettings,
-  Notification,
-  Security,
-  ColorPalette,
-} from "@carbon/icons-react";
 
 export const settingsbarSections = [
   {
@@ -93,14 +67,6 @@ export const settingsbarSections = [
     ],
   },
 ];
-
-// In menu.config.ts - Add this for documents
-import {
-  DocumentAdd,
-  DocumentBlank,
-  FolderOpen,
-  Upload,
-} from "@carbon/icons-react";
 
 export const documentsbarSections = [
   {

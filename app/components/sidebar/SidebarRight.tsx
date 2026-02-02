@@ -3,26 +3,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   casebarSections, 
   chatbarSections, 
-  homebarSections,
-  settingsbarSections,
-  documentsbarSections
+  documentsbarSections,
+  settingsbarSections
 } from "./menu.config";
 import { ChatSection } from "./chat/ChatSection";
 import { CaseSection } from "./case/CaseSection";
 import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
-import { HomeSection } from "./home/page";
-import { SearchContainer } from "./SearchContainer";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { SidebarRightProps } from "./type";
 
 // Section configuration mapping
 const SECTION_CONFIG = {
-  home: {
-    title: "Home",
-    sections: homebarSections,
-    Component: HomeSection,
-  },
   chat: {
     title: "Chat",
     sections: chatbarSections,
@@ -71,7 +63,7 @@ export default function SidebarRight({
   setShowAddDocument,
   setSelectedDoc,
 }: SidebarRightProps) {
-  const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.home;
+  const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
   const SectionComponent = currentConfig.Component;
 
   // Common props for all section components

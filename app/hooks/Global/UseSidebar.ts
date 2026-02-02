@@ -28,8 +28,9 @@ export function useSidebar() {
 
   useEffect(() => {
     if (pathname.includes("/chat")) ui.setActiveSection("chat");
-    else if (pathname.includes("/case")) ui.setActiveSection("documents");  
+    else if (pathname.includes("/case")) ui.setActiveSection("case");  
     else if (pathname.includes("/settings")) ui.setActiveSection("settings");
+    else if (pathname.includes("/case/3")) ui.setActiveSection("documents");
     
     else ui.setActiveSection("home");
   }, [pathname]);
