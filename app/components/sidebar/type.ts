@@ -69,6 +69,9 @@ export interface SidebarRightProps {
   selectedDoc?: string
   setShowAddDocument: () => void,
   setSelectedDoc: string,
+
+  isAdding: boolean,
+  toggleAddCase: () => void
 }
 
 export interface SidebarLeftProps {
@@ -85,5 +88,5 @@ export interface SearchContainerProps {
 
 export interface CaseSectionProps {
   isCollapsed: boolean;
-  onAddCase: () => void;
+  toggleAddCase: () => void
 }

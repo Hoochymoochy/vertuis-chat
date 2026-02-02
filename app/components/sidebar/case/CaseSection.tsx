@@ -4,7 +4,7 @@ import { AddButton } from "../Button";
 
 export function CaseSection({
   isCollapsed,
-  onAddCase,
+  toggleAddCase,
 }: CaseSectionProps) {
 
   return (
@@ -19,7 +19,7 @@ export function CaseSection({
           transitionTimingFunction: ANIMATION.EASING,
         }}
       >
-        <AddButton onClick={() => onAddCase()} isCollapsed={isCollapsed} label="Case" />
+        <AddButton onClick={() => toggleAddCase()} isCollapsed={isCollapsed} label="Case" />
 
       </div>
     </div>

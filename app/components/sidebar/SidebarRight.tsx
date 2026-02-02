@@ -62,6 +62,8 @@ export default function SidebarRight({
   selectedDoc,
   setShowAddDocument,
   setSelectedDoc,
+  isAdding,
+  toggleAddCase,
 }: SidebarRightProps) {
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
   const SectionComponent = currentConfig.Component;
@@ -87,6 +89,9 @@ export default function SidebarRight({
     selectedDoc,
     setShowAddDocument,
     setSelectedDoc,
+
+    isAdding,
+    toggleAddCase
   };
 
   return (
