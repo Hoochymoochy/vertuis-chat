@@ -12,36 +12,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen">
-      <SidebarLeft 
-      isCollapsed={sidebar.isCollapsed} 
-      expandedItems={sidebar.expandedItems} 
-      toggleExpanded={sidebar.toggleExpanded} 
-      activeSection={sidebar.activeSection} 
-      setSection={sidebar.setSection} 
-      />
-      
-      <SidebarRight activeSection={sidebar.activeSection} 
-      isCollapsed={sidebar.isCollapsed}
-      toggleCollapse={sidebar.toggleCollapse}
-      onChatClick={sidebar.onChatClick}
-      onNewChat={sidebar.newChat}
-      chats={sidebar.chats}
-      onAddCase={sidebar.toggleAddCase}
-      onOpenMap={sidebar.onOpenMap}
-      onLogout={sidebar.onLogout}
-      country={sidebar.country}
-      state={sidebar.state}
-      lang={sidebar.lang}
-      isLangOpen={sidebar.isLangOpen}
-      onToggleLang={sidebar.onToggleLang}
-      onLanguageChange={sidebar.onLanguageChange}
-      t={sidebar.t}
-      handleBack={sidebar.handleBack}
-      selectedDoc={sidebar.selectedDoc}
-      setShowAddDocument={sidebar.setShowAddDocument}
-      setSelectedDoc={sidebar.setSelectedDoc}
-      />
-      
+      <SidebarLeft {...sidebar}/>
+      <SidebarRight {...sidebar}/>
 
       <div className="flex-1 overflow-auto">
         {children}
