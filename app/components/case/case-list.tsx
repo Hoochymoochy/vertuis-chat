@@ -1,26 +1,26 @@
 import Link from "next/link"
-import { useTranslations, useLocale } from "next-intl";
-import { useSidebar } from "@/app/hooks/Global/SidebarContext";
+import { useTranslations, useLocale } from "next-intl"
+import { useSidebar } from "@/app/hooks/Global/SidebarContext"
+import { useState, useEffect } from "react"
 
 /* =======================
    Types
 ======================= */
 
 interface Case {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;  // fix typo
-  status: boolean;      // add this field
-  created_at: string;
-  updated_at: string;
+  id: string
+  user_id: string
+  title: string
+  description: string
+  status: boolean
+  created_at: string
+  updated_at: string
 }
 
 /* =======================
    Utils
 ======================= */
 
-// Normalize time into minutes / hours / days / months / years
 function formatUpdatedTime(dateString: string) {
   const updated = new Date(dateString)
   const now = new Date()
@@ -48,23 +48,37 @@ function formatUpdatedTime(dateString: string) {
 ======================= */
 
 export function CaseList({ cases }: { cases: Case[] }) {
-  const locale = useLocale();
-  const { setActiveSection } = useSidebar();
+  const locale = useLocale()
+  const { setActiveSection } = useSidebar()
+  const [visibleItems, setVisibleItems] = useState<number[]>([])
 
-  // 🔥 newest → oldest
+  // Sort cases: newest → oldest
   const sortedCases = [...cases].sort(
     (a, b) =>
       new Date(b.updated_at).getTime() -
       new Date(a.updated_at).getTime()
   )
 
+  // Staggered fade-in animation
+  useEffect(() => {
+    sortedCases.forEach((_, index) => {
+      setTimeout(() => {
+        setVisibleItems(prev => [...prev, index])
+      }, index * 50) // 50ms delay between each card
+    })
+  }, [cases.length])
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {sortedCases.map((caseItem) => (
+      {sortedCases.map((caseItem, index) => (
         <Link
           key={caseItem.id}
           href={`/${locale}/case/${caseItem.id}`}
-          className="group block"
+          className={`group block transition-all duration-500 ${
+            visibleItems.includes(index)
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4"
+          }`}
         >
           <div className="flex h-full min-h-50 flex-col border border-white/10 bg-black/80 p-5 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-xl hover:shadow-[#d4af37]/10">
             
