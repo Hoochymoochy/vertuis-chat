@@ -14,6 +14,7 @@ type InputBoxProps = {
   showFileUpload?: boolean;
   maxFileSize?: number; // in MB
   droppedFile?: File | null; // File dropped from parent
+  isCollapsed?: boolean
 };
 
 export default function InputBox({
@@ -27,6 +28,7 @@ export default function InputBox({
   showFileUpload = true,
   maxFileSize = 10,
   droppedFile,
+  isCollapsed
 }: InputBoxProps) {
   const t = useTranslations("InputBox");
   const [message, setMessage] = useState("");
@@ -104,7 +106,11 @@ export default function InputBox({
   );
 
   return (
-    <motion.div layout transition={smoothSpring} className="w-full max-w-3xl z-20 px-4 relative">
+    <motion.div 
+      layout 
+      transition={smoothSpring} 
+      className="w-full max-w-3xl z-20 px-4 relative mx-auto"
+    >
       <div className="relative">
         <div className="relative bg-gold/15 backdrop-blur-md border border-gold/30 rounded-3xl shadow-lg overflow-hidden">
           {/* File Preview Inside Input */}

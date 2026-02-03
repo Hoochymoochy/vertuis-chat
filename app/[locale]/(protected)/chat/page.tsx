@@ -19,7 +19,7 @@ export default function Chat() {
   const locale = useLocale();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const { isMapCollapsed, toggleMapCollapse } = useSidebar();
+  const { isMapCollapsed, toggleMapCollapse, isCollapsed } = useSidebar();
 
   
   const { userId, isCheckingAuth, needsOnboarding } = useAuth();
@@ -223,6 +223,7 @@ export default function Chat() {
         needsOnboarding={needsOnboarding}
         isSubmitted={isSubmitted}
         t={t}
+        isCollapsed={isCollapsed}
       />
     </motion.div>
   );
