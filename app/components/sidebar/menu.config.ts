@@ -22,8 +22,8 @@ export const sidebarSections = [
   {
     title: "Main",
     items: [
-      { icon: IbmWatsonAssistant, label: "Chat", id: 2, sectionType: "documents", route: "/chat" },
-      { icon: Task, label: "Case", id: 3, sectionType: "case", route: "/case" },
+      { icon: IbmWatsonAssistant, label: "Chat", id: 1, sectionType: "documents", route: "/chat" },
+      { icon: Task, label: "Case", id: 2, sectionType: "case", route: "/case" },
     ],
   },
   {

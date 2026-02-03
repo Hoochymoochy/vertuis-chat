@@ -12,6 +12,7 @@ import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { SidebarRightProps } from "./type";
+import { useMemo } from "react";
 
 // Section configuration mapping
 const SECTION_CONFIG = {
@@ -70,7 +71,8 @@ export default function SidebarRight({
   console.log("selectedDoc:", currentConfig.title);
 
   // Common props for all section components
-  const sectionProps = {
+
+  const sectionProps = useMemo(() => ({
     isCollapsed,
     chats,
     onNewChat,
@@ -84,16 +86,19 @@ export default function SidebarRight({
     onToggleLang,
     onLanguageChange,
     t,
-
     handleBack,
     onAddCase,
     selectedDoc,
     setShowAddDocument,
     setSelectedDoc,
-
     isAdding,
-    toggleAddCase
-  };
+    toggleAddCase,
+  }), [
+    isCollapsed, chats, onNewChat, onChatClick, onOpenMap, onLogout,
+    country, state, lang, isLangOpen, onToggleLang, onLanguageChange,
+    t, handleBack, onAddCase, selectedDoc, setShowAddDocument,
+    setSelectedDoc, isAdding, toggleAddCase,
+  ]);
 
   return (
     <motion.aside

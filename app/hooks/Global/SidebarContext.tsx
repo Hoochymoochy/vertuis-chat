@@ -106,12 +106,26 @@ export function SidebarProvider({
 
   // Update active section based on pathname (from useSidebar)
   useEffect(() => {
-    if (pathname.includes("/chat")) setActiveSection("chat");
-    else if (pathname.includes("/case/3")) setActiveSection("documents");
-    else if (pathname.includes("/case")) setActiveSection("case");
-    else if (pathname.includes("/settings")) setActiveSection("settings");
-    else setActiveSection("home");
-  }, [pathname]);
+    // Remove locale prefix for cleaner matching
+    const pathWithoutLocale = pathname.replace(`/${locale}`, '');
+    
+    if (pathWithoutLocale.startsWith("/chat")) {
+      setActiveSection("chat");
+    } 
+    // Check for /case/[id] BEFORE checking for /case
+    else if (pathWithoutLocale.match(/^\/case\/[^/]+/)) {
+      setActiveSection("documents");  // ✅ /case/123 → documents
+    } 
+    else if (pathWithoutLocale === "/case") {
+      setActiveSection("case");  // ✅ /case → case list
+    } 
+    else if (pathWithoutLocale.startsWith("/settings")) {
+      setActiveSection("settings");
+    } 
+    else {
+      setActiveSection("home");
+    }
+  }, [pathname, locale]);
 
   // Load user preferences (from useUserPreferences)
   useEffect(() => {
