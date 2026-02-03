@@ -17,7 +17,7 @@ export function Tagline({ needsOnboarding, isSubmitted, t, isCollapsed }: Props)
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1], delay: 0.4 }}
-          className={`absolute bottom-4 left-0 right-0 mx-auto z-10 text-center px-4 space-y-2 ${
+          className={`relative mx-auto z-10 text-center px-4 space-y-2 ${
             needsOnboarding ? 'opacity-30' : ''
           }`}
         >

@@ -64,11 +64,7 @@ export default function CasesPage() {
 
 
   return (
-    <div className="relative min-h-screen items-center justify-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
-      {/* Background */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
-      
-
+    <>
       {/* Add Case Modal */}
       <AddCase isAdding={isAdding} toggleAddCase={toggleAddCase} handleAddCase={handleAddCase} isSubmitting={isSubmitting} />
 
@@ -76,6 +72,6 @@ export default function CasesPage() {
       <main className="flex-1 overflow-y-auto p-10">
         <CaseList cases={cases} />
       </main>
-    </div>
+    </>
   )
 }

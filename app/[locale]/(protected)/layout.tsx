@@ -1,4 +1,5 @@
-// app/[locale]/layout.tsx (Server Component - NO "use client")
+// app/[locale]/layout.tsx (Server Component)
+
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
@@ -14,7 +15,7 @@ export default async function LocaleLayout({
   params: { locale: string };
 }) {
   const { locale } = params;
-  
+
   let messages;
   try {
     messages = (await import(`@/messages/${locale}.json`)).default;
@@ -26,7 +27,18 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages} locale={locale}>
       <AuthGuard locale={locale}>
         <SidebarWrapper userId={null}>
-          <Sidebar>{children}</Sidebar>
+          <div className="relative min-h-screen w-full bg-[url('/marble.jpg')] bg-cover bg-center">
+            
+            {/* Visual overlays */}
+            <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/60 to-black/70 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/40 pointer-events-none" />
+
+            {/* App shell */}
+            <div className="relative z-10">
+              <Sidebar>{children}</Sidebar>
+            </div>
+
+          </div>
         </SidebarWrapper>
       </AuthGuard>
     </NextIntlClientProvider>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
-import { Sidebar } from "../../../components/sidebar/Sidebar";
 import Map from "../../../components/chat/map";
 import Spinner from "../../../components/global/spinner";
 import InputBox from "../../../components/chat/inputbox";
@@ -50,33 +49,9 @@ export default function Chat() {
     }
   }, [needsOnboarding]);
 
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
-        <div className="flex flex-col items-center gap-6">
-          <Spinner />
-          <p className="text-gold/80 text-sm tracking-wide">{t("verifyingAuth")}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <motion.div
-      layout
-      className="relative min-h-screen flex flex-col items-center overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center"
-      {...dragHandlers}
-    >
-      {/* Enhanced background overlay with better depth */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2 }}
-        className="absolute inset-0 bg-linear-to-b from-black/70 via-black/60 to-black/70 backdrop-blur-sm"
-      />
-      
-      {/* Subtle vignette effect */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/40 pointer-events-none" />
+    <>      
       
       <Overlay isDragging={isDragging} />
       <Map openMap={isMapCollapsed} setOpenMap={toggleMapCollapse} needsOnboarding={needsOnboarding} />
@@ -225,6 +200,6 @@ export default function Chat() {
         t={t}
         isCollapsed={isCollapsed}
       />
-    </motion.div>
+    </>
   );
 }
