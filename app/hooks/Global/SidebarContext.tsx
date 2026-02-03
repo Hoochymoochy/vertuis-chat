@@ -23,6 +23,7 @@ type SidebarContextType = {
   // Active section
   activeSection: string;
   setActiveSection: (section: string) => void;
+  navigateToSection: (route: string) => void;
 
   // Sidebar UI
   isCollapsed: boolean;
@@ -180,6 +181,11 @@ export function SidebarProvider({
     router.refresh();
   }, [userId, router]);
 
+  // Navigation actions
+  const navigateToSection = useCallback((route: string) => {
+    router.push(`/${locale}${route}`);
+  }, [router, locale]);
+
   // Chat actions
   const newChat = useCallback(() => {
     router.push(`/${locale}/chat`);
@@ -223,6 +229,7 @@ export function SidebarProvider({
         // Active section
         activeSection,
         setActiveSection,
+        navigateToSection,
         
         // Sidebar UI
         isCollapsed,

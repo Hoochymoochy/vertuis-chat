@@ -1,37 +1,25 @@
 // ChatSection.tsx - Chat-specific content for SidebarRight
-import { motion, AnimatePresence } from "framer-motion";
-import { Add, Chat as ChatIcon, Location, Logout, Language } from "@carbon/icons-react";
+import { motion } from "framer-motion";
+import { Chat as ChatIcon } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
 import { useSidebar } from "../../../hooks/Global/SidebarContext";
 
-interface ChatSectionProps {
-  isCollapsed: boolean;
-  onNewChat: () => void;
-  onChatClick: (id: string) => void;
-  onOpenMap: () => void;
-  onLogout: () => void;
-  country: string | null;
-  state: string | null;
-  lang: string;
-  isLangOpen: boolean;
-  onToggleLang: () => void;
-  onLanguageChange: (langCode: string) => void;
-  t: (key: string) => string;
-}
+export function ChatSection() {
+  const { 
+    isCollapsed, 
+    chats, 
+    openChat, 
+    newChat, 
+    toggleMapCollapse,
+    country,
+    state 
+  } = useSidebar();
 
+  // Translation function - you can implement this based on your i18n setup
+  const t = (key: string) => key;
 
-export function ChatSection({
-  isCollapsed,
-  onChatClick,
-  onOpenMap,
-  country,
-  state,
-  t,
-}: ChatSectionProps) {
-  const { chats, openChat, newChat, toggleMapCollapse } = useSidebar();
-
-  if(isCollapsed) {
+  if (isCollapsed) {
     return null;
   }
 
@@ -72,7 +60,7 @@ export function ChatSection({
           {chats.map((chat, index) => (
             <motion.button
               key={chat.id}
-              onClick={() => onChatClick(chat.id)}
+              onClick={() => openChat(chat.id)}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{
@@ -114,27 +102,40 @@ export function ChatSection({
 
       {/* Jurisdiction Section */}
       <div className="p-4 border-t border-gold/20">
-          <motion.button
-            onClick={toggleMapCollapse}
-            className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <motion.div className="absolute inset-0 bg-linear-to-r from-transparent via-gold/10 to-transparent" initial={{ x: "-100%" }} whileHover={{ x: "100%" }} transition={{ duration: 0.6, ease: "easeInOut" }} />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="text-gold text-xs uppercase tracking-wider font-semibold">{t("jurisdiction")}</span>
-              </div>
-              <div className="text-white text-sm"><span className="text-gold/80">{t("country")}:</span> {country || t("global")}</div>
-              <div className="text-white text-sm"><span className="text-gold/80">{t("state")}:</span> {state || "N/A"}</div>
-              <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">{t("clickToChange")}</div>
+        <motion.button
+          onClick={toggleMapCollapse}
+          className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <motion.div 
+            className="absolute inset-0 bg-linear-to-r from-transparent via-gold/10 to-transparent" 
+            initial={{ x: "-100%" }} 
+            whileHover={{ x: "100%" }} 
+            transition={{ duration: 0.6, ease: "easeInOut" }} 
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-gold text-xs uppercase tracking-wider font-semibold">
+                {t("jurisdiction")}
+              </span>
             </div>
-          </motion.button>
-        </div>
+            <div className="text-white text-sm">
+              <span className="text-gold/80">{t("country")}:</span> {country || t("global")}
+            </div>
+            <div className="text-white text-sm">
+              <span className="text-gold/80">{t("state")}:</span> {state || "N/A"}
+            </div>
+            <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">
+              {t("clickToChange")}
+            </div>
+          </div>
+        </motion.button>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { BorderBottom, ChevronDownOutline } from "@carbon/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   casebarSections, 
@@ -11,8 +10,7 @@ import { CaseSection } from "./case/CaseSection";
 import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
-import { SidebarRightProps } from "./type";
-import { useMemo } from "react";
+import { useSidebar } from "../../hooks/Global/SidebarContext";
 
 // Section configuration mapping
 const SECTION_CONFIG = {
@@ -33,71 +31,16 @@ const SECTION_CONFIG = {
   },
   documents: {
     title: "Documents",
-    sections: documentsbarSections,  // ✅ "sections" to match other configs
+    sections: documentsbarSections,
     Component: DocumentSection
   }
-
 } as const;
 
-export default function SidebarRight({
-  isCollapsed,
-  toggleCollapse,
-  expandedItems,
-  toggleExpanded,
-  activeSection,
-  setSubSection,
-  chats = [],
-  onNewChat = () => {},
-  onChatClick = () => {},
-  onOpenMap = () => {},
-  onLogout = () => {},
-  onAddCase = () => {},
-  country = "World",
-  state = "N/A",
-  lang = "en",
-  isLangOpen = false,
-  onToggleLang = () => {},
-  onLanguageChange = () => {},
-  t = (key: string) => key,
-  handleBack = () => {},
-  selectedDoc,
-  setShowAddDocument,
-  setSelectedDoc,
-  isAdding,
-  toggleAddCase,
-}: SidebarRightProps) {
+export default function SidebarRight() {
+  const { activeSection, isCollapsed, toggleCollapse } = useSidebar();
+  
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
   const SectionComponent = currentConfig.Component;
-
-  // Common props for all section components
-
-  const sectionProps = useMemo(() => ({
-    isCollapsed,
-    chats,
-    onNewChat,
-    onChatClick,
-    onOpenMap,
-    onLogout,
-    country,
-    state,
-    lang,
-    isLangOpen,
-    onToggleLang,
-    onLanguageChange,
-    t,
-    handleBack,
-    onAddCase,
-    selectedDoc,
-    setShowAddDocument,
-    setSelectedDoc,
-    isAdding,
-    toggleAddCase,
-  }), [
-    isCollapsed, chats, onNewChat, onChatClick, onOpenMap, onLogout,
-    country, state, lang, isLangOpen, onToggleLang, onLanguageChange,
-    t, handleBack, onAddCase, selectedDoc, setShowAddDocument,
-    setSelectedDoc, isAdding, toggleAddCase,
-  ]);
 
   return (
     <motion.aside
@@ -112,11 +55,11 @@ export default function SidebarRight({
       }}
     >
       {/* Header */}
-        <header
-          className={`relative flex items-center justify-between h-16 p-4 pt-2 shrink-0
-            ${!isCollapsed ? "border-b border-gold-20" : "border-none"}
-          `}
-        >
+      <header
+        className={`relative flex items-center justify-between h-16 p-4 pt-2 shrink-0
+          ${!isCollapsed ? "border-b border-gold-20" : "border-none"}
+        `}
+      >
         <AnimatePresence mode="wait">
           {!isCollapsed && (
             <motion.div
@@ -156,29 +99,24 @@ export default function SidebarRight({
         </AnimatePresence>
 
         <motion.button
-        onClick={() => toggleCollapse()}
-        className=" z-50 bg-black/60 backdrop-blur-sm border border-gold/30 p-2 hover:bg-black/70 transition-colors"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <motion.div animate={{ rotate: isCollapsed ? 90 : 0 }} transition={{ duration: 0.2 }}>
-          {!isCollapsed ? (
-            <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </motion.div>
-      </motion.button>
+          onClick={toggleCollapse}
+          className="z-50 bg-black/60 backdrop-blur-sm border border-gold/30 p-2 hover:bg-black/70 transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <motion.div animate={{ rotate: isCollapsed ? 90 : 0 }} transition={{ duration: 0.2 }}>
+            {!isCollapsed ? (
+              <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </motion.div>
+        </motion.button>
       </header>
-
-      {/* Search */}
-      {/* <div className="px-4 pb-4 shrink-0">
-        <SearchContainer isCollapsed={isCollapsed} />
-      </div> */}
       
       {/* Dynamic Section Content */}
       <AnimatePresence mode="wait">
@@ -193,7 +131,7 @@ export default function SidebarRight({
           }}
           className="flex-1 overflow-hidden mt-10"
         >
-          <SectionComponent {...sectionProps} />
+          <SectionComponent />
         </motion.div>
       </AnimatePresence>
     </motion.aside>

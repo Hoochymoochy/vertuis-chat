@@ -1,35 +1,36 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ANIMATION } from "./sidebar.constants";
-import { MenuItemProps } from "./type";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
-import { useSidebar } from "@/app/hooks/Global/SidebarContext"; // ✅ Add this
+import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
-export function MenuItem({
-  item,
-  onToggle,
-  onItemClick,
-  isCollapsed,
-}: MenuItemProps) {
+interface MenuItemProps {
+  item: {
+    id: string;
+    label: string;
+    icon: any;
+    route?: string;
+    sectionType?: string;
+    hasDropdown?: boolean;
+  };
+  isCollapsed: boolean;
+  onToggle?: () => void;
+}
+
+export function MenuItem({ item, onToggle, isCollapsed }: MenuItemProps) {
   const Icon = item.icon;
-  const locale = useLocale();
-  const router = useRouter();
-  const { activeSection } = useSidebar(); // ✅ Add this
+  const { activeSection, navigateToSection } = useSidebar();
 
-  // ✅ Dynamically determine if this item is active
+  // Dynamically determine if this item is active
   const isActive = item.sectionType === activeSection;
 
   const handleClick = () => {
+    // Handle dropdown toggle if applicable
     if (item.hasDropdown && onToggle) {
       onToggle();
-    } else if (onItemClick) {
-      onItemClick();
     }
-  };
-
-  const handleNavigation = () => {
+    
+    // Handle navigation if route exists
     if (item.route) {
-      router.push(`/${locale}${item.route}`); // ✅ Fixed: removed extra /
+      navigateToSection(item.route);
     }
   };
 
@@ -44,7 +45,6 @@ export function MenuItem({
         duration: ANIMATION.DURATION / 1000,
         ease: [0.4, 0, 0.2, 1]
       }}
-      onClick={handleNavigation}
     >
       <motion.button
         onClick={handleClick}

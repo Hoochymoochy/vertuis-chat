@@ -1,16 +1,19 @@
-// MenuSection.tsx - Pass section change handler to MenuItem
+// MenuSection.tsx - Uses context directly, minimal props
 import { MenuItem } from "./MenuItem";
 import { ANIMATION } from "./sidebar.constants";
-import { MenuSectionProps } from "./type";
+import { useSidebar } from "../../hooks/Global/SidebarContext";
 
-export function MenuSection({
-  section,
-  onToggleExpanded,
-  isCollapsed,
-  onSectionChange,
-  activeSection,
-  
-}: MenuSectionProps) {
+interface MenuSectionProps {
+  section: {
+    title: string;
+    items: any[];
+  };
+  isCollapsed: boolean;
+}
+
+export function MenuSection({ section, isCollapsed }: MenuSectionProps) {
+  const { toggleExpanded } = useSidebar();
+
   return (
     <div className="flex flex-col w-full">
       {/* Section Header */}
@@ -31,19 +34,13 @@ export function MenuSection({
       {/* Items */}
       {section.items.map((item) => {
         const key = `${section.title}:${item.id}`;
-        const isActive = item.sectionType === activeSection;
         
         return (
           <MenuItem
             key={key}
-            item={{ ...item, isActive }}
+            item={item}
             isCollapsed={isCollapsed}
-            onToggle={() => onToggleExpanded(key)}
-            onItemClick={() => {
-              if (item.sectionType && onSectionChange) {
-                onSectionChange(item.sectionType);
-              }
-            }}
+            onToggle={() => toggleExpanded(key)}
           />
         );
       })}

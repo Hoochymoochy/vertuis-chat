@@ -1,33 +1,26 @@
 import { ChevronLeft, Clock } from "lucide-react"
 import { AddButton } from "../Button"
 import { ANIMATION } from "../sidebar.constants"
-
-type Props = {
-  handleBack: () => void
-  caseItem: any
-  documents: any[]
-  selectedDoc: any | null
-  setShowAddDocument: (value: boolean) => void
-  setSelectedDoc: (doc: any) => void
-  isCollapsed: boolean
-}
+import { useSidebar } from "../../../hooks/Global/SidebarContext"
 
 const getFileIcon = (type: string) => {
   return <span className="text-xs">{type}</span>
 }
 
-export function DocumentSection({
-  handleBack,
-  caseItem,
-  documents,
-  selectedDoc,
-  setShowAddDocument,
-  setSelectedDoc,
-  isCollapsed
-}: Props) {
-  const isOpen = caseItem?.status
-  const updatedDate = caseItem?.updated_at 
-    ? new Date(caseItem.updated_at).toLocaleDateString() 
+export function DocumentSection() {
+  const { 
+    isCollapsed,
+    handleBack,
+    castItem,
+    documents,
+    selectDoc,
+    setShowAddDocument,
+    setSelectDoc
+  } = useSidebar();
+
+  const isOpen = castItem?.status
+  const updatedDate = castItem?.updated_at 
+    ? new Date(castItem.updated_at).toLocaleDateString() 
     : "—"
 
   return (
@@ -45,7 +38,7 @@ export function DocumentSection({
 
         {/* Case Title */}
         <h1 className="font-bold text-2xl mb-3 text-white">
-          {caseItem?.title || "New Case"}
+          {castItem?.title || "New Case"}
         </h1>
 
         {/* Status Badge */}
@@ -76,7 +69,7 @@ export function DocumentSection({
           }}
         >
           <AddButton 
-            onClick={() => setShowAddDocument(true)} 
+            onClick={setShowAddDocument} 
             isCollapsed={isCollapsed} 
             label="Document" 
           />
@@ -97,12 +90,12 @@ export function DocumentSection({
 
             <div className="space-y-3">
               {documents.map((document) => {
-                const isSelected = selectedDoc?.id === document.id
+                const isSelected = selectDoc === document.id
 
                 return (
                   <button
                     key={document.id}
-                    onClick={() => setSelectedDoc(document)}
+                    onClick={() => setSelectDoc(document.id)}
                     className={`w-full text-left bg-linear-to-r from-[#d4af37]/5 to-transparent hover:from-[#d4af37]/15 hover:to-[#d4af37]/5 border p-4 transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] group ${
                       isSelected
                         ? "border-[#d4af37]/30 bg-[#d4af37]/10"
