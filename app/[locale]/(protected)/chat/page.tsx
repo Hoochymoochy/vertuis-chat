@@ -51,7 +51,7 @@ export default function Chat() {
 
 
   return (
-    <>      
+    <div className="relative flex flex-col h-screen z-0">      
       
       <Overlay isDragging={isDragging} />
       <Map openMap={isMapCollapsed} setOpenMap={toggleMapCollapse} needsOnboarding={needsOnboarding} />
@@ -200,6 +200,6 @@ export default function Chat() {
         t={t}
         isCollapsed={isCollapsed}
       />
-    </>
+    </div>
   );
 }
