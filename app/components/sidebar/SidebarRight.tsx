@@ -72,7 +72,7 @@ export default function SidebarRight() {
               }}
             >
               <motion.h1
-                className="relative text-7xl sm:text-8xl lg:text-5xl font-serif font-bold tracking-tight"
+                className="text-6xl font-serif font-bold tracking-tight"
                 style={{
                   textShadow: '0 0 40px rgba(255, 215, 0, 0.2), 0 0 80px rgba(255, 215, 0, 0.1)'
                 }}
