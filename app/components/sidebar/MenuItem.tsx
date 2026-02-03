@@ -3,6 +3,7 @@ import { ANIMATION } from "./sidebar.constants";
 import { MenuItemProps } from "./type";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { useSidebar } from "@/app/hooks/Global/SidebarContext"; // ✅ Add this
 
 export function MenuItem({
   item,
@@ -13,6 +14,10 @@ export function MenuItem({
   const Icon = item.icon;
   const locale = useLocale();
   const router = useRouter();
+  const { activeSection } = useSidebar(); // ✅ Add this
+
+  // ✅ Dynamically determine if this item is active
+  const isActive = item.sectionType === activeSection;
 
   const handleClick = () => {
     if (item.hasDropdown && onToggle) {
@@ -24,7 +29,7 @@ export function MenuItem({
 
   const handleNavigation = () => {
     if (item.route) {
-      router.push(`/${locale}/${item.route}`);
+      router.push(`/${locale}${item.route}`); // ✅ Fixed: removed extra /
     }
   };
 
@@ -37,7 +42,7 @@ export function MenuItem({
       }}
       transition={{
         duration: ANIMATION.DURATION / 1000,
-        ease: [0.4, 0, 0.2, 1] // easeInOut
+        ease: [0.4, 0, 0.2, 1]
       }}
       onClick={handleNavigation}
     >
@@ -46,7 +51,7 @@ export function MenuItem({
         title={isCollapsed ? item.label : undefined}
         className={`
           select-none cursor-pointer rounded-lg flex items-center relative my-0.5
-          ${item.isActive ? "bg-neutral-900 border border-gold-20" : "hover:bg-neutral-900"}
+          ${isActive ? "bg-neutral-900 border border-gold-20" : "hover:bg-neutral-900"} 
         `}
         animate={{
           width: isCollapsed ? "40px" : "100%",

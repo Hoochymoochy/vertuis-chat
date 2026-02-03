@@ -68,7 +68,6 @@ export default function SidebarRight({
 }: SidebarRightProps) {
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
   const SectionComponent = currentConfig.Component;
-  console.log("selectedDoc:", currentConfig.title);
 
   // Common props for all section components
 
