@@ -14,10 +14,18 @@ export function useCaseDetail() {
   const router = useRouter()
   const locale = useLocale()
 
-  const { setShowAddDocument, isAddingDocument, toggleAddDocument, setSelectCase, setDocuments, documents } = useSidebar()
+  const { 
+    setShowAddDocument, 
+    isAddingDocument, 
+    toggleAddDocument, 
+    setSelectCase, 
+    setDocuments, 
+    documents, 
+    selectedDoc,
+    setSelectDoc
+  } = useSidebar()
 
   const [caseItem, setCaseItem] = useState<Case | null>(null)
-  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
 
   const [caseSummaries, setCaseSummaries] = useState("")
   const [showSummary, setShowSummary] = useState(false)
@@ -48,10 +56,17 @@ export function useCaseDetail() {
         if (caseRes?.data?.length) {
           const c = caseRes.data[0]
           setSelectCase(c)
+          setCaseItem(c)
           setCaseSummaries(c.summary)
         }
 
-        setDocuments(docsRes.documents ?? [])
+        const docs = docsRes.documents ?? []
+        setDocuments(docs)
+
+        // Auto-select first document if available and none selected
+        if (docs.length > 0 && !selectedDoc) {
+          setSelectDoc(docs[0].id)
+        }
       } catch (err) {
         console.error("Failed to fetch case data:", err)
       } finally {
@@ -87,8 +102,12 @@ export function useCaseDetail() {
     try {
       const newDoc = await addDocument(caseId, documentTitle, file, lang)
       console.log("New document:", newDoc)
-      setDocuments([...documents, newDoc])
-      setSelectedDoc(newDoc)
+      
+      const updatedDocs = [...documents, newDoc]
+      setDocuments(updatedDocs)
+      
+      // Auto-select the newly added document
+      setSelectDoc(newDoc.id)
 
       toggleAddDocument()
       setFile(null)
@@ -152,7 +171,6 @@ export function useCaseDetail() {
     isAddingDocument,
 
     // setters
-    setSelectedDoc,
     setSwitchingTab,
     setDocumentTitle,
     setLang,
@@ -169,5 +187,6 @@ export function useCaseDetail() {
     handleGenerateNewSummary,
     toggleShowSummary: () => setShowSummary(v => !v),
     toggleAddDocument,
+    setDocuments
   }
 }

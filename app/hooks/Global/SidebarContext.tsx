@@ -59,10 +59,10 @@ type SidebarContextType = {
   setCases: (cases: Case[]) => void;
   documents: any[];
   selectDoc: string;
-  setSelectDoc: (doc: string) => void;
+  setSelectDoc: (docId: string) => void;
+  selectedDoc: any;
   setShowAddDocument: () => void;
   handleBack: () => void;
-
 
   // Auth
   userId: string | null;
@@ -106,7 +106,8 @@ export function SidebarProvider({
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
-  const [selectDoc, setSelectDoc] = useState("");
+  const [selectDoc, setSelectDocId] = useState<string>("");
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -153,6 +154,16 @@ export function SidebarProvider({
     if (!userId) return;
     getAllChat(userId).then(setChats);
   }, [userId]);
+
+  // Update selectedDoc when selectDoc or documents change
+  useEffect(() => {
+    if (selectDoc && documents.length > 0) {
+      const doc = documents.find(d => d.id === selectDoc);
+      setSelectedDoc(doc || null);
+    } else {
+      setSelectedDoc(null);
+    }
+  }, [selectDoc, documents]);
 
   // Modal actions
   const toggleAddCase = useCallback(() => setIsAdding((v) => !v), []);
@@ -206,8 +217,8 @@ export function SidebarProvider({
     setCases(newCases);
   }, []);
 
-  const setSelectDocHandler = useCallback((doc: string) => {
-    setSelectDoc(doc);
+  const setSelectDocHandler = useCallback((docId: string) => {
+    setSelectDocId(docId);
   }, []);
 
   const setShowAddDocument = useCallback(() => {
@@ -215,6 +226,7 @@ export function SidebarProvider({
   }, []);
 
   const setDocumentsHandler = useCallback((docs: any[]) => {
+    console.log(docs);
     setDocuments(docs);
   }, []);
 
@@ -276,6 +288,7 @@ export function SidebarProvider({
         documents,
         setDocuments: setDocumentsHandler,
         selectDoc,
+        selectedDoc,
         setSelectDoc: setSelectDocHandler,
         setShowAddDocument,
         handleBack,

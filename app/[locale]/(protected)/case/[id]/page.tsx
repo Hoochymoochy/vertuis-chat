@@ -5,7 +5,6 @@ import { AddDocument } from "../../../../components/case/AddDocument"
 import { CaseSummary } from "../../../../components/case/CaseSummary"
 import { DocumentContent } from "../../../../components/case/DocumentContent"
 import { useCaseDetail } from "../../../../hooks/Case/useCaseDetail"
-import { useEffect } from "react"
 
 export default function DocumentPage() {
   const {
@@ -41,11 +40,8 @@ export default function DocumentPage() {
     )
   }
 
-  // if (!caseItem) return null
-
   return (
     <>
-
       <AddDocument
         showAddDocument={isAddingDocument}
         closeAddDocumentModal={toggleAddDocument}
