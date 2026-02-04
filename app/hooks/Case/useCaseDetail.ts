@@ -14,10 +14,9 @@ export function useCaseDetail() {
   const router = useRouter()
   const locale = useLocale()
 
-  const { setShowAddDocument, isAddingDocument, toggleAddDocument, setSelectCase, setDocuments } = useSidebar()
+  const { setShowAddDocument, isAddingDocument, toggleAddDocument, setSelectCase, setDocuments, documents } = useSidebar()
 
   const [caseItem, setCaseItem] = useState<Case | null>(null)
-  const [documents, wil] = useState<Document[]>([])
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
 
   const [caseSummaries, setCaseSummaries] = useState("")
@@ -86,10 +85,9 @@ export function useCaseDetail() {
     setIsSubmitting(true)
 
     try {
-      const res = await addDocument(caseId, documentTitle, file, lang)
-      const newDoc = res.data[0]
-
-      setDocuments(prev => [...prev, newDoc])
+      const newDoc = await addDocument(caseId, documentTitle, file, lang)
+      console.log("New document:", newDoc)
+      setDocuments([...documents, newDoc])
       setSelectedDoc(newDoc)
 
       toggleAddDocument()
