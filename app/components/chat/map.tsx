@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import WorldToCountryMap from "./jurisdiction"
+import WorldToCountryMap from "./WorldToCountryMap"
 
 type MapProps = {
     openMap: boolean;
