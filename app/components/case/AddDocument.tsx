@@ -8,9 +8,10 @@ type Props = {
     setDocumentTitle: (title: string) => void
     file: File | null
     isSubmitting: boolean
+    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddDocument, documentTitle, setDocumentTitle, file, isSubmitting }: Props) {
+export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddDocument, documentTitle, setDocumentTitle, file, isSubmitting, handleFileChange }: Props) {
 
     if(!showAddDocument) {
         return <></>
@@ -51,7 +52,7 @@ export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddD
               <div className="relative">
                 <input
                   type="file"
-                  onChange={(e) => console.log(e.target.files)}
+                  onChange={(e) => handleFileChange(e)}
                   accept=".pdf,.docx,.txt"
                   className="hidden"
                   id="file-upload"

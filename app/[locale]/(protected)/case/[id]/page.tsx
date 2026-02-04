@@ -30,16 +30,8 @@ export default function DocumentPage() {
     handleGenerateNewSummary,
     toggleShowSummary,
     toggleAddDocument,
+    handleFileChange,
   } = useCaseDetail()
-
-
-  useEffect(() => {
-    if (isAddingDocument) {
-      console.log("is on ")
-    } else {
-      console.log("is off")
-    }
-  }, [isAddingDocument])
 
   if (loading) {
     return (
@@ -62,6 +54,7 @@ export default function DocumentPage() {
         setDocumentTitle={setDocumentTitle}
         file={file}
         isSubmitting={isSubmitting}
+        handleFileChange={handleFileChange}
       />
 
       <div className="relative flex-1 overflow-y-auto">

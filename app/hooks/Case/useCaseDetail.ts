@@ -69,7 +69,10 @@ export function useCaseDetail() {
     if (!e.target.files?.[0]) return
 
     const selected = e.target.files[0]
+    
     setFile(selected)
+
+    console.log("Selected file:", selected)
 
     if (!documentTitle) {
       setDocumentTitle(selected.name.replace(/\.[^/.]+$/, ""))
