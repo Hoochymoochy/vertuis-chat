@@ -14,10 +14,10 @@ export function useCaseDetail() {
   const router = useRouter()
   const locale = useLocale()
 
-  const { setShowAddDocument, isAddingDocument, toggleAddDocument, setSelectCase } = useSidebar()
+  const { setShowAddDocument, isAddingDocument, toggleAddDocument, setSelectCase, setDocuments } = useSidebar()
 
   const [caseItem, setCaseItem] = useState<Case | null>(null)
-  const [documents, setDocuments] = useState<Document[]>([])
+  const [documents, wil] = useState<Document[]>([])
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
 
   const [caseSummaries, setCaseSummaries] = useState("")

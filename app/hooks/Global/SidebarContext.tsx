@@ -55,12 +55,14 @@ type SidebarContextType = {
   // Cases & Documents
   selectedCase: Case | null;
   setSelectCase: (selectedCase: Case | null) => void;
+  setDocuments: (documents: any[]) => void;
   setCases: (cases: Case[]) => void;
   documents: any[];
   selectDoc: string;
   setSelectDoc: (doc: string) => void;
   setShowAddDocument: () => void;
   handleBack: () => void;
+
 
   // Auth
   userId: string | null;
@@ -212,6 +214,10 @@ export function SidebarProvider({
     setIsAddingDocument(true);
   }, []);
 
+  const setDocumentsHandler = useCallback((docs: any[]) => {
+    setDocuments(docs);
+  }, []);
+
   const handleBack = useCallback(() => {
     router.back();
   }, [router]);
@@ -268,6 +274,7 @@ export function SidebarProvider({
         setSelectCase,
         setCases: handleSetCases,
         documents,
+        setDocuments: setDocumentsHandler,
         selectDoc,
         setSelectDoc: setSelectDocHandler,
         setShowAddDocument,

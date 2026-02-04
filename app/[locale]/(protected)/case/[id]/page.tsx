@@ -5,6 +5,7 @@ import { AddDocument } from "../../../../components/case/AddDocument"
 import { CaseSummary } from "../../../../components/case/CaseSummary"
 import { DocumentContent } from "../../../../components/case/DocumentContent"
 import { useCaseDetail } from "../../../../hooks/Case/useCaseDetail"
+import { useEffect } from "react"
 
 export default function DocumentPage() {
   const {
@@ -31,6 +32,15 @@ export default function DocumentPage() {
     toggleAddDocument,
   } = useCaseDetail()
 
+
+  useEffect(() => {
+    if (isAddingDocument) {
+      console.log("is on ")
+    } else {
+      console.log("is off")
+    }
+  }, [isAddingDocument])
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -39,11 +49,10 @@ export default function DocumentPage() {
     )
   }
 
-  if (!caseItem) return null
+  // if (!caseItem) return null
 
   return (
-    <div className="relative min-h-screen flex overflow-hidden bg-[url('/marble.jpg')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+    <>
 
       <AddDocument
         showAddDocument={isAddingDocument}
@@ -73,6 +82,6 @@ export default function DocumentPage() {
           />
         </div>
       </div>
-    </div>
+    </>
   )
 }
