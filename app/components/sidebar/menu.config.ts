@@ -71,7 +71,7 @@ export const settingsbarSections = [
 
 export const documentsbarSections = [
   {
-    title: "Documents",
+    title: "Docs",
     items: [
       { icon: DocumentBlank, label: "All Documents", isActive: true, id: 1 },
       { icon: FolderOpen, label: "By Case", id: 2 },

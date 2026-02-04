@@ -7,3 +7,10 @@ export interface Case {
   created_at: string;
   updated_at: string;
 }
+
+export type Document = {
+  id: number;
+  title: string;
+  file_path: string;
+  file_type: string;
+};

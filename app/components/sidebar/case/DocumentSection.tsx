@@ -11,16 +11,16 @@ export function DocumentSection() {
   const { 
     isCollapsed,
     handleBack,
-    castItem,
+    selectedCase,
     documents,
     selectDoc,
     setShowAddDocument,
     setSelectDoc
   } = useSidebar();
 
-  const isOpen = castItem?.status
-  const updatedDate = castItem?.updated_at 
-    ? new Date(castItem.updated_at).toLocaleDateString() 
+  const isOpen = selectedCase?.status
+  const updatedDate = selectedCase?.updated_at 
+    ? new Date(selectedCase.updated_at).toLocaleDateString() 
     : "—"
 
   return (
@@ -38,7 +38,7 @@ export function DocumentSection() {
 
         {/* Case Title */}
         <h1 className="font-bold text-2xl mb-3 text-white">
-          {castItem?.title || "New Case"}
+          {selectedCase?.title || "New Case"}
         </h1>
 
         {/* Status Badge */}

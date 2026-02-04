@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { supabase } from "@/app/lib/supabaseClient";
 import { getCountry, getState, getLanguage, setLanguage } from "@/app/lib/user";
 import { getAllChat } from "@/app/lib/chat";
+import { Case } from "@/app/components/case/type";
 
 export interface Chat {
   id: string;
@@ -51,12 +52,14 @@ type SidebarContextType = {
   newChat: () => void;
   openChat: (id: string) => void;
 
-  // Documents
-  castItem: string;
+  // Cases & Documents
+  selectedCase: Case | null;
+  setSelectCase: (selectedCase: Case | null) => void;
+  setCases: (cases: Case[]) => void;
   documents: any[];
   selectDoc: string;
-  setShowAddDocument: () => void;
   setSelectDoc: (doc: string) => void;
+  setShowAddDocument: () => void;
   handleBack: () => void;
 
   // Auth
@@ -73,52 +76,52 @@ export function SidebarProvider({
   children: ReactNode;
   userId: string | null;
 }) {
-  // Modal state (from useAddCase)
+  // Modal states
   const [isAdding, setIsAdding] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
-  // Active section (from useSidebarUI)
+  
+  // Active section
   const [activeSection, setActiveSection] = useState("home");
 
-  // Sidebar UI (from useSidebarUI)
+  // Sidebar UI
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  // Map UI (from useMapUI)
+  // Map UI
   const [isMapCollapsed, setIsMapCollapsed] = useState(false);
 
-  // User preferences (from useUserPreferences)
+  // User preferences
   const [lang, setLang] = useState("en");
   const [country, setCountry] = useState<string | null>("World");
   const [state, setState] = useState<string | null>("N/A");
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
 
-  // Chats (from useChats)
+  // Chats
   const [chats, setChats] = useState<Chat[]>([]);
 
-  // Documents (from useDocuments)
-  const [castItem, setCastItem] = useState("");
-  const [documents, setDocuments] = useState([]);
+  // Cases & Documents
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [selectDoc, setSelectDoc] = useState("");
 
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
 
-  // Update active section based on pathname (from useSidebar)
+  // Update active section based on pathname
   useEffect(() => {
-    // Remove locale prefix for cleaner matching
     const pathWithoutLocale = pathname.replace(`/${locale}`, '');
     
     if (pathWithoutLocale.startsWith("/chat")) {
       setActiveSection("chat");
     } 
-    // Check for /case/[id] BEFORE checking for /case
     else if (pathWithoutLocale.match(/^\/case\/[^/]+/)) {
-      setActiveSection("documents");  // ✅ /case/123 → documents
+      setActiveSection("documents");
     } 
     else if (pathWithoutLocale === "/case") {
-      setActiveSection("case");  // ✅ /case → case list
+      setActiveSection("case");
     } 
     else if (pathWithoutLocale.startsWith("/settings")) {
       setActiveSection("settings");
@@ -128,7 +131,7 @@ export function SidebarProvider({
     }
   }, [pathname, locale]);
 
-  // Load user preferences (from useUserPreferences)
+  // Load user preferences
   useEffect(() => {
     if (!userId) return;
 
@@ -143,7 +146,7 @@ export function SidebarProvider({
     });
   }, [userId]);
 
-  // Load chats (from useChats)
+  // Load chats
   useEffect(() => {
     if (!userId) return;
     getAllChat(userId).then(setChats);
@@ -152,9 +155,7 @@ export function SidebarProvider({
   // Modal actions
   const toggleAddCase = useCallback(() => setIsAdding((v) => !v), []);
   const closeAddCase = useCallback(() => setIsAdding(false), []);
-
   const toggleAddDocument = useCallback(() => setIsAddingDocument((v) => !v), []);
-  const closeAddDocument = useCallback(() => setIsAddingDocument(false), []);
 
   // Sidebar UI actions
   const toggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
@@ -169,11 +170,10 @@ export function SidebarProvider({
 
   // Map UI actions
   const toggleMapCollapse = useCallback(() => setIsMapCollapsed((v) => !v), []);
-
-  // User preferences actions
   const openMap = useCallback(() => setIsMapOpen(true), []);
   const closeMap = useCallback(() => setIsMapOpen(false), []);
-  
+
+  // User preferences actions
   const changeLanguage = useCallback(async (code: string) => {
     setLang(code);
     if (userId) await setLanguage(userId, code);
@@ -189,25 +189,32 @@ export function SidebarProvider({
   // Chat actions
   const newChat = useCallback(() => {
     router.push(`/${locale}/chat`);
-    console.log("New chat");
   }, [router, locale]);
 
   const openChat = useCallback((id: string) => {
     router.push(`/${locale}/chat/${id}`);
   }, [router, locale]);
 
-  // Document actions
-  const handleBack = useCallback(() => {
-    // Implement your back logic here
+  // Case & Document actions
+  const setSelectCase = useCallback((caseItem: Case | null) => {
+    setSelectedCase(caseItem);
   }, []);
 
-  const setShowAddDocument = useCallback(() => {
-    // Implement your add document logic here
+  const handleSetCases = useCallback((newCases: Case[]) => {
+    setCases(newCases);
   }, []);
 
   const setSelectDocHandler = useCallback((doc: string) => {
     setSelectDoc(doc);
   }, []);
+
+  const setShowAddDocument = useCallback(() => {
+    setIsAddingDocument(true);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   // Auth actions
   const handleLogout = useCallback(async () => {
@@ -224,7 +231,6 @@ export function SidebarProvider({
         closeAddCase,
         isAddingDocument,
         toggleAddDocument,
-        
         
         // Active section
         activeSection,
@@ -257,13 +263,14 @@ export function SidebarProvider({
         newChat,
         openChat,
         
-        
-        // Documents
-        castItem,
+        // Cases & Documents
+        selectedCase,
+        setSelectCase,
+        setCases: handleSetCases,
         documents,
         selectDoc,
-        setShowAddDocument,
         setSelectDoc: setSelectDocHandler,
+        setShowAddDocument,
         handleBack,
         
         // Auth

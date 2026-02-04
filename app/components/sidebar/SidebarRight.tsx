@@ -30,7 +30,7 @@ const SECTION_CONFIG = {
     Component: SettingSection,
   },
   documents: {
-    title: "Documents",
+    title: "Docs",
     sections: documentsbarSections,
     Component: DocumentSection
   }
