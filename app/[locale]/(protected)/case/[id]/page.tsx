@@ -5,7 +5,8 @@ import { AddDocument } from "../../../../components/case/AddDocument"
 import { CaseSummary } from "../../../../components/case/CaseSummary"
 import { DocumentContent } from "../../../../components/case/DocumentContent"
 import { useCaseDetail } from "../../../../hooks/Case/useCaseDetail"
-
+import { CaseSummarySkeleton } from "../../../../components/case/CaseSummarySkeleton"
+import { DocumentSummarySkeleton, DocumentIframeSkeleton } from "../../../../components/case/DocumentSummarySkeleton"
 export default function DocumentPage() {
   const {
     caseItem,
@@ -32,13 +33,13 @@ export default function DocumentPage() {
     handleFileChange,
   } = useCaseDetail()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <Spinner />
+  //     </div>
+  //   )
+  // }
 
   return (
     <>
@@ -55,20 +56,33 @@ export default function DocumentPage() {
 
       <div className="relative flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8 space-y-6">
-          <CaseSummary
-            caseSummaries={caseSummaries}
-            caseItem={caseItem}
-            toggleShowSummary={toggleShowSummary}
-            showSummary={showSummary}
-            handleGenerateNewSummary={handleGenerateNewSummary}
-            isGeneratingSummary={isGeneratingSummary}
-          />
-
-          <DocumentContent
-            selectedDoc={selectedDoc}
-            switchingTab={switchingTab}
-            setSwitchingTab={setSwitchingTab}
-          />
+          {
+            loading ? (
+              <CaseSummarySkeleton />
+            ) : (
+                <CaseSummary
+                caseSummaries={caseSummaries}
+                caseItem={caseItem}
+                toggleShowSummary={toggleShowSummary}
+                showSummary={showSummary}
+                handleGenerateNewSummary={handleGenerateNewSummary}
+                isGeneratingSummary={isGeneratingSummary}
+              />
+            )
+          }
+          {
+            loading ? (
+              <DocumentSummarySkeleton />
+              
+            ) : (
+                <DocumentContent
+                caseItem={caseItem}
+                selectedDoc={selectedDoc}
+                switchingTab={switchingTab}
+                setSwitchingTab={setSwitchingTab}
+              />
+            )
+          }
         </div>
       </div>
     </>

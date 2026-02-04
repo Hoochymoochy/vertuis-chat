@@ -16,7 +16,6 @@ export function DocumentSection() {
     selectDoc,
     setShowAddDocument,
     setSelectDoc,
-    setDocuments
   } = useSidebar();
 
   const isOpen = selectedCase?.status
