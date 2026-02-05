@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { supabase } from "@/app/lib/supabaseClient";
 import { getCountry, getState, getLanguage, setLanguage } from "@/app/lib/user";
-import { getAllChat } from "@/app/lib/chat";
+import { getAllChats } from "@/app/lib/chat";
 import { Case } from "@/app/components/case/type";
 
 export interface Chat {
@@ -152,7 +152,7 @@ export function SidebarProvider({
   // Load chats
   useEffect(() => {
     if (!userId) return;
-    getAllChat(userId).then(setChats);
+    getAllChats(userId).then(setChats);
   }, [userId]);
 
   // Update selectedDoc when selectDoc or documents change

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addChat, addMessage } from "@/app/lib/chat";
+import { addChat } from "@/app/lib/chat";
+import { addMessage } from "@/app/lib/message";
 import { uploadFileSupabase } from "@/app/lib/file-upload";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;

@@ -10,26 +10,18 @@ interface WorldToCountryMapProps {
 
 export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps) {
   const {
-    currentView,
     selectedState,
     hoveredRegion,
-    isOnboarding,
-    canCloseMap,
     setHoveredRegion,
     handleStateClick,
     getStateFillColor,
   } = useWorldToCountryMap(setOpenMap)
-
-  const getDisplayCountryName = () => {
-    return currentView === 'Brazil' 
-  }
 
   return (
     <div className="relative">
       {/* Info Cards */}
       <div className="flex flex-col items-center justify-center gap-3 mt-5">
         {/* Instruction Card */}
-        {!isOnboarding && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -66,7 +58,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
               </p>
             </div>
           </motion.div>
-        )}
 
         {/* Status Card */}
         <motion.div
@@ -82,15 +73,6 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
           />
           <div className="relative">
             <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">
-                    Country:
-                  </span>
-                  <span className="text-white text-sm font-medium">
-                    {getDisplayCountryName()}
-                  </span>
-                </div>
-                <div className="h-px bg-gold/20" />
                 <div className="flex items-center justify-between">
                   <span className="text-gold/80 text-xs uppercase tracking-wider font-semibold">
                     {hoveredRegion 
@@ -110,18 +92,15 @@ export default function WorldToCountryMap({ setOpenMap }: WorldToCountryMapProps
 
       {/* Close Button */}
       <motion.button
-        onClick={() => canCloseMap && setOpenMap(false)}
-        disabled={!canCloseMap}
+        onClick={() => setOpenMap(false)}
         className={`absolute top-1 right-1 z-10 bg-black/60 backdrop-blur-sm border border-gold/30 px-3 py-2 transition-all group ${
-          canCloseMap 
-            ? 'hover:bg-black/70 hover:border-red-500/50 cursor-pointer' 
-            : 'opacity-30 cursor-not-allowed'
+          'hover:bg-black/70 hover:border-red-500/50 cursor-pointer' 
         }`}
-        whileHover={canCloseMap ? { scale: 1.05, rotate: 90 } : {}}
-        whileTap={canCloseMap ? { scale: 0.95 } : {}}
+        whileHover={ { scale: 1.05 } }
+        whileTap={{ scale: 0.95 }}
       >
         <span className={`text-xl transition-colors ${
-          canCloseMap ? 'text-gold group-hover:text-red-400' : 'text-gray-500'
+        'text-gold group-hover:text-red-400' 
         }`}>
           ✕
         </span>

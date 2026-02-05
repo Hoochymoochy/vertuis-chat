@@ -125,9 +125,6 @@ export function ChatSection() {
               </span>
             </div>
             <div className="text-white text-sm">
-              <span className="text-gold/80">{t("country")}:</span> {country || t("global")}
-            </div>
-            <div className="text-white text-sm">
               <span className="text-gold/80">{t("state")}:</span> {state || "N/A"}
             </div>
             <div className="mt-2 text-xs text-gold/60 group-hover:text-gold/80 transition-colors">
