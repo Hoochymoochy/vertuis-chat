@@ -2,9 +2,11 @@ import Link from "next/link"
 import { useState } from "react"
 import { Case } from "@/app/components/case/type"
 import { formatUpdatedTime, useformatUpdatedTime } from "@/app/hooks/Case/useformatUpdatedTime"
+import { useLocale } from "next-intl";
 
 
-export function CaseList({ cases, locale }: { cases: Case[]; locale: string }) {
+export function CaseList({ cases }: { cases: Case[]; }) {
+  const locale = useLocale()
   const [visibleItems, setVisibleItems] = useState<number[]>([])
   const sortedCases = useformatUpdatedTime(cases, setVisibleItems)
 
