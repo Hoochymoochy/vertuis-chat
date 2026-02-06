@@ -6,22 +6,23 @@ import { useEffect, ReactNode } from "react";
 
 export function AuthGuard({ 
   children, 
-  locale 
+  locale,
+  userId
 }: { 
   children: ReactNode; 
   locale: string;
+  userId: string | null
 }) {
   const router = useRouter();
-  const auth = useAuth();
 
   useEffect(() => {
-    if (!auth.user === null) {
+    if (!userId === null) {
       router.push(`/${locale}/login`);
     }
-  }, [auth.user, locale, router]);
+  }, [userId, locale, router]);
 
-  if (!auth.user) {
-    return null; // or a loading spinner
+  if (!userId) {
+    return null;
   }
 
   return <>{children}</>;

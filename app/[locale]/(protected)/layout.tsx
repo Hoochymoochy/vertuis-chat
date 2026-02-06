@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import { Sidebar } from "@/app/components/sidebar/Sidebar";
 import { AuthGuard } from "@/app/components/global/AuthGaurd";
 import { SidebarWrapper } from "@/app/hooks/Global/SidebarWrapper";
+import { useAuth } from "@/app/hooks/Auth/useAuth";
 
 export default async function LocaleLayout({
   children,
@@ -14,6 +15,7 @@ export default async function LocaleLayout({
   children: ReactNode;
   params: { locale: string };
 }) {
+  const { userId } = useAuth();
   const { locale } = params;
 
   let messages;
@@ -25,8 +27,8 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <AuthGuard locale={locale}>
-        <SidebarWrapper userId={null}>
+      <AuthGuard locale={locale} userId={userId}>
+        <SidebarWrapper userId={userId}>
           <div className="relative min-h-screen w-full bg-[url('/marble.jpg')] bg-cover bg-center">
             
             {/* Visual overlays */}
