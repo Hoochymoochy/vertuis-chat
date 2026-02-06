@@ -1,51 +1,50 @@
 import { useState } from "react";
-import { addMessage, uploadFileToStorage } from "@/app/lib/chat";
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function useChatSubmit(
   chatId: string | null,
   userId: string | null,
   isLoading: boolean,
   setMessages: React.Dispatch<React.SetStateAction<any[]>>,
-  triggerAIResponse: (msg: string, chatId: string, userId: string, setMessages: any, filePath?: string | null, fileName?: string | null) => Promise<void>,
+  triggerAIResponse: (msg: string, chatId: string, setMessages: any) => Promise<void>,
   setFailed: (failed: boolean) => void
 ) {
-  const handleSubmit = async (message: string, file?: File | null) => {
-    if ((!message.trim() && !file) || !chatId || !userId || isLoading) return;
+  const handleSubmit = async (message: string) => {
+    if (!message.trim() || !chatId || !userId || isLoading) return;
 
     const userMessage = message.trim();
-    let uploadedFilePath: string | null = null;
-    let uploadedFileName: string | null = null;
-    let tempMsg: any = null;
+    const tempId = `temp-user-${Date.now()}`;
 
     try {
-      if (file) {
-        const { path } = await uploadFileToStorage(file, userId);
-        uploadedFilePath = path;
-        uploadedFileName = file.name;
-      }
-
-      const tempId = `temp-user-${Date.now()}`;
-      const displayMessage = userMessage || `Summarizing your file...`;
-      tempMsg = {
+      // Add temp message to UI
+      const tempMsg = {
         id: tempId,
         sender: "user",
-        message: displayMessage,
+        message: userMessage,
         created_at: new Date().toISOString(),
-        file_path: uploadedFilePath,
-        file_name: uploadedFileName
       };
       setMessages(prev => [...prev, tempMsg]);
       
-      await addMessage(chatId, "user", displayMessage, uploadedFilePath ?? "", uploadedFileName ?? "");
+      // Send message to backend
+      await fetch(`${backendUrl}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          chat_id: chatId, 
+          sender: 'user', 
+          message: userMessage 
+        }),
+      });
+
       await new Promise(r => setTimeout(r, 400));
       
-      await triggerAIResponse(userMessage, chatId, userId, setMessages, uploadedFilePath, uploadedFileName);
+      // Trigger AI response
+      await triggerAIResponse(userMessage, chatId, setMessages);
     } catch (err) {
       console.error("Failed to send message:", err);
       setFailed(true);
-      if (tempMsg) {
-        setMessages((prev) => prev.filter(m => m.id !== tempMsg.id));
-      }
+      setMessages((prev) => prev.filter(m => m.id !== tempId));
     }
   };
 

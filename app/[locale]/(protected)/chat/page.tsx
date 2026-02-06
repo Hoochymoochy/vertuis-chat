@@ -4,12 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import Map from "../../../components/chat/map";
-import Spinner from "../../../components/global/spinner";
 import InputBox from "../../../components/chat/inputbox";
 import { useAuth } from "@/app/hooks/Auth/useAuth";
 import useInitialChat from "@/app/hooks/Chat/useInitialChat";
-import useFileDrop from "@/app/hooks/Case/useFileDrop";
-import Overlay from "../../../components/chat/overlay";
 import { Tagline } from "@/app/components/chat/Tagline";
 import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
@@ -20,15 +17,8 @@ export default function Chat() {
 
   const { isMapCollapsed, toggleMapCollapse, isCollapsed } = useSidebar();
 
-  
   const { userId, isCheckingAuth, needsOnboarding } = useAuth();
   const { isLoading, failed, startChat } = useInitialChat(userId);
-  
-  const { isDragging, droppedFile, dragHandlers, clearDroppedFile } = useFileDrop({
-    acceptedFileTypes: ['.pdf', '.docx', '.txt'],
-    maxFileSize: 10,
-    onError: (message) => alert(message),
-  });
 
   const smoothSpring: Transition = { 
     type: "spring", 
@@ -37,10 +27,9 @@ export default function Chat() {
     mass: 0.8
   };
 
-  const handleSubmit = async (message: string, file?: File | null) => {
+  const handleSubmit = async (message: string) => {
     setIsSubmitted(true);
-    await startChat(message, locale, file);
-    clearDroppedFile();
+    await startChat(message, locale);
   };
 
   useEffect(() => {
@@ -49,58 +38,11 @@ export default function Chat() {
     }
   }, [needsOnboarding]);
 
-
   return (
     <div className="relative flex flex-col h-screen z-0">      
       
-      <Overlay isDragging={isDragging} />
       <Map openMap={isMapCollapsed} setOpenMap={toggleMapCollapse} needsOnboarding={needsOnboarding} />
 
-      {/* Enhanced Onboarding overlay */}
-      <AnimatePresence>
-        {needsOnboarding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-            className="absolute inset-0 bg-black/80 backdrop-blur-xl z-30 flex items-center justify-center px-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ 
-                type: 'spring', 
-                stiffness: 100, 
-                damping: 20,
-                delay: 0.1 
-              }}
-              className="relative bg-gradient-to-br from-gold/10 via-transparent to-gold/5 border border-gold/20 rounded-2xl p-10 max-w-lg w-full text-center shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_80px_rgba(255,215,0,0.08)]"
-            >
-              {/* Decorative corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-gold/30 rounded-tl-2xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-gold/30 rounded-br-2xl" />
-              
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                className="w-20 h-20 mx-auto mb-8 rounded-full border-[3px] border-gold/15 border-t-gold/60 shadow-[0_0_30px_rgba(255,215,0,0.15),inset_0_0_20px_rgba(255,215,0,0.05)]"
-              />
-              
-              <h2 className="text-4xl font-serif font-bold text-white mb-4 tracking-tight">
-                {t("welcomeTitle")}
-              </h2>
-              
-              <p className="text-gold/70 text-base leading-relaxed max-w-md mx-auto">
-                {t("welcomeMessage")}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Chat Container with improved layout */}
       <motion.div
         layout
         className={`relative flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 transition-all duration-700 ease-out ${
@@ -109,7 +51,6 @@ export default function Chat() {
             : 'justify-center min-h-screen'
         } ${needsOnboarding ? 'pointer-events-none opacity-40' : ''}`}
       >
-        {/* Logo with enhanced animations */}
         <motion.div
           layout
           animate={{ 
@@ -137,7 +78,6 @@ export default function Chat() {
               VERITUS
             </motion.span>
             
-            {/* Subtle glow effect on hover */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"
               aria-hidden="true"
@@ -145,7 +85,6 @@ export default function Chat() {
           </motion.h1>
         </motion.div>
 
-        {/* Improved Error Toast */}
         <AnimatePresence mode="wait">
           {failed && (
             <motion.div
@@ -171,7 +110,6 @@ export default function Chat() {
           )}
         </AnimatePresence>
 
-        {/* Enhanced Input Box with better spacing */}
         <motion.div
           layout
           className="w-full max-w-3xl"
@@ -184,16 +122,11 @@ export default function Chat() {
             isLoading={isLoading}
             disabled={needsOnboarding}
             placeholder={t("placeholder")}
-            filePlaceholder={t("filePlaceholder")}
-            acceptedFileTypes=".pdf,.docx,.txt"
-            showFileUpload={true}
-            maxFileSize={10}
-            droppedFile={droppedFile}
+            showFileUpload={false}
           />
         </motion.div>
       </motion.div>
 
-      {/* Enhanced Tagline with better typography */}
       <Tagline
         needsOnboarding={needsOnboarding}
         isSubmitted={isSubmitted}

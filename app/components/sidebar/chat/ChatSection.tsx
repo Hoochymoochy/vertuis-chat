@@ -3,18 +3,9 @@ import { motion } from "framer-motion";
 import { Chat as ChatIcon } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
-import { useSidebar } from "../../../hooks/Global/SidebarContext";
-
+import { useChats } from "@/app/hooks/Chat/useChat";
 export function ChatSection() {
-  const { 
-    isCollapsed, 
-    chats, 
-    openChat, 
-    newChat, 
-    toggleMapCollapse,
-    country,
-    state 
-  } = useSidebar();
+  const { isCollapsed, chats, newChat, openChat, toggleMapCollapse, state } = useChats();
 
   // Translation function - you can implement this based on your i18n setup
   const t = (key: string) => key;

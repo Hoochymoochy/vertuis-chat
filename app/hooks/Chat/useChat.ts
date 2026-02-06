@@ -1,28 +1,44 @@
 import { useCallback, useEffect, useState } from "react";
-import { getAllChat } from "@/app/lib/chat";
+import { getAllChats } from "@/app/lib/chat";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { useSidebar } from "../Global/SidebarContext";
+import { useAuth } from "../Auth/useAuth";
 
 export interface Chat {
   id: string;
   title: string;
 }
 
-export function useChats(userId: string | null) {
+export function useChats() {
+  const { isCollapsed, toggleMapCollapse } = useSidebar();
+  const { userId } = useAuth()
+  const [state] = useState<string | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const router = useRouter();
   const locale = useLocale();
 
   useEffect(() => {
-    if (!userId) return;
-    getAllChat(userId).then(setChats);
+    if (userId) {
+      getAllChats(userId).then(setChats);
+      console.log("Chats:", chats);
+    }
   }, [userId]);
 
+  const newChat = useCallback(() => {
+    router.push(`/${locale}/chat`);
+  }, [router, locale]);
+
+  const openChat = useCallback((id: string) => {
+    router.push(`/${locale}/chat/${id}`);
+  }, [router, locale]);
 
   return {
+    isCollapsed,
     chats,
-    newChat: () => router.push(`/${locale}/chat`),
-    openChat: (id: string) =>
-      router.push(`/${locale}/chat/${id}`),
+    newChat,
+    openChat,
+    toggleMapCollapse,
+    state
   };
 }

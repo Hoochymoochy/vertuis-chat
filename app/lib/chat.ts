@@ -2,7 +2,7 @@
 
 import { supabase } from './supabaseClient'
 
-const backendUrl = process.env.NEXT_PUBLIC_CHAT_RULE
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
 
 if (!backendUrl) {
   throw new Error('NEXT_PUBLIC_CASE_RULE is not defined')

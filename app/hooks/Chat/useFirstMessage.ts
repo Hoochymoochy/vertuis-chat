@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getChatLength, getLatestMessage, getAllMessage } from "@/app/lib/chat";
+import { getMessages } from "@/app/lib/message";
 
 export default function useFirstMessage(
   chatId: string | null,
@@ -15,7 +15,8 @@ export default function useFirstMessage(
 
     const initChat = async () => {
       hasProcessedFirstMessage.current = true;
-      const length = await getChatLength(chatId);
+      const length = await getMessages(chatId);
+      console.log('length', length)
             
       if (length >= 1) {
         const firstMessage = await getLatestMessage(chatId);

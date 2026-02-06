@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
-import question from "@/app/lib/question";
-import { uploadFileSSE } from "@/app/lib/file-upload";
-import { addMessage, getPublicUrl } from "@/app/lib/chat";
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function useAIResponse() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,17 +10,13 @@ export default function useAIResponse() {
   const triggerAIResponse = async (
     msg: string,
     chatId: string,
-    userId: string,
-    setMessages: React.Dispatch<React.SetStateAction<any[]>>,
-    filePath?: string | null,
-    fileName?: string | null
+    setMessages: React.Dispatch<React.SetStateAction<any[]>>
   ) => {
     if (isProcessingAI.current) return;
     isProcessingAI.current = true;
     
     setIsLoading(true);
     setFailed(false);
-    let aiMessage = "";
     const streamingId = `temp-ai-${Date.now()}`;
 
     // Show loading indicator
@@ -33,42 +28,73 @@ export default function useAIResponse() {
     }]);
 
     try {
-      const handleToken = (token: string) => {
-        aiMessage += token;
-        setMessages((prev) => {
-          const withoutLoading = prev.filter(
-            m => !(m.message === "..." && m.id === streamingId)
-          );
-          
-          const hasStreaming = withoutLoading.some(m => m.id === streamingId);
-          if (hasStreaming) {
-            return withoutLoading.map(m => 
-              m.id === streamingId 
-                ? { ...m, message: aiMessage }
-                : m
-            );
-          } else {
-            return [...withoutLoading, { 
-              sender: "ai", 
-              message: aiMessage, 
-              id: streamingId,
-              created_at: new Date().toISOString()
-            }];
+      const response = await fetch(`${backendUrl}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: msg,
+          chat_id: chatId,
+          language: 'en' // You may want to pass this as a parameter
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to get AI response');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let aiMessage = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const token = line.slice(6);
+              
+              if (token === '[DONE]') {
+                // Message is already saved by backend, just update UI
+                setMessages((prev) => 
+                  prev.map(m => 
+                    m.id === streamingId 
+                      ? { ...m, message: aiMessage }
+                      : m
+                  )
+                );
+                break;
+              }
+
+              aiMessage += token;
+              
+              setMessages((prev) => {
+                const withoutLoading = prev.filter(
+                  m => !(m.message === "..." && m.id === streamingId)
+                );
+                
+                const hasStreaming = withoutLoading.some(m => m.id === streamingId);
+                if (hasStreaming) {
+                  return withoutLoading.map(m => 
+                    m.id === streamingId 
+                      ? { ...m, message: aiMessage }
+                      : m
+                  );
+                } else {
+                  return [...withoutLoading, { 
+                    sender: "ai", 
+                    message: aiMessage, 
+                    id: streamingId,
+                    created_at: new Date().toISOString()
+                  }];
+                }
+              });
+            }
           }
-        });
-      };
-
-      if (filePath && fileName) {
-        const fileUrl = await getPublicUrl(filePath);
-        const downloadRes = await fetch(fileUrl);
-        const blob = await downloadRes.blob();
-        const file = new File([blob], fileName, { type: blob.type });
-        await uploadFileSSE(file, userId, "en", handleToken);
-      } else {
-        await question(msg, chatId, handleToken);
+        }
       }
-
-      await addMessage(chatId, "ai", aiMessage);
     } catch (err) {
       console.error("AI response failed:", err);
       setFailed(true);

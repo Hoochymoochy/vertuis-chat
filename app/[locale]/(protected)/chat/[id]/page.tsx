@@ -7,13 +7,11 @@ import { useTranslations } from "next-intl";
 import ChatBubble from "../../../../components/chat/bubble";
 import Map from "../../../../components/chat/map";
 import InputBox from "../../../../components/chat/inputbox";
-import Overlay from "../../../../components/chat/overlay";
 import { useAuth } from "@/app/hooks/Auth/useAuth";
 import useChatMessages from "@/app/hooks/Chat/useChatMessages";
 import useAIResponse from "@/app/hooks/Chat/useAIResponse";
 import useFirstMessage from "@/app/hooks/Chat/useFirstMessage";
 import useChatSubmit from "@/app/hooks/Chat/useChatSubmit";
-import useFileDrop from "@/app/hooks/Case/useFileDrop";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
@@ -35,20 +33,12 @@ export default function ChatPage() {
     setFailed
   );
 
-  const { isDragging, droppedFile, dragHandlers, clearDroppedFile } = useFileDrop({
-    acceptedFileTypes: ['.pdf', '.docx', '.txt'],
-    maxFileSize: 10,
-    onError: (message) => alert(message),
-  });
-
-  // Initialize chat ID from params
   useEffect(() => {
     if (params.id) {
       setChatId(params.id as string);
     }
   }, [params.id]);
 
-  // Handle first message auto-response
   useFirstMessage(
     chatId,
     userId,
@@ -57,17 +47,11 @@ export default function ChatPage() {
     setMessages
   );
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
-
-  const handleChatSubmit = async (message: string, file?: File | null) => {
-    await handleSubmit(message, file);
-    clearDroppedFile();
-  };
 
   if (isCheckingAuth) {
     return (
@@ -81,24 +65,17 @@ export default function ChatPage() {
   }
 
   return (
-    <div 
-      className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative"
-      {...dragHandlers}
-    >
+    <div className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
-      <Overlay isDragging={isDragging} />
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
-      {/* Header */}
       <div className="relative flex justify-center items-center pt-6 pb-4">
         <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]">
           <span className="text-gradient">VERITUS</span>
         </h1>
       </div>
 
-      {/* Main Content */}
       <div className="relative grow flex flex-col items-center w-full pb-12">
-        {/* Messages Container */}
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
           <div className="space-y-4">
             {deduplicateMessages(messages).map((msg, index) => {
@@ -116,11 +93,6 @@ export default function ChatPage() {
                 >
                   {msg.sender === "user" ? (
                     <div className="max-w-xs bg-gold/20 border border-gold/30 px-4 py-3 rounded-lg">
-                      {msg.file_name && (
-                        <div className="text-xs text-gold/70 mb-1 flex items-center gap-1">
-                          📎 {msg.file_name}
-                        </div>
-                      )}
                       <p className="text-white text-sm">{msg.message}</p>
                     </div>
                   ) : msg.message === "..." ? (
@@ -147,7 +119,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Error Message */}
         {failed && (
           <div className="max-w-xs bg-red-500/20 border border-red-500/30 rounded-2xl px-4 py-3 mb-4">
             <p className="text-red-200 text-sm">
@@ -156,21 +127,15 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Input Box */}
         <InputBox
-          onSubmit={handleChatSubmit}
+          onSubmit={handleSubmit}
           isLoading={isLoading}
           disabled={false}
           placeholder={tChat("placeholder")}
-          filePlaceholder={t("continuePrompt")}
-          acceptedFileTypes=".pdf,.docx,.txt"
-          showFileUpload={true}
-          maxFileSize={10}
-          droppedFile={droppedFile}
+          showFileUpload={false}
         />
       </div>
       
-      {/* Auto-scroll anchor */}
       <div ref={messagesEndRef} />
     </div>
   );

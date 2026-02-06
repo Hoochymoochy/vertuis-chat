@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addChat } from "@/app/lib/chat";
-import { addMessage } from "@/app/lib/message";
-import { uploadFileSupabase } from "@/app/lib/file-upload";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -11,8 +8,8 @@ export default function useInitialChat(userId: string | null) {
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const startChat = async (message: string, locale: string, file?: File | null) => {
-    if ((!message.trim() && !file) || !userId || isLoading) return;
+  const startChat = async (message: string, locale: string) => {
+    if (!message.trim() || !userId || isLoading) return;
 
     setIsLoading(true);
     setFailed(false);
@@ -22,17 +19,29 @@ export default function useInitialChat(userId: string | null) {
       const { status } = await healthRes.json();
       if (status !== "ok") throw new Error("Backend not ready");
 
-      if (file) {
-        const { id } = await addChat(userId, file.name.slice(0, 50));
-        const filePath = await uploadFileSupabase(file, id);
-        if (filePath === null) throw new Error("File upload failed");
-        await addMessage(id, "user", "Summarizing your file..." , filePath, file.name);
-        router.push(`/${locale}/chat/${id}`);
-      } else {
-        const { id } = await addChat(userId, message.slice(0, 50));
-        await addMessage(id, "user", message);
-        router.push(`/${locale}/chat/${id}`);
-      }
+      // Create chat via backend
+      const response = await fetch(`${backendUrl}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, title: message.slice(0, 50) }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create chat");
+      
+      const { id } = await response.json();
+      
+      // Add user message
+      await fetch(`${backendUrl}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          chat_id: id, 
+          sender: 'user', 
+          message: message 
+        }),
+      });
+      
+      router.push(`/${locale}/chat/${id}`);
     } catch (err) {
       console.error("Failed to start chat:", err);
       setFailed(true);

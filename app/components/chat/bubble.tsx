@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { giveFeedback } from "@/app/lib/chat"
+import { giveFeedback } from "@/app/lib/feedback"
 
 // Core feedback logic — properly awaits the backend call
 const getFeedback = async (

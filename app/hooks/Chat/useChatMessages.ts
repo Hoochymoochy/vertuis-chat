@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
-import { getAllMessage } from "@/app/lib/chat";
+import { getMessages } from "@/app/lib/message";
 
 export default function useChatMessages(chatId: string | null) {
   const [messages, setMessages] = useState<any[]>([]);
@@ -21,7 +21,7 @@ export default function useChatMessages(chatId: string | null) {
     if (!chatId) return;
 
     if (!hasLoadedInitial.current) {
-      getAllMessage(chatId).then(msgs => {
+      getMessages(chatId).then(msgs => {
         setMessages(deduplicateMessages(msgs || []));
         hasLoadedInitial.current = true;
       });
