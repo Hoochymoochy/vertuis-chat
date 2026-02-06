@@ -32,7 +32,6 @@ export default function useChatSubmit(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           chat_id: chatId, 
-          sender: 'user', 
           message: userMessage 
         }),
       });

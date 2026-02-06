@@ -4,6 +4,7 @@ import { Chat as ChatIcon } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
 import { useChats } from "@/app/hooks/Chat/useChat";
+
 export function ChatSection() {
   const { isCollapsed, chats, newChat, openChat, toggleMapCollapse, state } = useChats();
 
@@ -49,44 +50,24 @@ export function ChatSection() {
           transition={{ duration: 0.3, delay: 0.2 }}
         >
           {chats.map((chat, index) => (
-            <motion.button
-              key={chat.id}
+            <motion.div
               onClick={() => openChat(chat.id)}
+              key={chat.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{
-                delay: index * 0.05,
-                type: "spring",
-                stiffness: 300,
-                damping: 25,
-              }}
-              whileHover={{
-                scale: 1.02,
-                x: isCollapsed ? 0 : 4,
-                transition: { type: "spring", stiffness: 400, damping: 20 },
-              }}
+              transition={{ delay: index * 0.05, type: "spring", stiffness: 300, damping: 25 }}
+              whileHover={{ scale: 1.02, x: 4, transition: { type: "spring", stiffness: 400, damping: 20 } }}
               whileTap={{ scale: 0.98 }}
-              className={`
-                group w-full text-left
-                hover:bg-neutral-900 transition-all
-                border border-transparent hover:border-amber-600/20
-                ${isCollapsed ? "p-2 rounded-lg flex justify-center" : "p-3 rounded-lg"}
-              `}
-              title={isCollapsed ? chat.title : undefined}
+              className="group cursor-pointer hover:bg-gold/10 transition-all duration-200 p-3 border border-transparent hover:border-gold/20"
             >
-              {isCollapsed ? (
-                <ChatIcon size={16} className="text-neutral-50 group-hover:text-amber-500" />
-              ) : (
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <ChatIcon size={16} className="shrink-0 text-neutral-400 group-hover:text-amber-500" />
-                    <h4 className="text-neutral-50 text-sm font-medium truncate group-hover:text-amber-500 transition-colors">
-                      {chat.title}
-                    </h4>
-                  </div>
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-white text-sm font-medium truncate group-hover:text-gold transition-colors">
+                    {chat.title}
+                  </h4>
                 </div>
-              )}
-            </motion.button>
+              </div>
+            </motion.div>
           ))}
         </motion.div>
       </div>

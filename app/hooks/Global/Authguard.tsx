@@ -12,6 +12,7 @@ export function AuthGuard({
   children: (userId: string | null) => React.ReactNode;
   locale: string;
 }) {
+
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);

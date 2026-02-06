@@ -1,122 +1,43 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import ChatBubble from "../../../../components/chat/bubble";
+
 import Map from "../../../../components/chat/map";
 import InputBox from "../../../../components/chat/inputbox";
-import { useAuth } from "@/app/hooks/Auth/useAuth";
-import useChatMessages from "@/app/hooks/Chat/useChatMessages";
-import useAIResponse from "@/app/hooks/Chat/useAIResponse";
-import useFirstMessage from "@/app/hooks/Chat/useFirstMessage";
-import useChatSubmit from "@/app/hooks/Chat/useChatSubmit";
+import { ChatMessageRenderer } from "../../../../components/chat/ChatMessageRenderer";
+
+import { useChatSession } from "@/app/hooks/Chat/useChatSession";
+import { useAutoScroll } from "@/app/hooks/Chat/useAutoScroll";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
   const tChat = useTranslations("Chat");
-  const params = useParams();
-  const [chatId, setChatId] = useState<string | null>(null);
+
   const [openMap, setOpenMap] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { user, userId, isCheckingAuth } = useAuth();
-  const { messages, setMessages, deduplicateMessages } = useChatMessages(chatId);
-  const { isLoading, failed, setFailed, triggerAIResponse } = useAIResponse();
-  const { handleSubmit } = useChatSubmit(
-    chatId,
-    userId,
-    isLoading,
-    setMessages,
-    triggerAIResponse,
-    setFailed
-  );
+  const { deduplicatedMessages, isLoading, failed, handleSubmit, isCheckingAuth } = useChatSession();
 
-  useEffect(() => {
-    if (params.id) {
-      setChatId(params.id as string);
-    }
-  }, [params.id]);
-
-  useFirstMessage(
-    chatId,
-    userId,
-    !isCheckingAuth,
-    triggerAIResponse,
-    setMessages
-  );
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  if (isCheckingAuth) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[url('/marble.jpg')] bg-cover bg-center">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
-        <motion.div 
-          className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin relative z-10" 
-        />
-      </div>
-    );
-  }
+  useAutoScroll(bottomRef, [deduplicatedMessages]);
 
   return (
-    <div className="bg-[url('/marble.jpg')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"/>
+    <div className="bg-[url('/marble.jpg')] bg-cover bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+
       <Map openMap={openMap} setOpenMap={setOpenMap} />
 
-      <div className="relative flex justify-center items-center pt-6 pb-4">
-        <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight drop-shadow-[0_0_25px_rgba(255,215,0,0.15)]">
+      <header className="relative flex justify-center pt-6 pb-4">
+        <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight">
           <span className="text-gradient">VERITUS</span>
         </h1>
-      </div>
+      </header>
 
-      <div className="relative grow flex flex-col items-center w-full pb-12">
+      <main className="relative flex-1 flex flex-col items-center pb-12">
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
-          <div className="space-y-4">
-            {deduplicateMessages(messages).map((msg, index) => {
-              const uniqueKey = msg.id ? `${msg.id}` : `msg-${index}-${msg.created_at}`;
-              
-              return (
-                <motion.div
-                  key={uniqueKey}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className={`flex ${
-                    msg.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  {msg.sender === "user" ? (
-                    <div className="max-w-xs bg-gold/20 border border-gold/30 px-4 py-3 rounded-lg">
-                      <p className="text-white text-sm">{msg.message}</p>
-                    </div>
-                  ) : msg.message === "..." ? (
-                    <div className="max-w-xs bg-black/60 border border-gold/30 rounded-2xl px-4 py-3">
-                      <motion.p
-                        className="text-gold text-sm"
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        ...
-                      </motion.p>
-                    </div>
-                  ) : (
-                    <ChatBubble
-                      id={msg.id}
-                      message={msg.message}
-                      isLast={index === messages.length - 1}
-                      isStreaming={String(msg.id).startsWith('temp-ai-')}
-                    />
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
+          <ChatMessageRenderer messages={deduplicatedMessages} />
+          <div ref={bottomRef} />
         </div>
 
         {failed && (
@@ -134,9 +55,7 @@ export default function ChatPage() {
           placeholder={tChat("placeholder")}
           showFileUpload={false}
         />
-      </div>
-      
-      <div ref={messagesEndRef} />
+      </main>
     </div>
   );
 }
