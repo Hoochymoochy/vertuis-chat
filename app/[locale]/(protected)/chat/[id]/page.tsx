@@ -1,12 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import Map from "../../../../components/chat/map";
-import InputBox from "../../../../components/chat/inputbox";
-import { ChatMessageRenderer } from "../../../../components/chat/ChatMessageRenderer";
+import Map from "../../../../components/chat/Map";
+import InputBox from "../../../../components/chat/InputBox";
+import { ChatMessageRenderer } from "../../../../components/chat/LoadingMessage";
 
 import { useChatSession } from "@/app/hooks/Chat/useChatSession";
 import { useAutoScroll } from "@/app/hooks/Chat/useAutoScroll";

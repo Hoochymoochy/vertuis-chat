@@ -1,13 +1,7 @@
-import { Plus, X } from "lucide-react";
-type props = {
-    isAdding: boolean,
-    toggleAddCase: () => void
-    handleAddCase: (e: React.FormEvent<HTMLFormElement>) => void
-    isSubmitting: boolean
-}
+import type { addCase } from "./type"
+import { X } from "lucide-react";
 
-
-export function AddCase({ isAdding, toggleAddCase, handleAddCase, isSubmitting }: props) {
+export function AddCase({ isAdding, toggleAddCase, handleAddCase, isSubmitting }: addCase) {
     if(!isAdding) {
         return <></>
     }

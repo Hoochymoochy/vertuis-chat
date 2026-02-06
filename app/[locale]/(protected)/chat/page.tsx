@@ -3,8 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import Map from "../../../components/chat/map";
-import InputBox from "../../../components/chat/inputbox";
+import Map from "../../../components/chat/Map";
+import InputBox from "../../../components/chat/InputBox";
 import { Tagline } from "@/app/components/chat/Tagline";
 
 import { useSidebar } from "@/app/hooks/Global/SidebarContext";

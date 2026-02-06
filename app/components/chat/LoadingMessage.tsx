@@ -1,6 +1,6 @@
 // components/chat/ChatMessageRenderer.tsx
 import { motion } from "framer-motion";
-import ChatBubble from "./bubble";
+import ChatBubble from "./ChatBubble";
 
 export function ChatMessageRenderer({ messages }: { messages: any[] }) {
   return (

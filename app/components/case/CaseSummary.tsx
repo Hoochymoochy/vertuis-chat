@@ -1,17 +1,9 @@
 import { Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
-
-type Props = {
-    caseSummaries: string
-    caseItem: any
-    toggleShowSummary: () => void
-    showSummary: boolean
-    handleGenerateNewSummary: () => void
-    isGeneratingSummary: boolean
-}
+import { caseSummaries } from "../case/type"
 
 
-export function CaseSummary({ caseSummaries, caseItem, toggleShowSummary, showSummary, handleGenerateNewSummary, isGeneratingSummary }: Props) {
+export function CaseSummary({ caseSummaries, caseItem, toggleShowSummary, showSummary, handleGenerateNewSummary, isGeneratingSummary }: caseSummaries) {
     return (
         <div className="bg-black/40 backdrop-blur-sm border border-white/10 p-6">
         <div className="flex items-center justify-between mb-4">

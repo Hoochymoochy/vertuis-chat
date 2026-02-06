@@ -1,17 +1,7 @@
+import type { addDocument } from "./type"
 import { X, Upload} from "lucide-react"
 
-type Props = {
-    showAddDocument: boolean
-    closeAddDocumentModal: () => void
-    handleAddDocument: (e: React.FormEvent<HTMLFormElement>) => void
-    documentTitle: string
-    setDocumentTitle: (title: string) => void
-    file: File | null
-    isSubmitting: boolean
-    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}
-
-export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddDocument, documentTitle, setDocumentTitle, file, isSubmitting, handleFileChange }: Props) {
+export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddDocument, documentTitle, setDocumentTitle, file, isSubmitting, handleFileChange }: addDocument) {
 
     if(!showAddDocument) {
         return <></>

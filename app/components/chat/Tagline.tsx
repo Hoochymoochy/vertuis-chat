@@ -1,13 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { TaglineProps } from "./type";
 
-type Props = {
-  needsOnboarding: boolean;
-  isSubmitted: boolean;
-  t: (key: string) => string;
-  isCollapsed: boolean;
-};
-
-export function Tagline({ needsOnboarding, isSubmitted, t, isCollapsed }: Props) {
+export function Tagline({ needsOnboarding, isSubmitted, t, isCollapsed }: TaglineProps) {
   return (
     <AnimatePresence>
       {!isSubmitted && (

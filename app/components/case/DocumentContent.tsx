@@ -1,15 +1,9 @@
 import { Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
-
-type props = {
-    selectedDoc: any
-    switchingTab: boolean
-    setSwitchingTab: (value: boolean) => void
-    
-}
+import { documentContent } from "../case/type"
 
 
-export function DocumentContent({ selectedDoc, switchingTab, setSwitchingTab }: props) {
+export function DocumentContent({ selectedDoc, switchingTab, setSwitchingTab }: documentContent) {
     if(!selectedDoc) {
         return <></>
     }

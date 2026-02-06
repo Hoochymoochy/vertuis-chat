@@ -1,10 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { OverlayProps } from "./type";
 
-type OverlayProps = {
-  isDragging: boolean;
-};
-
-export default function Overlay({ isDragging }: OverlayProps) {
+export default function FileOverlay({ isDragging }: OverlayProps) {
   return (
     <AnimatePresence>
       {isDragging && (
