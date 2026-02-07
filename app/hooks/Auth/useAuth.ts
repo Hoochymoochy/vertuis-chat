@@ -1,66 +1,29 @@
+// app/hooks/Auth/useAuth.ts
+"use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
-import { getOnbaording } from "@/app/lib/user";
 
 export function useAuth() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id || null);
+      setIsLoading(false);
+    });
 
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        if (data.session?.user) {
-          const user = data.session.user;
-          setUser(user);
-
-          const onboarded = await getOnbaording(user.id);
-          if (!onboarded) {
-            setNeedsOnboarding(true);
-          }
-        } else {
-          router.push("/login");
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      } finally {
-        if (mounted) setIsCheckingAuth(false);
-      }
-    };
-
-    checkAuth();
-    return () => { mounted = false; };
-  }, [router]);
-
-  useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "SIGNED_OUT") {
-          router.push("/login");
-        } else if (event === "SIGNED_IN" && session) {
-          setUser(session.user);
-        }
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUserId(session?.user?.id || null);
       }
     );
 
-    return () => subscription?.subscription?.unsubscribe?.();
-  }, [router]);
-
-  useEffect(() => {
-    const handleLocationUpdate = () => {
-      setNeedsOnboarding(false);
-    };
-    
-    window.addEventListener('locationUpdated', handleLocationUpdate);
-    return () => window.removeEventListener('locationUpdated', handleLocationUpdate);
+    return () => subscription.unsubscribe();
   }, []);
 
-  return { user, userId: user?.id || null, isCheckingAuth, needsOnboarding };
+  return { userId, isLoading };
 }

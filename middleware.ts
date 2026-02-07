@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -11,13 +12,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Visiting root "/" → redirect to "/en"
+  // Visiting root "/" → redirect to default locale
   if (pathname === "/") {
     const acceptLang = request.headers.get("accept-language")?.split(",")[0] || "en";
     const defaultLocale = locales.includes(acceptLang) ? acceptLang : "en";
     return NextResponse.redirect(new URL(`/${defaultLocale}`, request.url));
   }
-
 
   // Pull the first segment (the locale)
   const pathLocale = pathname.split("/")[1];
@@ -27,7 +27,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL("/not-found", request.url));
   }
 
-  return NextResponse.next();
+  // Set pathname header for auth redirect
+  const response = NextResponse.next();
+  response.headers.set('x-pathname', pathname);
+  
+  return response;
 }
 
 export const config = {

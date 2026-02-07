@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { addCase, getAllCase } from "@/app/lib/case"
-import { useAuth } from "../Auth/useAuth"
 import { useSidebar } from "../Global/SidebarContext"
 import { Case } from "@/app/components/case/type"
 
@@ -11,8 +10,7 @@ export function useCases() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { userId } = useAuth()
-  const { toggleAddCase, isAdding } = useSidebar()
+  const { toggleAddCase, isAdding, userId } = useSidebar()
 
   useEffect(() => {
     if (!userId) return

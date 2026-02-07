@@ -1,10 +1,9 @@
 "use client";
 
 import { SidebarProvider } from "@/app/hooks/Global/SidebarContext";
-
 export function SidebarWrapper({ 
   children,
-  userId 
+  userId
 }: { 
   children: React.ReactNode;
   userId: string | null;

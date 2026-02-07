@@ -1,29 +1,15 @@
-// app/components/AuthGuard.tsx (Client Component)
-"use client";
-import { useAuth } from "@/app/hooks/Auth/useAuth";
-import { useRouter } from "next/navigation";
-import { useEffect, ReactNode } from "react";
+// app/components/AuthGuard.tsx (Server Component)
+import { getAuthenticatedUser } from "@/app/hooks/Auth/useAuth";
+import { ReactNode } from "react";
 
-export function AuthGuard({ 
+export async function AuthGuard({ 
   children, 
   locale,
-  userId
 }: { 
   children: ReactNode; 
   locale: string;
-  userId: string | null
 }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!userId === null) {
-      router.push(`/${locale}/login`);
-    }
-  }, [userId, locale, router]);
-
-  if (!userId) {
-    return null;
-  }
-
+  const userId = await getAuthenticatedUser(); // This handles redirect automatically
+  
   return <>{children}</>;
 }
