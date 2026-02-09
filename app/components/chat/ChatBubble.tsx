@@ -26,6 +26,24 @@ export default function ChatBubble({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [displayMessage, setDisplayMessage] = useState(message)
 
+  const [hasFinishedStreaming, setHasFinishedStreaming] = useState(false)
+
+  useEffect(() => {
+    if (!isStreaming && message && !hasFinishedStreaming) {
+      setHasFinishedStreaming(true)
+    }
+  }, [isStreaming, message])
+
+  useEffect(() => {
+    if (isStreaming) {
+      setFeedback(null)
+      setShowReasons(false)
+      setSelectedReason(null)
+      setHasFinishedStreaming(false)
+    }
+  }, [isStreaming, id])  
+
+
   const bubbleRef = useRef<HTMLDivElement>(null)
 
   const NEGATIVE_REASONS = [
@@ -106,7 +124,7 @@ export default function ChatBubble({
       {/* Message bubble */}
       <div
         ref={bubbleRef}
-        className="bg-black/60 backdrop-blur-sm border border-gold/30 px-5 py-4 rounded-2xl shadow-xl"
+        className="bg-black/60 backdrop-blur-sm border border-gold/30 px-5 py-4 "
       >
         <ReactMarkdown
           components={{
@@ -173,7 +191,7 @@ export default function ChatBubble({
           )}
 
           {showReasons && !selectedReason && (
-            <div className="bg-black/80 border border-gold/20 p-4 rounded-xl">
+            <div className="bg-black/80 border border-gold/20 p-4">
               <p className="text-white/90 text-xs mb-3">
                 {feedback === "up" ? t("whatHelpful") : t("whatWrong")} <span className="text-white/60">{t("optional")}</span>
               </p>
