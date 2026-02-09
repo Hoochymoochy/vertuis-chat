@@ -88,6 +88,12 @@ export default function ChatBubble({
     try {
       await addFeedback(id, feedback, message, reason)
       setTimeout(() => setShowReasons(false), 1200)
+    } catch (error) {
+      console.error("Failed to submit feedback:", error)
+      // Reset state on error
+      setFeedback(null)
+      setShowReasons(false)
+      setSelectedReason(null)
     } finally {
       setIsSubmitting(false)
     }
@@ -99,6 +105,11 @@ export default function ChatBubble({
 
     try {
       await addFeedback(id, feedback, message)
+      setShowReasons(false)
+    } catch (error) {
+      console.error("Failed to submit feedback:", error)
+      // Reset state on error
+      setFeedback(null)
       setShowReasons(false)
     } finally {
       setIsSubmitting(false)
@@ -116,8 +127,13 @@ export default function ChatBubble({
 
   const reasons = feedback === "down" ? NEGATIVE_REASONS : POSITIVE_REASONS
 
-  // Only show feedback if this is the last message AND not streaming AND not a temp message
-  const shouldShowFeedback = isLast && !isStreaming && !id.startsWith("temp-")
+  // Only show feedback if:
+  // 1. This is the last message
+  // 2. Not currently streaming
+  // 3. Not a temp message (temp messages have non-UUID IDs)
+  // 4. Has a valid UUID format (basic check)
+  const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  const shouldShowFeedback = isLast && !isStreaming && isValidUUID
 
   return (
     <div className="flex flex-col items-start space-y-3">

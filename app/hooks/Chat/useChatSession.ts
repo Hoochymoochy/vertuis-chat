@@ -91,14 +91,12 @@ export function useChatSession() {
               const token = line.slice(6);
               
               if (token === '[DONE]') {
-                // Backend has saved the message, just finalize UI
-                setMessages((prev) => 
-                  prev.map(m => 
-                    m.id === streamingId 
-                      ? { ...m, message: aiMessage, id: `ai-${Date.now()}` }
-                      : m
-                  )
-                );
+                // Backend has saved the message with a real UUID
+                // Reload messages to get the proper ID
+                if (chatId) {
+                  const updatedMessages = await getMessages(chatId);
+                  setMessages(updatedMessages);
+                }
                 break;
               }
 

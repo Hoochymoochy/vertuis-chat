@@ -73,7 +73,7 @@ export function ChatSection() {
       </div>
 
       {/* Jurisdiction Section */}
-      <div className="p-4 border-t border-gold/20">
+      {/* <div className="p-4 border-t border-gold/20">
         <motion.button
           onClick={toggleMapCollapse}
           className="w-full group relative overflow-hidden bg-linear-to-r from-gold/10 to-gold/5 hover:from-gold/20 hover:to-gold/10 border border-gold/30 hover:border-gold/40 px-4 py-3 transition-all duration-300"
@@ -104,7 +104,7 @@ export function ChatSection() {
             </div>
           </div>
         </motion.button>
-      </div>
+      </div> */}
     </div>
   );
 }
