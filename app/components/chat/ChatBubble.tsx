@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { giveFeedback } from "../../lib/feedback"
+import { addFeedback } from "../../lib/feedback"
 
 
 export default function ChatBubble({
@@ -45,7 +45,16 @@ export default function ChatBubble({
 
   useEffect(() => {
     setDisplayMessage(message)
-  }, [message, isStreaming])
+  }, [message])
+
+  // Reset feedback state when message changes or when streaming starts
+  useEffect(() => {
+    if (isStreaming) {
+      setFeedback(null)
+      setShowReasons(false)
+      setSelectedReason(null)
+    }
+  }, [isStreaming, id])
 
   const handleInitialFeedback = (type: "up" | "down") => {
     if (feedback) return
@@ -59,7 +68,7 @@ export default function ChatBubble({
     setSelectedReason(reason)
 
     try {
-      await getFeedback(id, feedback, message, reason)
+      await addFeedback(id, feedback, message, reason)
       setTimeout(() => setShowReasons(false), 1200)
     } finally {
       setIsSubmitting(false)
@@ -71,7 +80,7 @@ export default function ChatBubble({
     setIsSubmitting(true)
 
     try {
-      await getFeedback(id, feedback, message)
+      await addFeedback(id, feedback, message)
       setShowReasons(false)
     } finally {
       setIsSubmitting(false)
@@ -89,12 +98,15 @@ export default function ChatBubble({
 
   const reasons = feedback === "down" ? NEGATIVE_REASONS : POSITIVE_REASONS
 
+  // Only show feedback if this is the last message AND not streaming AND not a temp message
+  const shouldShowFeedback = isLast && !isStreaming && !id.startsWith("temp-")
+
   return (
     <div className="flex flex-col items-start space-y-3">
       {/* Message bubble */}
       <div
         ref={bubbleRef}
-        className="bg-black/60 backdrop-blur-sm border border-gold/30 px-5 py-4  shadow-xl "
+        className="bg-black/60 backdrop-blur-sm border border-gold/30 px-5 py-4 rounded-2xl shadow-xl"
       >
         <ReactMarkdown
           components={{
@@ -129,19 +141,31 @@ export default function ChatBubble({
       </div>
 
       {/* Feedback */}
-      {isLast && !isStreaming && (
+      {shouldShowFeedback && (
         <div className="flex flex-col items-start space-y-2 pl-2">
           {!selectedReason && (
             <div className="flex items-center gap-2">
-              <button onClick={() => handleInitialFeedback("up")}>
-                <ThumbsUp size={16} />
+              <button 
+                onClick={() => handleInitialFeedback("up")}
+                className="text-gold/60 hover:text-gold transition-colors"
+                aria-label="Good response"
+              >
+                <ThumbsUp size={16} className={feedback === "up" ? "fill-gold text-gold" : ""} />
               </button>
-              <button onClick={() => handleInitialFeedback("down")}>
-                <ThumbsDown size={16} />
+              <button 
+                onClick={() => handleInitialFeedback("down")}
+                className="text-gold/60 hover:text-gold transition-colors"
+                aria-label="Bad response"
+              >
+                <ThumbsDown size={16} className={feedback === "down" ? "fill-gold text-gold" : ""} />
               </button>
 
               {feedback && showReasons && (
-                <button onClick={handleCancel}>
+                <button 
+                  onClick={handleCancel}
+                  className="text-gold/60 hover:text-gold transition-colors"
+                  aria-label="Cancel feedback"
+                >
                   <X size={16} />
                 </button>
               )}
@@ -150,8 +174,8 @@ export default function ChatBubble({
 
           {showReasons && !selectedReason && (
             <div className="bg-black/80 border border-gold/20 p-4 rounded-xl">
-              <p className="text-xs mb-3">
-                {feedback === "up" ? t("whatHelpful") : t("whatWrong")} {t("optional")}
+              <p className="text-white/90 text-xs mb-3">
+                {feedback === "up" ? t("whatHelpful") : t("whatWrong")} <span className="text-white/60">{t("optional")}</span>
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -160,7 +184,7 @@ export default function ChatBubble({
                     key={reason}
                     disabled={isSubmitting}
                     onClick={() => handleReasonSelect(reason)}
-                    className="text-xs px-3 py-2 border rounded-lg"
+                    className="text-xs px-3 py-2 border border-gold/30 rounded-lg bg-black/40 text-white/90 hover:bg-gold/20 hover:border-gold/50 transition-colors disabled:opacity-50"
                   >
                     {reason}
                   </button>
@@ -170,7 +194,7 @@ export default function ChatBubble({
               <button
                 onClick={handleSkipReason}
                 disabled={isSubmitting}
-                className="text-xs underline mt-3"
+                className="text-xs text-gold/80 hover:text-gold underline mt-3 disabled:opacity-50"
               >
                 {t("skip")}
               </button>
