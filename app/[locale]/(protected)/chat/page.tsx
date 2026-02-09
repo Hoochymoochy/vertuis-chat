@@ -15,7 +15,7 @@ import { useChatAnimations } from "../../../hooks/Chat/useChatAnimations";
 export default function Chat() {
   const t = useTranslations("Chat");
 
-  const { isMapCollapsed, toggleMapCollapse, isCollapsed, userId } = useSidebar();
+  const { isCollapsed, userId } = useSidebar();
 
   const { isSubmitted, isLoading, failed, handleSubmit } = useChatInit(userId as string);
 
@@ -23,10 +23,6 @@ export default function Chat() {
 
   return (
     <div className="relative flex flex-col h-screen z-0">
-      <Map
-        openMap={isMapCollapsed}
-        setOpenMap={toggleMapCollapse}
-      />
 
       <motion.div
         layout
@@ -70,7 +66,6 @@ export default function Chat() {
             onSubmit={handleSubmit}
             isLoading={isLoading}
             placeholder={t("placeholder")}
-            showFileUpload={false}
           />
         </div>
       </motion.div>
