@@ -105,7 +105,8 @@ export default function ChatBubble({
 
     try {
       await addFeedback(id, feedback, message)
-      setShowReasons(false)
+      setSelectedReason("skipped") // Mark as skipped to show thank you
+      setTimeout(() => setShowReasons(false), 1200)
     } catch (error) {
       console.error("Failed to submit feedback:", error)
       // Reset state on error
@@ -238,8 +239,13 @@ export default function ChatBubble({
           {selectedReason && (
             <div className="bg-gold/10 border border-gold/30 px-4 py-2 rounded-xl">
               <p className="text-gold text-xs">
-                ✓ {t("thanksFeedback")}{" "}
-                <span className="font-semibold">{selectedReason}</span>
+                ✓ {t("thanksFeedback")}
+                {selectedReason !== "skipped" && (
+                  <>
+                    {" "}
+                    <span className="font-semibold">{selectedReason}</span>
+                  </>
+                )}
               </p>
             </div>
           )}
