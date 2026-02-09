@@ -1,5 +1,7 @@
 'use client'
 
+import { Language } from "@carbon/icons-react";
+
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (!backendUrl) {
@@ -44,4 +46,14 @@ export const getMessages = async (chat_id: string) => {
   }
 
   return res.json()
+}
+
+export const processMessage = async (message: string, chat_id: string, locale: string) => {
+  const res = await fetch(`${backendUrl}/process-message`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message, chat_id, language: locale }),
+  })
 }

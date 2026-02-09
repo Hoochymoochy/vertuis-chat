@@ -9,7 +9,7 @@ import { Tagline } from "@/app/components/chat/Tagline";
 
 import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
-import { useChatController } from "../../../hooks/Chat/useChatController";
+import { useChatInit } from "../../../hooks/Chat/useChatInit";
 import { useChatAnimations } from "../../../hooks/Chat/useChatAnimations";
 
 export default function Chat() {
@@ -17,9 +17,9 @@ export default function Chat() {
 
   const { isMapCollapsed, toggleMapCollapse, isCollapsed, userId } = useSidebar();
 
-  const { isSubmitted, isLoading, failed, handleSubmit } = useChatController(userId);
+  const { isSubmitted, isLoading, failed, handleSubmit } = useChatInit(userId as string);
 
-  const { smoothSpring } = useChatAnimations();
+  const { smoothSpring } = useChatAnimations(); 
 
   return (
     <div className="relative flex flex-col h-screen z-0">

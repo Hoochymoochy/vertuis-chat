@@ -22,7 +22,6 @@ export interface InputBoxProps {
 }
 
 export interface TaglineProps {
-    needsOnboarding: boolean;
     isSubmitted: boolean;
     t: (key: string) => string;
     isCollapsed: boolean;

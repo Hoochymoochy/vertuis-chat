@@ -17,9 +17,9 @@ export default function ChatPage() {
   const [openMap, setOpenMap] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { deduplicatedMessages, isLoading, failed, handleSubmit, isCheckingAuth } = useChatSession();
+  const { isLoading, failed, handleSubmit, messages } = useChatSession();
 
-  useAutoScroll(bottomRef, [deduplicatedMessages]);
+  useAutoScroll(bottomRef, [messages]);
 
   return (
     <div className="bg-[url('/marble.jpg')] bg-cover bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
@@ -35,7 +35,7 @@ export default function ChatPage() {
 
       <main className="relative flex-1 flex flex-col items-center pb-12">
         <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto pt-4 pb-24 overflow-y-auto">
-          <ChatMessageRenderer messages={deduplicatedMessages} />
+          <ChatMessageRenderer messages={messages} />
           <div ref={bottomRef} />
         </div>
 
@@ -52,7 +52,6 @@ export default function ChatPage() {
           isLoading={isLoading}
           disabled={false}
           placeholder={tChat("placeholder")}
-          showFileUpload={false}
         />
       </main>
     </div>

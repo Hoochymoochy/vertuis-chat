@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { TaglineProps } from "./type";
 
-export function Tagline({ needsOnboarding, isSubmitted, t, isCollapsed }: TaglineProps) {
+export function Tagline({ isSubmitted, t }: TaglineProps) {
   return (
     <AnimatePresence>
       {!isSubmitted && (
@@ -14,7 +14,6 @@ export function Tagline({ needsOnboarding, isSubmitted, t, isCollapsed }: Taglin
           className={`
             relative bottom-20 left-1/2 -translate-x-1/2
             z-20 flex flex-col items-center text-center
-            ${needsOnboarding ? 'opacity-30' : ''}
           `}
         >
           <p className="text-gold/90 text-xs sm:text-sm font-medium uppercase tracking-[0.35em] drop-shadow-lg">

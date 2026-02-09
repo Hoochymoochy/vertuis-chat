@@ -1,16 +1,20 @@
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default function useInitialChat(userId: string | null) {
+export function useChatInit(userId: string) {
+  const locale = useLocale();
   const router = useRouter();
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const startChat = async (message: string, locale: string) => {
+  const handleSubmit = async (message: string) => {
     if (!message.trim() || !userId || isLoading) return;
 
+    setIsSubmitted(true);
     setIsLoading(true);
     setFailed(false);
 
@@ -36,7 +40,6 @@ export default function useInitialChat(userId: string | null) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           chat_id: id, 
-          sender: 'user', 
           message: message 
         }),
       });
@@ -49,5 +52,10 @@ export default function useInitialChat(userId: string | null) {
     }
   };
 
-  return { isLoading, failed, startChat };
+  return {
+    isSubmitted,
+    isLoading,
+    failed,
+    handleSubmit,
+  };
 }

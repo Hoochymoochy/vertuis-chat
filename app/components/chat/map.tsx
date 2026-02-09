@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { ComposableMap, Geographies, Geography } from "react-simple-maps"
-import { useWorldToCountryMap } from "@/app/hooks/Chat/useWorldToCountryMap"
+import { useWorldToCountryMap } from "@/app/hooks/Map/useWorldToCountryMap"
 import { MapProps } from "./type"
 
 const BRAZIL_URL = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
