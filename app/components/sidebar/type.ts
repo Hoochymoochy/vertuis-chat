@@ -1,0 +1,92 @@
+// type.ts - Enhanced type definitions with chat support
+import { ComponentType } from "react";
+import { Chat } from "../../hooks/Chat/useChat";
+import { ReactNode } from "react";
+
+export interface SidebarContent {
+  children: ReactNode;
+}
+export interface MenuItem {
+  id: string;
+  label: string;
+  icon: ComponentType<{ size?: number; className?: string }>;
+  hasDropdown?: boolean;
+  sectionType?: string;
+  isActive?: boolean;
+  route?: string;
+}
+
+export interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
+export interface MenuItemProps {
+  item: MenuItem;
+  onToggle?: () => void;
+  onItemClick?: () => void;
+  isCollapsed: boolean;
+  setSubSection?: (subSection: string) => void;
+}
+
+export interface MenuSectionProps {
+  section: MenuSection;
+  onToggleExpanded: (key: string) => void;
+  isCollapsed: boolean;
+  onSectionChange?: (section: string) => void;
+  activeSection?: string;
+  setSubSection?: (subSection: string) => void;
+  expandedItems: Set<string>;
+}
+
+export interface SidebarRightProps {
+  isCollapsed: boolean;
+  toggleCollapse: () => void;
+  expandedItems: Set<string>;
+  toggleExpanded: (key: string) => void;
+  activeSection: string;
+  setSubSection: (subSection: string) => void;
+  
+  // Chat-specific props
+  chats?: Chat[];
+  onNewChat?: () => void;
+  onChatClick?: (id: string) => void;
+  onOpenMap?: () => void;
+  onLogout?: () => void;
+  country?: string | null;
+  state?: string | null;
+  lang?: string;
+  isLangOpen?: boolean;
+  onToggleLang?: () => void;
+  onLanguageChange?: (langCode: string) => void;
+  t?: (key: string) => string;
+
+  // Case-specific props
+  onAddCase?: () => void;
+
+  // Doucment-specific props
+  handleBack?: () => void;
+  selectedDoc?: string
+  setShowAddDocument: () => void,
+  setSelectedDoc: string,
+
+  isAdding: boolean,
+  toggleAddCase: () => void
+}
+
+export interface SidebarLeftProps {
+    isCollapsed: boolean;
+    expandedItems: Set<string>;
+    toggleExpanded: (key: string) => void;
+    activeSection: string;
+    setSection: (section: string) => void;
+}
+
+export interface SearchContainerProps {
+  isCollapsed: boolean;
+}
+
+export interface CaseSectionProps {
+  isCollapsed: boolean;
+  toggleAddCase: () => void
+}

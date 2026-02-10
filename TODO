@@ -1,0 +1,24 @@
+FRONTEND
+
+Need to add logic getting and setting for case, chat, and setting
+Setup rest of the tabs to use correct styling
+Need to fix collapes logic so its more smooth
+Switch over usiing mosition div for better control
+Add lazy loading skeleton for each page
+
+
+AUTH
+Fixed auth for protected route
+
+Stripe 
+
+
+Extra
+Add setting page
+Fix switch button on left side icon
+
+
+
+
+
+BACKEND

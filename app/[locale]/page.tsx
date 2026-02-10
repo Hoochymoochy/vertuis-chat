@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from 'next-intl'
 
 export default function Home() {
-  const [email, setEmail] = useState("")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState(new Set())
@@ -118,30 +117,6 @@ export default function Home() {
                   {t(`Nav.${item}`)}
                 </button>
               ))}
-              
-              {/* Mobile Language Switcher */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => switchLocale('en')}
-                  className={`px-4 py-2 text-xs transition-all duration-300 ${
-                    locale === 'en' 
-                      ? 'bg-[#d4af37] text-black' 
-                      : 'text-white/70 hover:text-[#d4af37]'
-                  }`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => switchLocale('br')}
-                  className={`px-4 py-2 text-xs transition-all duration-300 ${
-                    locale === 'br' 
-                      ? 'bg-[#d4af37] text-black' 
-                      : 'text-white/70 hover:text-[#d4af37]'
-                  }`}
-                >
-                  PT
-                </button>
-              </div>
 
               <button
                 onClick={() => handleRoute('/login')}

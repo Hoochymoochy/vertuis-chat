@@ -1,23 +1,27 @@
 "use client";
-import { getLanguage, getCountry, getState } from "@/app/lib/user";
+import { getLanguage } from "@/app/lib/user";
 import { supabase } from "./supabaseClient";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function question(question: string, id: string, onToken: (token: string) => void) {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        if (!user) return;
+export async function question(
+  question: string,
+  chatId: string,
+  onToken: (token: string) => void
+) {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  if (!user) return;
 
-  const [lang, country, state] = await Promise.all([
-  getLanguage(user.id),
-  getCountry(user.id),
-  getState(user.id)
-]);
+  const language = await getLanguage(user.id);
 
-const body = JSON.stringify({ query: question, id, lang, country, state });
+  const body = JSON.stringify({
+    message: question,
+    chat_id: chatId,
+    language: language || "en",
+  });
 
-  const response = await fetch(`${backendUrl}/ask`, {
+  const response = await fetch(`${backendUrl}/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -36,22 +40,28 @@ const body = JSON.stringify({ query: question, id, lang, country, state });
     done = readerDone;
     buffer += decoder.decode(value || new Uint8Array(), { stream: true });
 
-    // Split by lines (SSE sends lines like data: {...})
-    const lines = buffer.split("\n").filter(Boolean);
-    for (let line of lines) {
-      line = line.replace(/^data:\s*/, "").trim();
+    // Split by lines (SSE sends lines like "data: <token>")
+    const lines = buffer.split("\n");
+    
+    for (let i = 0; i < lines.length - 1; i++) {
+      const line = lines[i].replace(/^data:\s*/, "").trim();
       if (!line) continue;
 
-      if (line === "[DONE]") return;
-
-      try {
-        const json = JSON.parse(line);
-        if (json.token) onToken(json.token); // send each token up
-      } catch {
-        // ignore partial lines
+      if (line === "[DONE]") {
+        done = true;
+        break;
       }
+
+      if (line.startsWith("[ERROR:")) {
+        throw new Error(line);
+      }
+
+      // Backend sends raw tokens, not JSON
+      onToken(line);
     }
-    buffer = "";
+    
+    // Keep the last incomplete line in buffer
+    buffer = lines[lines.length - 1];
   }
 }
 
