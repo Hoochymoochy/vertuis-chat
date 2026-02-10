@@ -21,7 +21,7 @@ export default function ChatPage() {
   useAutoScroll(bottomRef, [messages]);
 
   return (
-    <div className="absolute inset-0 flex flex-col h-screen z-0">
+    <div className="relative flex flex-col h-screen z-0">
       <Overlay />
       <header className="relative flex justify-center pt-6 pb-4">
         <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight">
