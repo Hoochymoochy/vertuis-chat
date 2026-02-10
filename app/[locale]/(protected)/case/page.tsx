@@ -2,7 +2,7 @@
 
 import { CaseList } from "../../../components/case/CaseList"
 import { CaseListSkeleton } from "../../../components/case/CaseSkeleton"
-import { AddCase } from "@/app/components/case/AddCase"
+import { AddCase } from "../../../components/case/AddCase"
 import { useCases } from "../../../hooks/Case/useCase"
 
 export default function CasesPage() {

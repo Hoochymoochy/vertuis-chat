@@ -8,7 +8,7 @@ import { InputBoxProps } from "./type"
 import { useInputMessage } from "@/app/hooks/Input/useInputMessage"
 
 
-export default function InputBox({
+export function InputBox({
   onSubmit,
   isLoading = false,
   disabled = false,

@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import InputBox from "../../../../components/chat/InputBox";
+import { InputBox } from "../../../../components/chat/InputBox";
 import { ChatMessageRenderer } from "../../../../components/chat/LoadingMessage";
 
 import { useChatSession } from "@/app/hooks/Chat/useChatSession";
