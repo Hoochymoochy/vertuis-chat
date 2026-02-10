@@ -1,6 +1,6 @@
 // type.ts - Enhanced type definitions with chat support
 import { ComponentType } from "react";
-import { Chat } from "./useSidebar";
+import { Chat } from "../../hooks/Chat/useChat";
 import { ReactNode } from "react";
 
 export interface SidebarContent {

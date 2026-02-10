@@ -6,6 +6,8 @@ export interface Case {
   status: boolean;
   created_at: string;
   updated_at: string;
+  summary: string;
+  summary_updated: string;
 }
 
 export interface Document {

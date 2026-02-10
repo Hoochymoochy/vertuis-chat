@@ -1,6 +1,6 @@
 // hooks/Chat/useChatFeedback.ts
 import { useState } from "react"
-import { giveFeedback } from "@/app/lib/feedback"
+import { addFeedback } from "../../lib/feedback"
 
 type FeedbackType = "up" | "down"
 
@@ -18,7 +18,7 @@ export function useChatFeedback(
     reason?: string
   ) => {
     try {
-      await giveFeedback(messageId, type, message, reason)
+      await addFeedback(messageId, type, message, reason)
     } catch (err) {
       console.error("Feedback submission failed:", err)
     }

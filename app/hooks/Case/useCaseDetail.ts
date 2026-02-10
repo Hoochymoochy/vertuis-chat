@@ -7,7 +7,7 @@ import { useLocale } from "next-intl"
 import { getAllDocument, addDocument } from "@/app/lib/document"
 import { getCase, getCaseSummaries } from "@/app/lib/case"
 import { useSidebar } from "../Global/SidebarContext"
-import { Case, Document } from "@/app/components/case/type"
+import { Case } from "@/app/components/case/type"
 
 export function useCaseDetail() {
   const params = useParams()
@@ -122,7 +122,7 @@ export function useCaseDetail() {
   }
 
   const closeAddDocumentModal = () => {
-    setShowAddDocument(false)
+    setShowAddDocument()
     setFile(null)
     setDocumentTitle("")
     setLang("en")

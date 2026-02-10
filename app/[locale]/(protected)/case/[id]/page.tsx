@@ -68,7 +68,6 @@ export default function DocumentPage() {
               
             ) : (
                 <DocumentContent
-                caseItem={caseItem}
                 selectedDoc={selectedDoc}
                 switchingTab={switchingTab}
                 setSwitchingTab={setSwitchingTab}
