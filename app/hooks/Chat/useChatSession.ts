@@ -24,6 +24,7 @@ export function useChatSession() {
   const [failed, setFailed] = useState(false);
 
   const isProcessingAI = useRef(false);
+  const hasTriggeredFirstAI = useRef(false);
 
   /* ---------------------------------------------
    * Load chat id from route
@@ -46,6 +47,22 @@ export function useChatSession() {
         console.error("Failed to load messages:", err);
       });
   }, [chatId]);
+
+  /* ---------------------------------------------
+   * Auto-trigger AI response for first message
+   * -------------------------------------------*/
+  useEffect(() => {
+    if (
+      chatId &&
+      messages.length === 1 &&
+      messages[0].sender === "user" &&
+      !hasTriggeredFirstAI.current &&
+      !isProcessingAI.current
+    ) {
+      hasTriggeredFirstAI.current = true;
+      handleAIResponse(messages[0].message);
+    }
+  }, [chatId, messages]);
 
   /* ---------------------------------------------
    * Save user message
