@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import { InputBox } from "../../../components/chat/InputBox";
+import { InputBox } from "@/app/components/chat/InputBox";
 import { Tagline } from "@/app/components/chat/Tagline";
 import { Overlay } from "@/app/components/chat/Overlay";
 
