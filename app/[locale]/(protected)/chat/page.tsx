@@ -15,7 +15,7 @@ import { useChatAnimations } from "../../../hooks/Chat/useChatAnimations";
 export default function Chat() {
   const t = useTranslations("Chat");
 
-  const { isCollapsed, userId, toggleCollapse } = useSidebar();
+  const { isCollapsed, userId } = useSidebar();
 
   const { isSubmitted, isLoading, failed, handleSubmit } = useChatInit(userId as string);
 
