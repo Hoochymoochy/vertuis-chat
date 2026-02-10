@@ -3,9 +3,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import Map from "../../../components/chat/Map";
 import InputBox from "../../../components/chat/InputBox";
 import { Tagline } from "@/app/components/chat/Tagline";
+import { Overlay } from "@/app/components/chat/Overlay";
 
 import { useSidebar } from "@/app/hooks/Global/SidebarContext";
 
@@ -15,23 +15,24 @@ import { useChatAnimations } from "../../../hooks/Chat/useChatAnimations";
 export default function Chat() {
   const t = useTranslations("Chat");
 
-  const { isCollapsed, userId } = useSidebar();
+  const { isCollapsed, userId, toggleCollapse } = useSidebar();
 
   const { isSubmitted, isLoading, failed, handleSubmit } = useChatInit(userId as string);
 
   const { smoothSpring } = useChatAnimations(); 
 
   return (
-    <div className="relative flex flex-col h-screen z-0">
+    <div className="absolute inset-0 flex flex-col h-screen z-0">
+      <Overlay />
 
       <motion.div
         layout
-        className={`relative flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 transition-all duration-700 ease-out ${
+        className={`relative flex flex-col items-center w-full max-w-4xl mx-auto px-4 sm:px-6 transition-all duration-700 ease-out z-20 ${
           isSubmitted
             ? "justify-start pt-16 pb-8 min-h-screen"
             : "justify-center min-h-screen"
-                }`}
-        >
+        }`}
+      >
         {/* Title */}
         <motion.div
           layout

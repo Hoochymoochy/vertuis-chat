@@ -3,18 +3,17 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import Map from "../../../../components/chat/Map";
 import InputBox from "../../../../components/chat/InputBox";
 import { ChatMessageRenderer } from "../../../../components/chat/LoadingMessage";
 
 import { useChatSession } from "@/app/hooks/Chat/useChatSession";
 import { useAutoScroll } from "@/app/hooks/Chat/useAutoScroll";
+import { Overlay } from "@/app/components/chat/Overlay";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");
   const tChat = useTranslations("Chat");
 
-  const [openMap, setOpenMap] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { isLoading, failed, handleSubmit, messages } = useChatSession();
@@ -22,11 +21,8 @@ export default function ChatPage() {
   useAutoScroll(bottomRef, [messages]);
 
   return (
-    <div className="bg-[url('/marble.jpg')] bg-cover bg-fixed min-h-screen w-full flex flex-col px-4 py-6 relative">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-
-      <Map openMap={openMap} setOpenMap={setOpenMap} />
-
+    <div className="absolute inset-0 flex flex-col h-screen z-0">
+      <Overlay />
       <header className="relative flex justify-center pt-6 pb-4">
         <h1 className="text-6xl lg:text-8xl font-serif font-bold tracking-tight">
           <span className="text-gradient">VERITUS</span>
