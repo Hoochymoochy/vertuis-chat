@@ -20,22 +20,22 @@ export default function SidebarRight() {
 
   const SECTION_CONFIG = {
     chat: {
-      title: "Chat",
+      title: t("chat"),
       sections: chatbarSections,
       Component: ChatSection,
     },
     case: {
-      title: "Cases",
+      title: t("case"),
       sections: casebarSections,
       Component: CaseSection,
     },
     settings: {
-      title: "Settings",
+      title: t("settings"),
       sections: settingsbarSections,
       Component: SettingSection,
     },
     documents: {
-      title: "Docs",
+      title: t("documents"),
       sections: documentsbarSections,
       Component: DocumentSection
     }

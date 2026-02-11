@@ -183,6 +183,7 @@
     "Sidebar": {
       "chat": "Conversa",
       "case": "Caso",
+      "settings": "Ajustes",
       "document": "Documento",
       "recentChats": "Conversas Recentes",
       "logout": "Sair",

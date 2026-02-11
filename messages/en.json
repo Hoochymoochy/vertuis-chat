@@ -183,6 +183,7 @@
   "Sidebar": {
     "chat": "Chat",
     "case": "Case",
+    "settings": "Settings",
     "document": "Document",
     "recentChats": "Recent Chats",
     "logout": "Logout",
