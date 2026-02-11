@@ -179,5 +179,19 @@
   "Overlay": {
     "dropFile": "Solte Seu Arquivo",
     "releaseUpload": "Solte para carregar seu documento"
-  }
+  },
+    "Sidebar": {
+      "chat": "Conversa",
+      "case": "Caso",
+      "document": "Documento",
+      "recentChats": "Conversas Recentes",
+      "logout": "Sair",
+      "backToCases": "Voltar aos Casos",
+      "newCase": "Novo Caso",
+      "open": "Aberto",
+      "closed": "Fechado",
+      "updated": "Atualizado",
+      "noDocumentsFound": "Nenhum documento encontrado",
+      "documents": "Documentos"
+    }
 }

@@ -179,5 +179,19 @@
   "Overlay": {
     "dropFile": "Drop Your File",
     "releaseUpload": "Release to upload your document"
+  },
+  "Sidebar": {
+    "chat": "Chat",
+    "case": "Case",
+    "document": "Document",
+    "recentChats": "Recent Chats",
+    "logout": "Logout",
+    "backToCases": "Back to Cases",
+    "newCase": "New Case",
+    "open": "Open",
+    "closed": "Closed",
+    "updated": "Updated",
+    "noDocumentsFound": "No documents found",
+    "documents": "Documents"
   }
 }
