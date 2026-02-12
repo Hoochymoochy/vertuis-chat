@@ -56,7 +56,7 @@ export function AddDocument({
               <input
                 type="file"
                 onChange={(e) => handleFileChange(e)}
-                accept=".pdf,.docx,.txt"
+                accept=".pdf"
                 className="hidden"
                 id="file-upload"
               />

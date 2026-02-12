@@ -193,7 +193,7 @@
       "closed": "Fechado",
       "updated": "Atualizado",
       "noDocumentsFound": "Nenhum documento encontrado",
-      "documents": "Documentos"
+      "documents": "Doc"
     },
     "Case": {
       "createNewCase": "Criar Novo Caso",
@@ -223,7 +223,7 @@
       "documentTitle": "Título do Documento *",
       "documentTitlePlaceholder": "ex: Contrato de Trabalho",
       "uploadFile": "Enviar Arquivo",
-      "uploadInstruction": "Clique para enviar PDF, DOCX ou TXT",
+      "uploadInstruction": "Clique para enviar PDF",
       "or": "OU",
       "adding": "Adicionando...",
       "addDocument": "Adicionar Documento"

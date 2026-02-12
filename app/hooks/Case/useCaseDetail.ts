@@ -101,10 +101,11 @@ export function useCaseDetail() {
 
     try {
       const newDoc = await addDocument(caseId, documentTitle, file, lang)
-      console.log("New document:", newDoc)
       
       const updatedDocs = [...documents, newDoc]
       setDocuments(updatedDocs)
+
+      console.log("all docs:", updatedDocs)
       
       // Auto-select the newly added document
       setSelectDoc(newDoc.id)
