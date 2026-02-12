@@ -1,9 +1,11 @@
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
 import { useSidebar } from "../../../hooks/Global/SidebarContext";
+import { useTranslations } from "next-intl";
 
 export function CaseSection() {
   const { isCollapsed, toggleAddCase } = useSidebar();
+  const t = useTranslations("Sidebar");
 
   return (
     <div className="flex flex-col h-full">
@@ -17,7 +19,7 @@ export function CaseSection() {
           transitionTimingFunction: ANIMATION.EASING,
         }}
       >
-        <AddButton onClick={toggleAddCase} isCollapsed={isCollapsed} label="Case" />
+        <AddButton onClick={toggleAddCase} isCollapsed={isCollapsed} label={t("case")} />
       </div>
     </div>
   );

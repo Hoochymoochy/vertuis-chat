@@ -1,14 +1,18 @@
-import Link from "next/link"
-import { useState } from "react"
-import { Case } from "@/app/components/case/type"
-import { formatUpdatedTime, useformatUpdatedTime } from "@/app/hooks/Case/useformatUpdatedTime"
-import { useLocale } from "next-intl";
+import Link from "next/link";
+import { useState } from "react";
+import { Case } from "@/app/components/case/type";
+import {
+  formatUpdatedTime,
+  useformatUpdatedTime,
+} from "@/app/hooks/Case/useformatUpdatedTime";
+import { useLocale, useTranslations } from "next-intl";
 
+export function CaseList({ cases }: { cases: Case[] }) {
+  const locale = useLocale();
+  const t = useTranslations("Case");
 
-export function CaseList({ cases }: { cases: Case[]; }) {
-  const locale = useLocale()
-  const [visibleItems, setVisibleItems] = useState<number[]>([])
-  const sortedCases = useformatUpdatedTime(cases, setVisibleItems)
+  const [visibleItems, setVisibleItems] = useState<number[]>([]);
+  const sortedCases = useformatUpdatedTime(cases, setVisibleItems);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -37,7 +41,7 @@ export function CaseList({ cases }: { cases: Case[]; }) {
                     : "bg-white/10 text-white/70"
                 }`}
               >
-                {caseItem.status ? "Open" : "Closed"}
+                {caseItem.status ? t("open") : t("closed")}
               </span>
             </div>
 
@@ -48,12 +52,11 @@ export function CaseList({ cases }: { cases: Case[]; }) {
 
             {/* Footer */}
             <div className="text-xs text-white/40">
-              Updated {formatUpdatedTime(caseItem.updated_at)}
+              {t("updated")} {formatUpdatedTime(caseItem.updated_at)}
             </div>
-
           </div>
         </Link>
       ))}
     </div>
-  )
+  );
 }

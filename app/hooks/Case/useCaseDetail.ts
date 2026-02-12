@@ -101,7 +101,6 @@ export function useCaseDetail() {
 
     try {
       const newDoc = await addDocument(caseId, documentTitle, file, lang)
-      console.log("New document:", newDoc)
       
       const updatedDocs = [...documents, newDoc]
       setDocuments(updatedDocs)
@@ -138,10 +137,10 @@ export function useCaseDetail() {
     try {
       const res = await getCaseSummaries(caseId, lang)
 
-      setCaseSummaries(res.data)
+      setCaseSummaries(res.summary)
       setCaseItem({
         ...caseItem,
-        summary: res.data,
+        summary: res.summary,
         summary_updated: new Date().toISOString(),
       })
 

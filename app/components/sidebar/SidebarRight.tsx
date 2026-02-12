@@ -11,33 +11,35 @@ import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { useSidebar } from "../../hooks/Global/SidebarContext";
+import { useTranslations } from "next-intl";
 
-// Section configuration mapping
-const SECTION_CONFIG = {
-  chat: {
-    title: "Chat",
-    sections: chatbarSections,
-    Component: ChatSection,
-  },
-  case: {
-    title: "Cases",
-    sections: casebarSections,
-    Component: CaseSection,
-  },
-  settings: {
-    title: "Settings",
-    sections: settingsbarSections,
-    Component: SettingSection,
-  },
-  documents: {
-    title: "Docs",
-    sections: documentsbarSections,
-    Component: DocumentSection
-  }
-} as const;
 
 export default function SidebarRight() {
   const { activeSection, isCollapsed, toggleCollapse } = useSidebar();
+  const t = useTranslations("Sidebar");
+
+  const SECTION_CONFIG = {
+    chat: {
+      title: t("chat"),
+      sections: chatbarSections,
+      Component: ChatSection,
+    },
+    case: {
+      title: t("case"),
+      sections: casebarSections,
+      Component: CaseSection,
+    },
+    settings: {
+      title: t("settings"),
+      sections: settingsbarSections,
+      Component: SettingSection,
+    },
+    documents: {
+      title: t("documents"),
+      sections: documentsbarSections,
+      Component: DocumentSection
+    }
+  } as const;
   
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
   const SectionComponent = currentConfig.Component;

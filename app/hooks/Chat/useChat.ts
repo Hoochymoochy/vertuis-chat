@@ -12,6 +12,7 @@ export interface Chat {
 
 export function useChats() {
   const { isCollapsed, toggleMapCollapse } = useSidebar();
+  const [loading, setLoading] = useState(true);
   const { userId } = useAuth()
   const [state] = useState<string | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -20,8 +21,7 @@ export function useChats() {
 
   useEffect(() => {
     if (userId) {
-      getAllChats(userId).then(setChats);
-      console.log("Chats:", chats);
+      getAllChats(userId).then(setChats).finally(() => setLoading(false));
     }
   }, [userId]);
 
@@ -39,6 +39,7 @@ export function useChats() {
     newChat,
     openChat,
     toggleMapCollapse,
-    state
+    state,
+    loading
   };
 }
