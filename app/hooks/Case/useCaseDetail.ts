@@ -104,8 +104,6 @@ export function useCaseDetail() {
       
       const updatedDocs = [...documents, newDoc]
       setDocuments(updatedDocs)
-
-      console.log("all docs:", updatedDocs)
       
       // Auto-select the newly added document
       setSelectDoc(newDoc.id)
@@ -139,10 +137,10 @@ export function useCaseDetail() {
     try {
       const res = await getCaseSummaries(caseId, lang)
 
-      setCaseSummaries(res.data)
+      setCaseSummaries(res.summary)
       setCaseItem({
         ...caseItem,
-        summary: res.data,
+        summary: res.summary,
         summary_updated: new Date().toISOString(),
       })
 
