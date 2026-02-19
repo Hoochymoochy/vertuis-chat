@@ -32,7 +32,6 @@ export function useCaseDetail() {
 
   const [file, setFile] = useState<File | null>(null)
   const [documentTitle, setDocumentTitle] = useState("")
-  const [lang, setLang] = useState("en")
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
@@ -100,8 +99,7 @@ export function useCaseDetail() {
     setIsSubmitting(true)
 
     try {
-      const newDoc = await addDocument(caseId, documentTitle, file, lang)
-      console.log("New document:", newDoc)
+      const newDoc = await addDocument(caseId, documentTitle, file, locale)
       
       const updatedDocs = [...documents, newDoc]
       setDocuments(updatedDocs)
@@ -112,7 +110,6 @@ export function useCaseDetail() {
       toggleAddDocument()
       setFile(null)
       setDocumentTitle("")
-      setLang("en")
     } catch (err) {
       console.error("Error adding document:", err)
       alert("Failed to add document.")
@@ -125,7 +122,6 @@ export function useCaseDetail() {
     setShowAddDocument()
     setFile(null)
     setDocumentTitle("")
-    setLang("en")
   }
 
   const handleGenerateNewSummary = async () => {
@@ -136,12 +132,12 @@ export function useCaseDetail() {
     setCaseSummaries("")
 
     try {
-      const res = await getCaseSummaries(caseId, lang)
+      const res = await getCaseSummaries(caseId, locale)
 
-      setCaseSummaries(res.data)
+      setCaseSummaries(res.summary)
       setCaseItem({
         ...caseItem,
-        summary: res.data,
+        summary: res.summary,
         summary_updated: new Date().toISOString(),
       })
 
@@ -173,7 +169,6 @@ export function useCaseDetail() {
     // setters
     setSwitchingTab,
     setDocumentTitle,
-    setLang,
 
     // file
     file,
