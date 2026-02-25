@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/app/hooks/Auth/useAuth";
 import { getMessages } from "@/app/lib/message";
+import { useLocale } from "next-intl";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -22,6 +23,8 @@ export function useChatSession() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const locale = useLocale()
 
   const isProcessingAI = useRef(false);
   const hasTriggeredFirstAI = useRef(false);
@@ -115,7 +118,7 @@ export function useChatSession() {
         body: JSON.stringify({
           chat_id: chatId,
           message: userMessage,
-          language: "en",
+          language: locale,
         }),
       });
 

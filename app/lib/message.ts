@@ -1,7 +1,5 @@
 'use client'
 
-import { Language } from "@carbon/icons-react";
-
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (!backendUrl) {
