@@ -9,7 +9,7 @@
   "Hero": {
     "title": "VERITUS",
     "tagline": "IA em Que Você Pode Confiar",
-    "description": "A próxima geração de inteligência jurídica. Cada citação verificada. Cada resposta confiável. Construído para advogados que exigem precisão em uma era de incerteza.",
+    "description": "A próxima geração de inteligência jurídica. Cada citação verificada. Cada resposta confiável. Construído para advogados e juristas que exigem precisão em uma era de incerteza.",
     "joinBeta": "Entre no Beta",
     "learnMore": "Saiba Mais"
   },
@@ -17,28 +17,28 @@
     "title": "Direito Não Deveria Ser um",
     "titleHighlight": "Jogo de Adivinhação",
     "problem": "O Problema",
-    "problemDesc": "Todos os dias, profissionais jurídicos perdem horas verificando citações, rastreando emendas e questionando alucinações de IA.",
+    "problemDesc": "Todos os dias, advogados e juristas perdem horas conferindo dispositivos legais, acompanhado alterações normativas e verificando a vigência de leis e precedentes. Além disso, enfrentam alucinações ou respostas imprecisas geradas por IAs.",
     "solution": "A Solução",
-    "solutionDesc": "Veritus elimina a incerteza com respostas baseadas em fontes, atualizações jurídicas em tempo real e tolerância zero para alucinações.",
+    "solutionDesc": "Veritus elimina a incerteza ao oferecer respostas fundamentadas em legislação vigente, jurisprudência atualizada e fontes oficiais. Previsão técnica, fundamentação verificável e tolerância zero a imprecisões.",
     "future": "O Futuro",
-    "futureDesc": "Uma nova era onde advogados confiam completamente em sua IA, focando em estratégia em vez de verificação de fatos.",
+    "futureDesc": "Uma nova era em que advogados podem confiar na ia como ferramenta estratégica, concentrando-se na análise e na tomada de decisão e não na verificação manual de informações.",
     "closing": "A próxima era da integridade jurídica começa aqui."
   },
   "Features": {
     "title": "Precisão",
-    "titleHighlight": "Engenheirada",
-    "subtitle": "Três pilares de IA jurídica em que você pode confiar",
-    "sourceBackedTitle": "Chat com Fontes",
-    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas com citações verificáveis de fontes primárias. Cada afirmação. Sempre.",
+    "titleHighlight": "Técnica, Construída para o Direito",
+    "subtitle": "Três pilares da lA jurídica em que você pode confiar",
+    "sourceBackedTitle": "Chat com Fundamentação Jurídica",
+    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas fundamentadas na legislação vigente, jurisprudência atualizada e fontes oficiais. Cada afirmação é fundamentada.",
     "documentTitle": "Análise de Documentos",
-    "documentDesc": "Carregue contratos, estatutos ou jurisprudência. Destaque instantaneamente provisões-chave, faça referências cruzadas de citações e entenda o contexto (em breve).",
-    "jurisdictionTitle": "Sincronização de Jurisdição",
-    "jurisdictionDesc": "Atualizações em tempo real de leis federais, estaduais e regionais (em breve). Nunca perca uma emenda ou novo precedente novamente."
+    "documentDesc": "Carregue contratos, petições, decisões judiciais, entre outros. Identifique cláusulas essenciais, realize o cruzamento automático de dispositivos legais e precedentes, e compreenda o contexto normativo com precisão técnica (em breve).",
+    "jurisdictionTitle": "Monitoramento Legislativo e Jurisprudencial",
+    "jurisdictionDesc": "Acompanhe, em tempo real, alterações na legislação federal, estadual e municipal. Receba atualizações sobre novas redações de leis, alterações normativas e mudanças relevantes de entendimento nos tribunais superiores (em breve)."
   },
   "Global": {
     "title": "Começando Local,",
     "titleHighlight": "Expandindo Globalmente",
-    "description": "Estamos dominando as leis federais primeiro. Depois cada estatuto, cada caso, cada atualização. Então expandindo nacionalmente com a mesma precisão incompromissável.",
+    "description": "Estamos dominando as leis federais primeiro. Em seguida, integraremos leis específicas, jurisprudência e atualizações normativas. Na sequência, expandiremos nacionalmente com o mesmo nível de precisão e confiabilidade jurídica.",
     "roadmap": "Roteiro de Cobertura",
     "brazil": "Leis e Regulamentos do Brasil",
     "usCanada": "EUA e Canadá",
@@ -50,7 +50,7 @@
   "Contact": {
     "title": "Junte-se ao",
     "titleHighlight": "Futuro do Direito",
-    "description": "Esteja entre os primeiros profissionais jurídicos a experimentar IA que nunca compromete a verdade.",
+    "description": "Esteja entre os primeiros profissionais jurídicos a experimentar a IA que nunca compromete a verdade.",
     "existingTitle": "Usuários Existentes",
     "existingDesc": "Acesse sua conta",
     "existingButton": "Entrar",
@@ -179,5 +179,14 @@
   "Overlay": {
     "dropFile": "Solte Seu Arquivo",
     "releaseUpload": "Solte para carregar seu documento"
+  },
+  "AddDocument": {
+    "title": "Adicionar um Documento",
+    "description": "Carregue um contrato, estatuto ou jurisprudência para analisar cláusulas-chave, cruzar citações e entender o contexto.",
+    "selectFile": "Selecionar Arquivo",
+    "fileLimit": "Limite de Arquivo: 10MB",
+    "or": "OU",
+    "upload": "Enviar",
+    "cancel": "Cancelar"
   }
 }

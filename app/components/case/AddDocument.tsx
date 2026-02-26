@@ -42,7 +42,15 @@ export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddD
               <div className="relative">
                 <input
                   type="file"
-                  onChange={(e) => handleFileChange(e)}
+                  onChange={(e) => {
+                    const selected = e.target.files?.[0];
+                    if (selected && selected.size > 10 * 1024 * 1024) {
+                      alert("File size must be under 10MB.");
+                      e.target.value = "";
+                      return;
+                    }
+                    handleFileChange(e);
+                  }}
                   accept=".pdf,.docx,.txt"
                   className="hidden"
                   id="file-upload"
@@ -61,7 +69,7 @@ export function AddDocument({ showAddDocument, closeAddDocumentModal, handleAddD
 
             <div className="flex items-center gap-4">
               <div className="flex-1 h-px bg-white/10"></div>
-              <span className="text-white/40 text-sm">OR</span>
+              <span className="text-gold/70 text-sm">File Limit: 10MB</span>
               <div className="flex-1 h-px bg-white/10"></div>
             </div>
 

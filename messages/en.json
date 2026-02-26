@@ -179,5 +179,14 @@
   "Overlay": {
     "dropFile": "Drop Your File",
     "releaseUpload": "Release to upload your document"
+  },
+  "AddDocument": {
+    "title": "Add a Document",
+    "description": "Upload a contract, statute, or case law to analyze key provisions, cross-reference citations, and understand context.",
+    "selectFile": "Select File",
+    "fileLimit": "File Limit: 10MB",
+    "or": "OR",
+    "cancel": "Cancel",
+    "uploading": "Uploading..."
   }
 }
