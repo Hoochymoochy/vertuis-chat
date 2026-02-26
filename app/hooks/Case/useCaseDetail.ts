@@ -103,6 +103,8 @@ export function useCaseDetail() {
       
       const updatedDocs = [...documents, newDoc]
       setDocuments(updatedDocs)
+
+      console.log("all docs:", updatedDocs)
       
       // Auto-select the newly added document
       setSelectDoc(newDoc.id)

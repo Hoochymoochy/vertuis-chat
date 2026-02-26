@@ -2,6 +2,7 @@ import { ChevronLeft, Clock } from "lucide-react"
 import { AddButton } from "../Button"
 import { ANIMATION } from "../sidebar.constants"
 import { useSidebar } from "../../../hooks/Global/SidebarContext"
+import { useTranslations } from "next-intl"
 
 const getFileIcon = (type: string) => {
   return <span className="text-xs">{type}</span>
@@ -17,6 +18,7 @@ export function DocumentSection() {
     setShowAddDocument,
     setSelectDoc,
   } = useSidebar();
+  const t = useTranslations("Sidebar");
 
   const isOpen = selectedCase?.status
   const updatedDate = selectedCase?.updated_at 
@@ -33,12 +35,12 @@ export function DocumentSection() {
           onClick={handleBack}
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm">Back to Cases</span>
+          <span className="text-sm">{t("backToCases")}</span>
         </button>
 
         {/* Case Title */}
         <h1 className="font-bold text-2xl mb-3 text-white">
-          {selectedCase?.title || "New Case"}
+          {selectedCase?.title || t("newCase")}
         </h1>
 
         {/* Status Badge */}
@@ -50,14 +52,14 @@ export function DocumentSection() {
                 : "bg-white/10 text-white/70 border border-white/20"
             }`}
           >
-            {isOpen ? "Open" : "Closed"}
+            {isOpen ? t("open") : t("closed")}
           </span>
         </div>
 
         {/* Last Updated */}
         <div className="flex items-center gap-2 text-xs text-white/50 mb-4">
           <Clock className="w-3 h-3" />
-          <span>Updated {updatedDate}</span>
+          <span>{t("updated")} {updatedDate}</span>
         </div>
 
         {/* Add Document Button */}
@@ -71,7 +73,7 @@ export function DocumentSection() {
           <AddButton 
             onClick={setShowAddDocument} 
             isCollapsed={isCollapsed} 
-            label="Document" 
+            label={t("document")} 
           />
         </div>
       </div>
@@ -80,12 +82,12 @@ export function DocumentSection() {
       <div className="flex-1 overflow-y-auto p-6">
         {!documents || documents.length === 0 ? (
           <p className="text-sm text-white/50">
-            No documents found
+            {t("noDocumentsFound")}
           </p>
         ) : (
           <>
             <h2 className="font-bold text-sm text-white/50 mb-4 uppercase tracking-wider">
-              Documents ({documents.length})
+              {t("documents")} ({documents.length})
             </h2>
 
             <div className="space-y-3">
