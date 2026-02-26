@@ -193,7 +193,8 @@
     "closed": "Closed",
     "updated": "Updated",
     "noDocumentsFound": "No documents found",
-    "documents": "Docs"
+    "documents": "Docs",
+    "noChatsYet": "No chats yet"
   },
   "Case": {
     "createNewCase": "Create New Case",

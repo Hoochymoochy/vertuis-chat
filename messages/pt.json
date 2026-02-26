@@ -193,7 +193,9 @@
       "closed": "Fechado",
       "updated": "Atualizado",
       "noDocumentsFound": "Nenhum documento encontrado",
-      "documents": "Doc"
+      "documents": "Doc",
+      "noChatsYet": "Nenhuma conversa ainda"
+
     },
     "Case": {
       "createNewCase": "Criar Novo Caso",
