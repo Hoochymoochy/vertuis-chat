@@ -17,88 +17,93 @@ function AuthCallbackContent() {
 
     async function handleAuth() {
       try {
-        // Get locale from query params (passed via redirectTo)
-        const localeFromUrl = searchParams.get("locale");
+        // Check for OAuth errors first
+        const errorParam = searchParams.get("error");
+        const errorDesc = searchParams.get("error_description");
         
-        // Grab tokens from URL hash (Supabase OAuth returns them here)
-        const hash = window.location.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+        if (errorParam) {
+          throw new Error(
+            `OAuth Error: ${errorDesc || errorParam}. Please try signing in again.`
+          );
+        }
+
+        console.log("Auth callback started, checking for session...");
+
+        // Let Supabase recover the session from cookies automatically
+        // This is the preferred method for handling OAuth callbacks
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        // Parse cookies properly
+        if (sessionError) {
+          throw new Error(`Session error: ${sessionError.message}`);
+        }
+
+        if (!session) {
+          throw new Error(
+            "No session found. The OAuth flow may have been interrupted. Please try signing in again."
+          );
+        }
+
+        console.log("Session recovered successfully");
+
+        const user = session.user;
+        if (!user) {
+          throw new Error("User data not found in session");
+        }
+
+        // Parse locale from cookie
         const getCookies = document.cookie.split(";");
         const localeCookie = getCookies.find((cookie) => 
           cookie.trim().startsWith("oauth_locale=")
         );
         
-        // Extract the locale value from the cookie
         const localeFromCookie = localeCookie 
           ? localeCookie.split("=")[1].trim() 
           : null;
 
-        console.log("Auth details:", { 
-          access_token: access_token ? "present" : "missing",
-          refresh_token: refresh_token ? "present" : "missing",
-          localeFromUrl,
-          localeFromCookie,
-          allCookies: getCookies.map(c => c.trim())
+        // Determine final locale
+        // Priority: cookie > saved preference > default "en"
+        let locale = localeFromCookie || "en";
+
+        console.log("Locale determined:", { 
+          fromCookie: localeFromCookie,
+          final: locale,
         });
-        
-        if (!access_token || !refresh_token) {
-          throw new Error("Missing auth tokens. Try signing in again.");
+
+        // Check user's saved language preference
+        const { data: profile, error: profileError } = await supabase
+          .from("user_data")
+          .select("language")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.warn("Error fetching user profile:", profileError);
         }
 
-        // Apply tokens to Supabase session
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
-        if (sessionError) throw new Error(sessionError.message);
+        // If no cookie locale was provided, use saved preference
+        if (!localeFromCookie && profile?.language) {
+          locale = profile.language;
+        }
 
-        // Confirm session is live
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (!sessionData.session) throw new Error("Unable to start session.");
+        // Upsert user_data with current locale
+        const { error: upsertError } = await supabase.from("user_data").upsert(
+          {
+            user_id: user.id,
+            country: "World",
+            state: "N/A",
+            language: locale,
+          },
+          { onConflict: "user_id" }
+        );
 
-        // Get user
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData.user;
-
-        // Priority order for locale:
-        // 1. URL query param (user's choice at login)
-        // 2. Cookie value (from OAuth flow)
-        // 3. User's saved preference
-        // 4. Default to "en"
-        let locale = localeFromUrl || localeFromCookie || "en";
-
-        if (user) {
-          // Check existing user profile for locale
-          const { data: profile } = await supabase
-            .from("user_data")
-            .select("language")
-            .eq("user_id", user.id)
-            .maybeSingle();
-
-          // Only use saved preference if no locale was passed in URL or cookie
-          if (!localeFromUrl && !localeFromCookie && profile?.language) {
-            locale = profile.language;
-          }
-
-          // Upsert basic user_data
-          await supabase.from("user_data").upsert(
-            {
-              user_id: user.id,
-              country: "World",
-              state: "N/A",
-              language: locale,
-            },
-            { onConflict: "user_id" }
-          );
+        if (upsertError) {
+          console.error("Error upserting user_data:", upsertError);
+          // Don't throw - this is not critical to the auth flow
         }
 
         // Clear the oauth_locale cookie after use
         if (localeFromCookie) {
-          document.cookie = "oauth_locale=; path=/; max-age=0";
+          document.cookie = "oauth_locale=; path=/; max-age=0; SameSite=Lax";
         }
 
         // Let Supabase settle
@@ -106,12 +111,13 @@ function AuthCallbackContent() {
 
         if (!active) return;
 
+        console.log(`Redirecting to /${locale}/chat`);
         // Redirect to localized chat
         router.replace(`/${locale}/chat`);
       } catch (err) {
         console.error("Auth callback failed:", err);
         if (active) {
-          setError(err instanceof Error ? err.message : "Auth failed.");
+          setError(err instanceof Error ? err.message : "Authentication failed. Please try again.");
         }
       } finally {
         if (active) setIsProcessing(false);
@@ -133,7 +139,7 @@ function AuthCallbackContent() {
           animate={{ opacity: 1, y: 0 }}
           className="text-2xl font-semibold text-gold"
         >
-          Something went wrong
+          Authentication Failed
         </motion.h2>
         <p className="text-white/80 max-w-sm">{error}</p>
         <button
