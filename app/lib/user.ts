@@ -15,7 +15,7 @@ export async function signUp(email: string, password: string) {
   const user = data.user
   if (!user) return data
 
-  // 🪄 Auto-seed user_data row if it doesn’t exist
+  // 🪄 Auto-seed user_data row if it doesn't exist
   const { error: insertError } = await supabase
     .from('user_data')
     .upsert(
@@ -52,7 +52,7 @@ export async function signIn(email: string, password: string) {
 // Send password reset email
 export async function resetPassword(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `https://vertuis-chat.vercel.app/reset-password`,
+    redirectTo: `${window.location.origin}/auth/callback`,
   })
   if (error) throw error
 }
@@ -73,24 +73,30 @@ export async function getUser() {
 
 // OAuth sign-ins
 export async function signInWithGoogle(locale: string) {
+  // Store locale in a cookie before OAuth redirect
+  // This preserves the locale preference without polluting the OAuth state
+  document.cookie = `oauth_locale=${locale}; path=/; max-age=3600; SameSite=Lax`;
+  
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/auth/callback?locale=${locale}`,
+      redirectTo: `${window.location.origin}/auth/callback`,
     },
   });
   if (error) throw error;
 }
 
-
-export async function signInWithFacebook() {
+export async function signInWithFacebook(locale: string) {
+  // Store locale in a cookie before OAuth redirect
+  document.cookie = `oauth_locale=${locale}; path=/; max-age=3600; SameSite=Lax`;
+  
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'facebook',
-    options: { redirectTo: `${window.location.origin}/` },
+    options: { 
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
   })
   if (error) throw error
-  const user = await supabase.auth.getUser()
-  return user.data.user
 }
 
 // --- Fetchers --- //
