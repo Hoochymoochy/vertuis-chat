@@ -37,14 +37,29 @@ function blendAngles(a: number, b: number, blendToA: number): number {
   return Math.atan2(y, x);
 }
 
+/** Pixels below node center reserved for the canvas title row (font + padding). */
+const LABEL_BELOW = 34;
+/** Approximate half-width of truncated label text for horizontal clearance. */
+const LABEL_HALF_WIDTH = 62;
+
+/**
+ * Effective collision radius: disc + space for label beneath + approximate text width,
+ * so overlap resolution keeps titles from stacking on neighbors.
+ */
+function effectiveLayoutRadius(node: PositionedNode): number {
+  const w = Math.max(node.r, LABEL_HALF_WIDTH);
+  const h = node.r + LABEL_BELOW;
+  return Math.hypot(w, h);
+}
+
 function resolveNodeOverlaps(
   positions: Map<string, PositionedNode>,
   canvasWidth: number,
   canvasHeight: number
 ) {
   const ids = [...positions.keys()];
-  const gap = 10;
-  const maxIterations = 70;
+  const gap = 18;
+  const maxIterations = 90;
 
   for (let iteration = 0; iteration < maxIterations; iteration++) {
     let maxPenetration = 0;
@@ -52,15 +67,17 @@ function resolveNodeOverlaps(
     for (let i = 0; i < ids.length; i++) {
       const a = positions.get(ids[i]);
       if (!a) continue;
+      const ra = effectiveLayoutRadius(a);
 
       for (let j = i + 1; j < ids.length; j++) {
         const b = positions.get(ids[j]);
         if (!b) continue;
+        const rb = effectiveLayoutRadius(b);
 
         const dx = b.px - a.px;
         const dy = b.py - a.py;
         const distance = Math.hypot(dx, dy);
-        const minDistance = a.r + b.r + gap;
+        const minDistance = ra + rb + gap;
         const overlap = minDistance - distance;
         if (overlap <= 0) continue;
 
@@ -79,14 +96,25 @@ function resolveNodeOverlaps(
       }
     }
 
+    const marginX = 16;
+    const marginTop = 16;
+    const labelBottomPad = 12;
     for (const id of ids) {
       const node = positions.get(id);
       if (!node) continue;
-      node.px = clamp(node.px, node.r + 12, canvasWidth - node.r - 12);
-      node.py = clamp(node.py, node.r + 12, canvasHeight - node.r - 12);
+      node.px = clamp(
+        node.px,
+        LABEL_HALF_WIDTH + marginX,
+        canvasWidth - LABEL_HALF_WIDTH - marginX
+      );
+      node.py = clamp(
+        node.py,
+        node.r + marginTop,
+        canvasHeight - node.r - LABEL_BELOW - labelBottomPad
+      );
     }
 
-    if (maxPenetration < 0.45) break;
+    if (maxPenetration < 0.55) break;
   }
 }
 
@@ -106,22 +134,22 @@ export function computeLayout(
 
   const positions = new Map<string, PositionedNode>();
 
-  const ringPaddingX = 52;
-  const ringPaddingY = 42;
+  const ringPaddingX = 64;
+  const ringPaddingY = 56;
   const maxOuterX = Math.max(
-    minDim * 0.36,
+    minDim * 0.4,
     canvasWidth / 2 - DESIGN.jurisdictionNodeMax - ringPaddingX
   );
   const maxOuterY = Math.max(
-    minDim * 0.3,
+    minDim * 0.34,
     canvasHeight / 2 - DESIGN.jurisdictionNodeMax - ringPaddingY
   );
-  const queryRx = maxOuterX * 0.3;
-  const queryRy = maxOuterY * 0.3;
-  const sourceRx = maxOuterX * 0.62;
-  const sourceRy = maxOuterY * 0.62;
-  const jurRx = maxOuterX * 0.98;
-  const jurRy = maxOuterY * 0.98;
+  const queryRx = maxOuterX * 0.28;
+  const queryRy = maxOuterY * 0.28;
+  const sourceRx = maxOuterX * 0.58;
+  const sourceRy = maxOuterY * 0.58;
+  const jurRx = maxOuterX * 0.96;
+  const jurRy = maxOuterY * 0.96;
 
   const usedByTarget = new Map<string, { queryId: string; weight: number }[]>();
   for (const e of edges) {

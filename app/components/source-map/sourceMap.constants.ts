@@ -41,8 +41,8 @@ export const DESIGN = {
   panelWidth: 228,
   headerHeight: 56,
   infoBarHeight: 32,
-  tooltipMaxWidth: 200,
-  tooltipPadding: "10px 14px",
+  tooltipMaxWidth: 300,
+  tooltipPadding: "12px 16px",
 
   queryNodeBase: 8,
   queryNodeMultiplier: 0.6,

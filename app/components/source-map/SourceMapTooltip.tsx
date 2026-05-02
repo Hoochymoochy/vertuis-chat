@@ -14,30 +14,44 @@ export function SourceMapTooltip({ model, x, y }: Props) {
 
   return (
     <div
-      className="pointer-events-none fixed z-50 rounded-md border font-sans shadow-xl"
+      className="pointer-events-none fixed z-50 rounded-lg border font-sans shadow-2xl backdrop-blur-sm"
       style={{
         left: x + 14,
         top: y + 14,
         maxWidth: DESIGN.tooltipMaxWidth,
         padding: DESIGN.tooltipPadding,
         backgroundColor: DESIGN.bgTooltip,
-        borderColor: DESIGN.borderGoldDim,
+        borderColor: DESIGN.borderGold,
         color: DESIGN.textPrimary,
       }}
     >
       <div
-        className="mb-1.5 text-[11px] font-semibold leading-snug tracking-wide"
-        style={{
-          color: DESIGN.goldLight,
-        }}
+        className="text-[13px] font-semibold leading-snug tracking-tight"
+        style={{ color: DESIGN.textPrimary }}
       >
         {model.title}
       </div>
-      <dl className="space-y-1 text-[12px]">
+      {model.subtitle ? (
+        <p
+          className="mt-1.5 text-[11px] leading-relaxed"
+          style={{ color: DESIGN.textMuted }}
+        >
+          {model.subtitle}
+        </p>
+      ) : null}
+      <dl className="mt-3 space-y-2 border-t border-white/10 pt-3 text-[12px]">
         {model.rows.map((row) => (
-          <div key={row.label} className="flex justify-between gap-4">
-            <dt style={{ color: DESIGN.textMuted }}>{row.label}</dt>
-            <dd className="shrink-0 tabular-nums" style={{ color: DESIGN.gold }}>
+          <div key={row.label} className="grid gap-1">
+            <dt
+              className="text-[10px] font-medium uppercase tracking-wide"
+              style={{ color: DESIGN.textMuted }}
+            >
+              {row.label}
+            </dt>
+            <dd
+              className="min-w-0 wrap-break-word leading-snug tabular-nums"
+              style={{ color: DESIGN.goldLight }}
+            >
               {row.value}
             </dd>
           </div>

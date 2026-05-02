@@ -124,17 +124,9 @@ function drawNodeLabels(
   positions: Map<string, PositionedNode>,
   fontSans: string,
   relatedIds: Set<string>,
-  hasSelection: boolean,
-  hoveredId: string | null,
-  showAllLabels: boolean
+  hasSelection: boolean
 ) {
-  const toDraw = showAllLabels
-    ? [...positions.values()]
-    : hoveredId
-      ? [positions.get(hoveredId)].filter(
-          (node): node is PositionedNode => node !== undefined
-        )
-      : [];
+  const toDraw = [...positions.values()];
   if (toDraw.length === 0) return;
 
   ctx.save();
@@ -146,12 +138,12 @@ function drawNodeLabels(
     const dim = hasSelection && !relatedIds.has(node.id);
     const line1 =
       node.type === "query"
-        ? truncate(node.label, showAllLabels ? 20 : 30)
+        ? truncate(node.label, 20)
         : node.type === "source"
-          ? truncate(node.label, showAllLabels ? 22 : 32)
-          : truncate(node.label, showAllLabels ? 18 : 28);
+          ? truncate(node.label, 22)
+          : truncate(node.label, 18);
     const x = node.px;
-    const y = node.py + node.r + 7;
+    const y = node.py + node.r + 10;
     ctx.strokeStyle = "rgba(0,0,0,0.7)";
     ctx.strokeText(line1, x, y);
     ctx.fillStyle = withAlpha(DESIGN.textPrimary, dim ? 0.38 : 0.9);
@@ -181,11 +173,11 @@ export type SourceMapCanvasProps = {
   pulse: number;
   fontSans: string;
   hasSelection: boolean;
-  showLabelsAlways?: boolean;
   emptyMessage?: string;
   layoutKey?: string;
   onSelectNode: (id: string | null, kind: NodeKind | null) => void;
   onHoverNode: (id: string | null, clientX: number, clientY: number) => void;
+  onPointerActiveChange?: (active: boolean) => void;
 };
 
 type NodeDragRef = {
@@ -219,11 +211,11 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       pulse,
       fontSans,
       hasSelection,
-      showLabelsAlways = false,
       emptyMessage,
       layoutKey,
       onSelectNode,
       onHoverNode,
+      onPointerActiveChange,
     },
     ref
   ) {
@@ -436,20 +428,32 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
 
       const edgeAlpha = (fromId: string, toId: string) => {
         const base = DESIGN.idleEdgeAlpha;
+        const isSelectionEdge =
+          hasSelection && relatedIds.has(fromId) && relatedIds.has(toId);
         if (hoveredId) {
           const fromD = hoverDistances.get(fromId);
           const toD = hoverDistances.get(toId);
-          if (fromD === undefined || toD === undefined) return base;
-          const edgeDistance = Math.min(fromD, toD);
-          const distanceFade = 1 - edgeDistance / Math.max(1, maxHoverDistance + 1);
-          const frontierWindow = 1.15;
-          const localProgress = clamp01((revealFront - edgeDistance + 0.2) / frontierWindow);
-          const easedProgress =
-            localProgress * localProgress * (3 - 2 * localProgress);
-          return base + distanceFade * DESIGN.hoverEdgeBoost * easedProgress;
+          const hoverAlpha =
+            fromD === undefined || toD === undefined
+              ? base
+              : (() => {
+                  const edgeDistance = Math.min(fromD, toD);
+                  const distanceFade =
+                    1 - edgeDistance / Math.max(1, maxHoverDistance + 1);
+                  const frontierWindow = 1.15;
+                  const localProgress = clamp01(
+                    (revealFront - edgeDistance + 0.2) / frontierWindow
+                  );
+                  const easedProgress =
+                    localProgress * localProgress * (3 - 2 * localProgress);
+                  return base + distanceFade * DESIGN.hoverEdgeBoost * easedProgress;
+                })();
+
+          if (isSelectionEdge) return Math.max(hoverAlpha, 0.82);
+          return hoverAlpha;
         }
         if (!hasSelection) return base;
-        if (relatedIds.has(fromId) && relatedIds.has(toId)) return 0.8;
+        if (isSelectionEdge) return 0.82;
         return DESIGN.dimAlpha;
       };
 
@@ -483,9 +487,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         effectivePositions,
         fontSans,
         relatedIds,
-        hasSelection,
-        hoveredId,
-        showLabelsAlways
+        hasSelection
       );
       ctx.restore();
 
@@ -511,7 +513,6 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       pulse,
       fontSans,
       hasSelection,
-      showLabelsAlways,
       emptyMessage,
       view,
     ]);
@@ -547,6 +548,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         nodeDragRef.current = null;
 
         if (!hit) {
+          onPointerActiveChange?.(true);
           clickRef.current = { hit: null, startX: sx, startY: sy };
           panRef.current = {
             active: false,
@@ -556,6 +558,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           };
           canvasRef.current?.setPointerCapture(e.pointerId);
         } else {
+          onPointerActiveChange?.(true);
           stopNodeInertia(hit.id);
           panRef.current = { active: false, pointerId: -1, lastX: 0, lastY: 0 };
           clickRef.current = null;
@@ -579,7 +582,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           canvasRef.current?.setPointerCapture(e.pointerId);
         }
       },
-      [hitTestWorld, effectivePositions, stopNodeInertia]
+      [hitTestWorld, effectivePositions, stopNodeInertia, onPointerActiveChange]
     );
 
     const onPointerMove = useCallback(
@@ -655,6 +658,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
 
         const nd = nodeDragRef.current;
         if (nd && e.pointerId === nd.pointerId) {
+          onPointerActiveChange?.(false);
           try {
             canvasRef.current?.releasePointerCapture(e.pointerId);
           } catch {
@@ -680,6 +684,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         }
 
         if (panRef.current.pointerId === e.pointerId && clickRef.current?.hit === null) {
+          onPointerActiveChange?.(false);
           try {
             canvasRef.current?.releasePointerCapture(e.pointerId);
           } catch {
@@ -698,12 +703,13 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           return;
         }
       },
-      [ensureInertiaLoop, onSelectNode]
+      [ensureInertiaLoop, onSelectNode, onPointerActiveChange]
     );
 
     const onPointerLeave = useCallback(() => {
+      onPointerActiveChange?.(false);
       onHoverNode(null, 0, 0);
-    }, [onHoverNode]);
+    }, [onHoverNode, onPointerActiveChange]);
 
     useEffect(() => {
       const el = canvasRef.current;

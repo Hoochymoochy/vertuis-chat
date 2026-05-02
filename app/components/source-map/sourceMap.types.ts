@@ -74,6 +74,9 @@ export type SourceMapSelection =
 export type TooltipRow = { label: string; value: string };
 
 export interface TooltipModel {
+  /** Short display name (matches node label on the map). */
   title: string;
+  /** Optional secondary line (e.g. full citation text). */
+  subtitle?: string;
   rows: TooltipRow[];
 }

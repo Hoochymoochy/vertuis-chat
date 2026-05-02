@@ -104,19 +104,64 @@ const EMPTY_DATA: SourceMapData = {
   jurisdictions: [],
 };
 
+function sumEdgeWeights(edges: GraphEdge[]) {
+  return edges.reduce((sum, e) => sum + e.weight, 0);
+}
+
+function formatMapDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 function buildTooltip(
   nodeId: string,
   kind: NodeKind,
   api: SourceMapAPIResponse
 ): TooltipModel | null {
+  const { edges } = api;
+
   if (kind === "query") {
     const q = api.queries.find((x) => x.id === nodeId);
     if (!q) return null;
+    const usedEdges = edges.filter(
+      (e) => e.edgeType === "USED" && e.from === nodeId
+    );
+    const distinctSources = new Set(usedEdges.map((e) => e.to)).size;
+    const citationWeight = sumEdgeWeights(usedEdges);
+    const topEdge = [...usedEdges].sort((a, b) => b.weight - a.weight)[0];
+    const topSource = topEdge
+      ? api.sources.find((s) => s.id === topEdge.to)
+      : undefined;
     return {
-      title: truncate(q.text, 40),
+      title: q.label,
+      subtitle:
+        q.text.length > 200 ? `${q.text.slice(0, 199)}…` : q.text,
       rows: [
-        { label: "Sources used", value: String(q.sourceIds.length) },
-        { label: "Frequency", value: `${q.usage}×` },
+        { label: "Last activity", value: formatMapDate(q.createdAt) },
+        {
+          label: "Citations on map",
+          value: `${citationWeight} total · ${usedEdges.length} link${usedEdges.length === 1 ? "" : "s"}`,
+        },
+        {
+          label: "Distinct sources",
+          value: `${distinctSources} (model lists ${q.sourceIds.length})`,
+        },
+        { label: "Usage score", value: `${q.usage}×` },
+        ...(topSource
+          ? [
+              {
+                label: "Heaviest link",
+                value: `${truncate(topSource.label, 40)} (${topEdge!.weight})`,
+              },
+            ]
+          : []),
       ],
     };
   }
@@ -125,12 +170,32 @@ function buildTooltip(
     const s = api.sources.find((x) => x.id === nodeId);
     if (!s) return null;
     const j = api.jurisdictions.find((x) => x.id === s.jurisdictionId);
+    const usedEdges = edges.filter(
+      (e) => e.edgeType === "USED" && e.to === nodeId
+    );
+    const queryCount = new Set(usedEdges.map((e) => e.from)).size;
+    const citationWeight = sumEdgeWeights(usedEdges);
     return {
-      title: truncate(s.fullName, 48),
+      title: s.label,
+      subtitle:
+        s.fullName.length > 220
+          ? `${s.fullName.slice(0, 219)}…`
+          : s.fullName,
       rows: [
-        { label: "Type", value: s.sourceType },
-        { label: "Usage", value: `${s.usage}×` },
-        { label: "Jurisdiction", value: j?.label ?? "—" },
+        { label: "Material type", value: s.sourceType },
+        {
+          label: "Jurisdiction",
+          value: j ? `${j.label} · ${j.region}` : "—",
+        },
+        {
+          label: "Queries citing this",
+          value: `${queryCount} quer${queryCount === 1 ? "y" : "ies"}`,
+        },
+        {
+          label: "Citation weight on map",
+          value: String(citationWeight),
+        },
+        { label: "Aggregate usage", value: `${s.usage}×` },
       ],
     };
   }
@@ -138,13 +203,29 @@ function buildTooltip(
   const j = api.jurisdictions.find((x) => x.id === nodeId);
   if (!j) return null;
   const inJur = api.sources.filter((s) => s.jurisdictionId === j.id);
-  const top = [...inJur].sort((a, b) => b.usage - a.usage)[0];
+  const sourceIds = new Set(inJur.map((s) => s.id));
+  const queryIds = new Set<string>();
+  for (const e of edges) {
+    if (e.edgeType === "USED" && sourceIds.has(e.to)) queryIds.add(e.from);
+  }
+  const topLabels = [...inJur]
+    .sort((a, b) => b.usage - a.usage)
+    .slice(0, 4)
+    .map((s) => truncate(s.label, 28));
   return {
     title: j.label,
+    subtitle: j.region,
     rows: [
-      { label: "Total usage", value: `${j.usage}×` },
-      { label: "Sources", value: String(inJur.length) },
-      { label: "Top source", value: top?.label ?? "—" },
+      { label: "Sources on map", value: String(inJur.length) },
+      {
+        label: "Queries reached",
+        value: `${queryIds.size} via sources in this jurisdiction`,
+      },
+      { label: "Total citations", value: `${j.usage}×` },
+      {
+        label: "Top sources here",
+        value: topLabels.length ? topLabels.join(" · ") : "—",
+      },
     ],
   };
 }
@@ -161,6 +242,7 @@ export function SourceMap() {
   const [selection, setSelection] = useState<SourceMapSelection>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [hoverRevealProgress, setHoverRevealProgress] = useState(0);
+  const [isPointerActive, setIsPointerActive] = useState(false);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [pulse, setPulse] = useState(0);
   const sizeRef = useRef<HTMLDivElement>(null);
@@ -254,8 +336,6 @@ export function SourceMap() {
         : selection.kind === "source"
           ? selection.id
           : selection.id;
-  const showLabelsAlways = uid === "demo-user";
-
   useEffect(() => {
     if (!selectedId) {
       setPulse(0);
@@ -273,22 +353,32 @@ export function SourceMap() {
   }, [selectedId]);
 
   useEffect(() => {
-    if (!hoverId) {
+    if (!hoverId || isPointerActive) {
       setHoverRevealProgress(0);
       return;
     }
-    const durationMs = 1750;
-    const start = performance.now();
+    let delayTimer = 0;
     let raf = 0;
-    const tick = (ts: number) => {
-      const t = Math.max(0, Math.min(1, (ts - start) / durationMs));
-      const eased = t * t * (3 - 2 * t);
-      setHoverRevealProgress(eased);
-      if (t < 1) raf = requestAnimationFrame(tick);
+
+    const runReveal = () => {
+      const durationMs = 1750;
+      const start = performance.now();
+      const tick = (ts: number) => {
+        const t = Math.max(0, Math.min(1, (ts - start) / durationMs));
+        const eased = t * t * (3 - 2 * t);
+        setHoverRevealProgress(eased);
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [hoverId]);
+
+    delayTimer = window.setTimeout(runReveal, 3000);
+
+    return () => {
+      window.clearTimeout(delayTimer);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [hoverId, isPointerActive]);
 
   const onSelectNode = useCallback((id: string | null, kind: NodeKind | null) => {
     if (!id || !kind) {
@@ -459,11 +549,11 @@ export function SourceMap() {
                 pulse={pulse}
                 fontSans={fontSans}
                 hasSelection={selection !== null}
-                showLabelsAlways={showLabelsAlways}
                 emptyMessage={emptyMessage}
                 layoutKey={data?.generatedAt}
                 onSelectNode={onSelectNode}
                 onHoverNode={onHoverNode}
+                onPointerActiveChange={setIsPointerActive}
               />
             )}
           </div>
