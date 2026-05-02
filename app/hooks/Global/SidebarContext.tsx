@@ -128,7 +128,10 @@ export function SidebarProvider({
     } 
     else if (pathWithoutLocale.startsWith("/settings")) {
       setActiveSection("settings");
-    } 
+    }
+    else if (pathWithoutLocale.startsWith("/source-map")) {
+      setActiveSection("source-map");
+    }
     else {
       setActiveSection("home");
     }

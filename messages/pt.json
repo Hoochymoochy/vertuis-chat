@@ -194,8 +194,9 @@
       "updated": "Atualizado",
       "noDocumentsFound": "Nenhum documento encontrado",
       "documents": "Doc",
-      "noChatsYet": "Nenhuma conversa ainda"
-
+      "noChatsYet": "Nenhuma conversa ainda",
+      "sourceMap": "Mapa de fontes",
+      "sourceMapBlurb": "Suas consultas, fontes citadas e jurisdições aparecem no painel principal. Use a visão geral à direita para abrir o gráfico."
     },
     "Case": {
       "createNewCase": "Criar Novo Caso",

@@ -9,6 +9,7 @@ import { ChatSection } from "./chat/ChatSection";
 import { CaseSection } from "./case/CaseSection";
 import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
+import { SourceMapSection } from "./source-map/SourceMapSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { useSidebar } from "../../hooks/Global/SidebarContext";
 import { useTranslations } from "next-intl";
@@ -38,7 +39,12 @@ export default function SidebarRight() {
       title: t("documents"),
       sections: documentsbarSections,
       Component: DocumentSection
-    }
+    },
+    "source-map": {
+      title: t("sourceMap"),
+      sections: [],
+      Component: SourceMapSection,
+    },
   } as const;
   
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;
@@ -131,7 +137,7 @@ export default function SidebarRight() {
             duration: ANIMATION.DURATION / 1000,
             ease: [0.4, 0, 0.2, 1],
           }}
-          className="flex-1 overflow-hidden mt-10"
+          className="mt-10 flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <SectionComponent />
         </motion.div>

@@ -194,7 +194,9 @@
     "updated": "Updated",
     "noDocumentsFound": "No documents found",
     "documents": "Docs",
-    "noChatsYet": "No chats yet"
+    "noChatsYet": "No chats yet",
+    "sourceMap": "Source map",
+    "sourceMapBlurb": "Your queries, cited sources, and jurisdictions appear in the main panel. Use the overview on the right to jump into the graph."
   },
   "Case": {
     "createNewCase": "Create New Case",

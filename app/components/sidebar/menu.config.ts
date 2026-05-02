@@ -16,6 +16,7 @@ import {
   Document,
   Chat,
   Time,
+  ChartNetwork,
 } from "@carbon/icons-react";
 
 export const sidebarSections = [
@@ -24,7 +25,13 @@ export const sidebarSections = [
     items: [
       { icon: IbmWatsonAssistant, label: "Chat", id: 1, sectionType: "chat", route: "/chat" },
       { icon: Task, label: "Case", id: 2, sectionType: "case", route: "/case" },
-      
+      {
+        icon: ChartNetwork,
+        label: "Source map",
+        id: 3,
+        sectionType: "source-map",
+        route: "/source-map",
+      },
     ],
   },
   {

@@ -7,6 +7,11 @@ const locales = ["en", "pt"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Allow API routes to bypass locale checks
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   // Allow auth callback to bypass locale checks
   if (pathname.startsWith("/auth/callback")) {
     return NextResponse.next();
