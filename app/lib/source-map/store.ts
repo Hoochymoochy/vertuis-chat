@@ -111,176 +111,168 @@ function isoDaysAgo(days: number) {
 }
 
 function demoGraph(): FullGraph {
-  const queries: QueryNode[] = [
-    {
-      id: "q1",
-      type: "query",
-      label: "Contract breach remedies",
-      text: "Contract breach remedies in commercial disputes",
-      usage: 12,
-      sourceIds: ["s1", "s2", "s3"],
-      createdAt: isoDaysAgo(2),
-    },
-    {
-      id: "q2",
-      type: "query",
-      label: "IP fair use exceptions",
-      text: "IP fair use exceptions digital content",
-      usage: 9,
-      sourceIds: ["s2", "s4", "s5"],
-      createdAt: isoDaysAgo(5),
-    },
-    {
-      id: "q3",
-      type: "query",
-      label: "Employment termination",
-      text: "Employment termination wrongful discharge",
-      usage: 7,
-      sourceIds: ["s3", "s6"],
-      createdAt: isoDaysAgo(8),
-    },
-    {
-      id: "q4",
-      type: "query",
-      label: "Securities regulation",
-      text: "Securities regulation disclosure requirements",
-      usage: 5,
-      sourceIds: ["s4", "s7"],
-      createdAt: isoDaysAgo(12),
-    },
-    {
-      id: "q5",
-      type: "query",
-      label: "Merger review",
-      text: "Merger review antitrust analysis",
-      usage: 4,
-      sourceIds: ["s1", "s7", "s8"],
-      createdAt: isoDaysAgo(20),
-    },
-  ];
-
-  const sources: SourceNode[] = [
-    {
-      id: "s1",
-      type: "source",
-      label: "Hadley v Baxendale",
-      fullName: "Hadley v Baxendale [1854] EWHC J70",
-      sourceType: "Case",
-      jurisdictionId: "j2",
-      usage: 14,
-    },
-    {
-      id: "s2",
-      type: "source",
-      label: "Copyright Act 1976",
-      fullName: "Copyright Act of 1976, 17 U.S.C. §101",
-      sourceType: "Statute",
-      jurisdictionId: "j1",
-      usage: 11,
-    },
-    {
-      id: "s3",
-      type: "source",
-      label: "FLSA 29 U.S.C.",
-      fullName: "Fair Labor Standards Act, 29 U.S.C. §201",
-      sourceType: "Statute",
-      jurisdictionId: "j1",
-      usage: 8,
-    },
-    {
-      id: "s4",
-      type: "source",
-      label: "Campbell v Acuff-Rose",
-      fullName: "Campbell v. Acuff-Rose Music, 510 U.S. 569 (1994)",
-      sourceType: "Case",
-      jurisdictionId: "j1",
-      usage: 7,
-    },
-    {
-      id: "s5",
-      type: "source",
-      label: "DMCA §512",
-      fullName: "Digital Millennium Copyright Act, 17 U.S.C. §512",
-      sourceType: "Statute",
-      jurisdictionId: "j1",
-      usage: 6,
-    },
-    {
-      id: "s6",
-      type: "source",
-      label: "Martin v Plain Dealer",
-      fullName: "Martin v. Plain Dealer Publishing Co., Ohio App.",
-      sourceType: "Case",
-      jurisdictionId: "j3",
-      usage: 5,
-    },
-    {
-      id: "s7",
-      type: "source",
-      label: "SEC Rule 10b-5",
-      fullName: "SEC Rule 10b-5, 17 C.F.R. §240.10b-5",
-      sourceType: "Document",
-      jurisdictionId: "j1",
-      usage: 9,
-    },
-    {
-      id: "s8",
-      type: "source",
-      label: "HSR Act §7A",
-      fullName: "Hart-Scott-Rodino Antitrust Act, 15 U.S.C. §18a",
-      sourceType: "Statute",
-      jurisdictionId: "j1",
-      usage: 4,
-    },
-  ];
-
   const jurisdictions: JurisdictionNode[] = [
-    {
-      id: "j1",
-      type: "jurisdiction",
-      label: "Federal U.S.",
-      region: "US Federal",
-      usage: 42,
-    },
-    {
-      id: "j2",
-      type: "jurisdiction",
-      label: "English Common Law",
-      region: "International",
-      usage: 14,
-    },
-    {
-      id: "j3",
-      type: "jurisdiction",
-      label: "Ohio State",
-      region: "US State",
-      usage: 5,
-    },
+    { id: "j1", type: "jurisdiction", label: "Federal U.S.", region: "US Federal", usage: 0 },
+    { id: "j2", type: "jurisdiction", label: "California", region: "US State", usage: 0 },
+    { id: "j3", type: "jurisdiction", label: "New York", region: "US State", usage: 0 },
+    { id: "j4", type: "jurisdiction", label: "Texas", region: "US State", usage: 0 },
+    { id: "j5", type: "jurisdiction", label: "English Common Law", region: "International", usage: 0 },
+    { id: "j6", type: "jurisdiction", label: "EU", region: "International", usage: 0 },
+    { id: "j7", type: "jurisdiction", label: "Delaware", region: "US State", usage: 0 },
+    { id: "j8", type: "jurisdiction", label: "Florida", region: "US State", usage: 0 },
   ];
 
-  const edges: GraphEdge[] = [
-    { from: "q1", to: "s1", edgeType: "USED", weight: 5 },
-    { from: "q1", to: "s2", edgeType: "USED", weight: 4 },
-    { from: "q1", to: "s3", edgeType: "USED", weight: 3 },
-    { from: "q2", to: "s2", edgeType: "USED", weight: 3 },
-    { from: "q2", to: "s4", edgeType: "USED", weight: 3 },
-    { from: "q2", to: "s5", edgeType: "USED", weight: 3 },
-    { from: "q3", to: "s3", edgeType: "USED", weight: 4 },
-    { from: "q3", to: "s6", edgeType: "USED", weight: 3 },
-    { from: "q4", to: "s4", edgeType: "USED", weight: 2 },
-    { from: "q4", to: "s7", edgeType: "USED", weight: 3 },
-    { from: "q5", to: "s1", edgeType: "USED", weight: 2 },
-    { from: "q5", to: "s7", edgeType: "USED", weight: 1 },
-    { from: "q5", to: "s8", edgeType: "USED", weight: 1 },
-    { from: "s1", to: "j2", edgeType: "FROM", weight: 14 },
-    { from: "s2", to: "j1", edgeType: "FROM", weight: 11 },
-    { from: "s3", to: "j1", edgeType: "FROM", weight: 8 },
-    { from: "s4", to: "j1", edgeType: "FROM", weight: 7 },
-    { from: "s5", to: "j1", edgeType: "FROM", weight: 6 },
-    { from: "s6", to: "j3", edgeType: "FROM", weight: 5 },
-    { from: "s7", to: "j1", edgeType: "FROM", weight: 9 },
-    { from: "s8", to: "j1", edgeType: "FROM", weight: 4 },
+  const sourceSeeds: Array<{
+    label: string;
+    fullName: string;
+    sourceType: SourceNode["sourceType"];
+    jurisdictionId: string;
+  }> = [
+    { label: "Hadley v Baxendale", fullName: "Hadley v Baxendale [1854] EWHC J70", sourceType: "Case", jurisdictionId: "j5" },
+    { label: "Copyright Act", fullName: "Copyright Act of 1976, 17 U.S.C. §101", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "FLSA", fullName: "Fair Labor Standards Act, 29 U.S.C. §201", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "Campbell v Acuff-Rose", fullName: "Campbell v. Acuff-Rose Music, 510 U.S. 569 (1994)", sourceType: "Case", jurisdictionId: "j1" },
+    { label: "DMCA §512", fullName: "Digital Millennium Copyright Act, 17 U.S.C. §512", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "SEC Rule 10b-5", fullName: "SEC Rule 10b-5, 17 C.F.R. §240.10b-5", sourceType: "Document", jurisdictionId: "j1" },
+    { label: "HSR Act §7A", fullName: "Hart-Scott-Rodino Antitrust Act, 15 U.S.C. §18a", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "UCC Article 2", fullName: "Uniform Commercial Code Article 2", sourceType: "Statute", jurisdictionId: "j7" },
+    { label: "Restatement Contracts", fullName: "Restatement (Second) of Contracts", sourceType: "Document", jurisdictionId: "j1" },
+    { label: "Lanham Act", fullName: "Lanham Act, 15 U.S.C. §1051", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "GDPR Art. 6", fullName: "GDPR Regulation (EU) 2016/679, Article 6", sourceType: "Statute", jurisdictionId: "j6" },
+    { label: "CCPA", fullName: "California Consumer Privacy Act", sourceType: "Statute", jurisdictionId: "j2" },
+    { label: "NYS Labor Law", fullName: "New York Labor Law §190", sourceType: "Statute", jurisdictionId: "j3" },
+    { label: "Texas Bus. Code", fullName: "Texas Business and Commerce Code", sourceType: "Statute", jurisdictionId: "j4" },
+    { label: "Delaware GCL", fullName: "Delaware General Corporation Law", sourceType: "Statute", jurisdictionId: "j7" },
+    { label: "Bluebook Rules", fullName: "The Bluebook: A Uniform System of Citation", sourceType: "Document", jurisdictionId: "j1" },
+    { label: "FRCP Rule 12", fullName: "Federal Rules of Civil Procedure Rule 12", sourceType: "Document", jurisdictionId: "j1" },
+    { label: "Daubert", fullName: "Daubert v. Merrell Dow Pharmaceuticals, Inc.", sourceType: "Case", jurisdictionId: "j1" },
+    { label: "Erie Doctrine", fullName: "Erie Railroad Co. v. Tompkins", sourceType: "Case", jurisdictionId: "j1" },
+    { label: "Brulotte", fullName: "Brulotte v. Thys Co.", sourceType: "Case", jurisdictionId: "j1" },
+    { label: "Florida Rules Civ.", fullName: "Florida Rules of Civil Procedure", sourceType: "Document", jurisdictionId: "j8" },
+    { label: "Cal Civ. Code §1542", fullName: "California Civil Code §1542", sourceType: "Statute", jurisdictionId: "j2" },
+    { label: "SOX 404", fullName: "Sarbanes-Oxley Act Section 404", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "Title VII", fullName: "Civil Rights Act of 1964, Title VII", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "Sherman Act §1", fullName: "Sherman Antitrust Act, 15 U.S.C. §1", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "Clayton Act §7", fullName: "Clayton Act, 15 U.S.C. §18", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "EU Merger Reg", fullName: "Council Regulation (EC) No 139/2004", sourceType: "Statute", jurisdictionId: "j6" },
+    { label: "Model Penal Code", fullName: "Model Penal Code", sourceType: "Document", jurisdictionId: "j1" },
+    { label: "FOIA", fullName: "Freedom of Information Act, 5 U.S.C. §552", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "HIPAA", fullName: "Health Insurance Portability and Accountability Act", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "FERPA", fullName: "Family Educational Rights and Privacy Act", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "CFAA", fullName: "Computer Fraud and Abuse Act", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "Federal Arbitration Act", fullName: "Federal Arbitration Act, 9 U.S.C. §1", sourceType: "Statute", jurisdictionId: "j1" },
+    { label: "UETA", fullName: "Uniform Electronic Transactions Act", sourceType: "Statute", jurisdictionId: "j7" },
+    { label: "PIPEDA", fullName: "Personal Information Protection and Electronic Documents Act", sourceType: "Statute", jurisdictionId: "j6" },
   ];
+
+  const sources: SourceNode[] = sourceSeeds.map((seed, i) => ({
+    id: `s${i + 1}`,
+    type: "source",
+    label: seed.label,
+    fullName: seed.fullName,
+    sourceType: seed.sourceType,
+    jurisdictionId: seed.jurisdictionId,
+    usage: 0,
+  }));
+
+  const topicSeeds = [
+    "Contract breach remedies",
+    "IP fair use exceptions",
+    "Employment termination",
+    "Securities disclosures",
+    "Merger review standards",
+    "Data privacy consent",
+    "Arbitration enforceability",
+    "Trademark dilution",
+    "Expert testimony admissibility",
+    "Consumer protection claims",
+    "Cybersecurity incident response",
+    "Executive compensation limits",
+    "Wage and hour exemptions",
+    "M&A disclosure obligations",
+    "Antitrust market definition",
+    "Discovery proportionality",
+    "FOIA production timelines",
+    "Healthcare data access",
+    "Education records requests",
+    "Cross-border transfer safeguards",
+    "Class certification standards",
+    "Injunction irreparable harm",
+    "License termination clauses",
+    "Trade secret misappropriation",
+    "Open source compliance",
+    "Whistleblower protections",
+    "Non-compete enforceability",
+    "Jurisdiction selection clauses",
+    "Choice of law conflicts",
+    "Regulatory notice requirements",
+    "Board fiduciary duties",
+    "Shareholder derivative actions",
+    "Document retention policies",
+    "E-signature validity",
+    "Platform intermediary liability",
+    "AI training data rights",
+    "Employee monitoring limits",
+    "Financial audit controls",
+    "Insurance coverage disputes",
+    "Settlement release scope",
+  ];
+
+  const edges: GraphEdge[] = [];
+  const queries: QueryNode[] = topicSeeds.map((topic, i) => {
+    const sourceCount = 3 + (i % 3);
+    const start = (i * 2) % sources.length;
+    const sourceIds = Array.from({ length: sourceCount }, (_, k) => {
+      const idx = (start + k * 3 + (i % 5)) % sources.length;
+      return sources[idx].id;
+    });
+
+    const usage = Math.max(3, 28 - Math.floor(i * 0.55));
+    sourceIds.forEach((sid, k) => {
+      edges.push({
+        from: `q${i + 1}`,
+        to: sid,
+        edgeType: "USED",
+        weight: Math.max(1, Math.min(12, usage - k * 2)),
+      });
+    });
+
+    return {
+      id: `q${i + 1}`,
+      type: "query",
+      label: topic,
+      text: `${topic} legal analysis with controlling authority`,
+      usage,
+      sourceIds,
+      createdAt: isoDaysAgo(1 + ((i * 3) % 90)),
+    };
+  });
+
+  const sourceUseTally = new Map<string, number>();
+  for (const edge of edges) {
+    if (edge.edgeType !== "USED") continue;
+    sourceUseTally.set(edge.to, (sourceUseTally.get(edge.to) ?? 0) + edge.weight);
+  }
+
+  const jurUseTally = new Map<string, number>();
+  sources.forEach((source) => {
+    const usage = sourceUseTally.get(source.id) ?? 1;
+    source.usage = usage;
+    edges.push({
+      from: source.id,
+      to: source.jurisdictionId,
+      edgeType: "FROM",
+      weight: usage,
+    });
+    jurUseTally.set(
+      source.jurisdictionId,
+      (jurUseTally.get(source.jurisdictionId) ?? 0) + usage
+    );
+  });
+
+  jurisdictions.forEach((jur) => {
+    jur.usage = jurUseTally.get(jur.id) ?? 1;
+  });
 
   return { queries, sources, jurisdictions, edges };
 }

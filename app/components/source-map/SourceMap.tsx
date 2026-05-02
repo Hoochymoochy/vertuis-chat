@@ -45,6 +45,9 @@ function computeRelatedIds(
     }
   } else if (sel.kind === "source") {
     out.add(sel.id);
+    for (const e of edges) {
+      if (e.edgeType === "USED" && e.to === sel.id) out.add(e.from);
+    }
     const s = sources.find((x) => x.id === sel.id);
     if (s) out.add(s.jurisdictionId);
   } else {
