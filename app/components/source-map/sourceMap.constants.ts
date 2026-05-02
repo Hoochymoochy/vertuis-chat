@@ -11,13 +11,13 @@ export const DESIGN = {
 
   /** Nodes: gold family + warm neutrals (no blue/purple) */
   nodeUser: "#FCE588",
-  nodeQuery: "#F0B429",
-  nodeSource: "#4a4338",
-  nodeJurisdiction: "#5c5344",
+  nodeQuery: "#4F46E5",
+  nodeSource: "#2563EB",
+  nodeJurisdiction: "#0891B2",
+  nodeStroke: "#E5E7EB",
 
   /** Edge stroke prefixes: append `${alpha})` */
-  edgeUsedOpen: "rgba(255, 215, 0,",
-  edgeFromOpen: "rgba(200, 175, 110,",
+  edgeNeutralOpen: "rgba(148, 163, 184,",
 
   highlightWarm: "#fff8e6",
 
@@ -64,4 +64,7 @@ export const DESIGN = {
   pulseSpeed: 0.06,
   dimAlpha: 0.08,
   activeAlpha: 0.85,
+  idleEdgeAlpha: 0.1,
+  hoverRevealSpeed: 2.5,
+  hoverEdgeBoost: 0.72,
 } as const;

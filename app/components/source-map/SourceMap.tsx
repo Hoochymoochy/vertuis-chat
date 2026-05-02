@@ -59,6 +59,40 @@ function computeRelatedIds(
   return out;
 }
 
+function computeHoverDistances(
+  hoverId: string | null,
+  edges: GraphEdge[]
+): Map<string, number> {
+  if (!hoverId) return new Map();
+  const neighbors = new Map<string, Set<string>>();
+  for (const edge of edges) {
+    const fromSet = neighbors.get(edge.from) ?? new Set<string>();
+    fromSet.add(edge.to);
+    neighbors.set(edge.from, fromSet);
+    const toSet = neighbors.get(edge.to) ?? new Set<string>();
+    toSet.add(edge.from);
+    neighbors.set(edge.to, toSet);
+  }
+
+  const distances = new Map<string, number>();
+  const queue: string[] = [hoverId];
+  distances.set(hoverId, 0);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const baseDistance = distances.get(current) ?? 0;
+    const linked = neighbors.get(current);
+    if (!linked) continue;
+    for (const next of linked) {
+      if (distances.has(next)) continue;
+      distances.set(next, baseDistance + 1);
+      queue.push(next);
+    }
+  }
+
+  return distances;
+}
+
 function truncate(s: string, max: number) {
   if (s.length <= max) return s;
   return `${s.slice(0, max - 1)}…`;
@@ -126,6 +160,7 @@ export function SourceMap() {
   const setOverviewPayload = useSourceMapOverviewPublisher();
   const [selection, setSelection] = useState<SourceMapSelection>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
+  const [hoverRevealProgress, setHoverRevealProgress] = useState(0);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [pulse, setPulse] = useState(0);
   const sizeRef = useRef<HTMLDivElement>(null);
@@ -206,6 +241,10 @@ export function SourceMap() {
     if (!data || !selection) return new Set<string>();
     return computeRelatedIds(selection, data.edges, data.sources);
   }, [data, selection]);
+  const hoverDistances = useMemo(
+    () => computeHoverDistances(hoverId, canvasEdges),
+    [hoverId, canvasEdges]
+  );
 
   const selectedId =
     selection === null
@@ -215,6 +254,7 @@ export function SourceMap() {
         : selection.kind === "source"
           ? selection.id
           : selection.id;
+  const showLabelsAlways = uid === "demo-user";
 
   useEffect(() => {
     if (!selectedId) {
@@ -231,6 +271,24 @@ export function SourceMap() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!hoverId) {
+      setHoverRevealProgress(0);
+      return;
+    }
+    const durationMs = 1750;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (ts: number) => {
+      const t = Math.max(0, Math.min(1, (ts - start) / durationMs));
+      const eased = t * t * (3 - 2 * t);
+      setHoverRevealProgress(eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [hoverId]);
 
   const onSelectNode = useCallback((id: string | null, kind: NodeKind | null) => {
     if (!id || !kind) {
@@ -394,11 +452,14 @@ export function SourceMap() {
                 positions={positions}
                 edges={canvasEdges}
                 relatedIds={relatedIds}
+                hoverDistances={hoverDistances}
+                hoverRevealProgress={hoverRevealProgress}
                 selectedId={selectedId}
                 hoveredId={hoverId}
                 pulse={pulse}
                 fontSans={fontSans}
                 hasSelection={selection !== null}
+                showLabelsAlways={showLabelsAlways}
                 emptyMessage={emptyMessage}
                 layoutKey={data?.generatedAt}
                 onSelectNode={onSelectNode}

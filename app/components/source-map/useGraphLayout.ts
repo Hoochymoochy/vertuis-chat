@@ -29,6 +29,67 @@ function ringAngle(i: number, n: number, phase: number): number {
   return (i / count) * Math.PI * 2 - Math.PI / 2 + phase;
 }
 
+function blendAngles(a: number, b: number, blendToA: number): number {
+  const wA = clamp(blendToA, 0, 1);
+  const wB = 1 - wA;
+  const x = Math.cos(a) * wA + Math.cos(b) * wB;
+  const y = Math.sin(a) * wA + Math.sin(b) * wB;
+  return Math.atan2(y, x);
+}
+
+function resolveNodeOverlaps(
+  positions: Map<string, PositionedNode>,
+  canvasWidth: number,
+  canvasHeight: number
+) {
+  const ids = [...positions.keys()];
+  const gap = 10;
+  const maxIterations = 70;
+
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
+    let maxPenetration = 0;
+
+    for (let i = 0; i < ids.length; i++) {
+      const a = positions.get(ids[i]);
+      if (!a) continue;
+
+      for (let j = i + 1; j < ids.length; j++) {
+        const b = positions.get(ids[j]);
+        if (!b) continue;
+
+        const dx = b.px - a.px;
+        const dy = b.py - a.py;
+        const distance = Math.hypot(dx, dy);
+        const minDistance = a.r + b.r + gap;
+        const overlap = minDistance - distance;
+        if (overlap <= 0) continue;
+
+        maxPenetration = Math.max(maxPenetration, overlap);
+
+        const angle =
+          distance > 1e-5 ? Math.atan2(dy, dx) : ((i + 1) * (j + 3)) % (Math.PI * 2);
+        const ux = Math.cos(angle);
+        const uy = Math.sin(angle);
+        const move = overlap * 0.5;
+
+        a.px -= ux * move;
+        a.py -= uy * move;
+        b.px += ux * move;
+        b.py += uy * move;
+      }
+    }
+
+    for (const id of ids) {
+      const node = positions.get(id);
+      if (!node) continue;
+      node.px = clamp(node.px, node.r + 12, canvasWidth - node.r - 12);
+      node.py = clamp(node.py, node.r + 12, canvasHeight - node.r - 12);
+    }
+
+    if (maxPenetration < 0.45) break;
+  }
+}
+
 /**
  * Edge-aware concentric layout: queries on inner ring, sources mid, jurisdictions outer.
  * Angles follow graph connectivity to reduce clutter vs fixed offsets on every ring.
@@ -41,13 +102,26 @@ export function computeLayout(
 ): Map<string, PositionedNode> {
   const minDim = Math.min(canvasWidth, canvasHeight);
   const cx = canvasWidth / 2;
-  const cy = canvasHeight * 0.44;
+  const cy = canvasHeight * 0.5;
 
   const positions = new Map<string, PositionedNode>();
 
-  const rQuery = minDim * 0.19;
-  const rSource = minDim * 0.335;
-  const rJur = minDim * 0.475;
+  const ringPaddingX = 52;
+  const ringPaddingY = 42;
+  const maxOuterX = Math.max(
+    minDim * 0.36,
+    canvasWidth / 2 - DESIGN.jurisdictionNodeMax - ringPaddingX
+  );
+  const maxOuterY = Math.max(
+    minDim * 0.3,
+    canvasHeight / 2 - DESIGN.jurisdictionNodeMax - ringPaddingY
+  );
+  const queryRx = maxOuterX * 0.3;
+  const queryRy = maxOuterY * 0.3;
+  const sourceRx = maxOuterX * 0.62;
+  const sourceRy = maxOuterY * 0.62;
+  const jurRx = maxOuterX * 0.98;
+  const jurRy = maxOuterY * 0.98;
 
   const usedByTarget = new Map<string, { queryId: string; weight: number }[]>();
   for (const e of edges) {
@@ -75,8 +149,8 @@ export function computeLayout(
     const angle = queryAngle.get(q.id)!;
     positions.set(q.id, {
       ...q,
-      px: cx + Math.cos(angle) * rQuery,
-      py: cy + Math.sin(angle) * rQuery,
+      px: cx + Math.cos(angle) * queryRx,
+      py: cy + Math.sin(angle) * queryRy,
       r: clamp(
         DESIGN.queryNodeBase + q.usage * DESIGN.queryNodeMultiplier,
         DESIGN.queryNodeMin,
@@ -99,9 +173,11 @@ export function computeLayout(
       })
       .filter((x): x is { angle: number; weight: number } => x !== null);
 
+    const fallback = ringAngle(i, sortedSources.length, golden);
     let angle =
       circularMeanWeighted(pairs) ??
-      ringAngle(i, sortedSources.length, golden);
+      fallback;
+    angle = blendAngles(angle, fallback, 0.62);
     angle += i * 0.004;
     sourceAngle.set(s.id, angle);
   });
@@ -110,8 +186,8 @@ export function computeLayout(
     const angle = sourceAngle.get(s.id)!;
     positions.set(s.id, {
       ...s,
-      px: cx + Math.cos(angle) * rSource,
-      py: cy + Math.sin(angle) * rSource,
+      px: cx + Math.cos(angle) * sourceRx,
+      py: cy + Math.sin(angle) * sourceRy,
       r: clamp(
         DESIGN.sourceNodeBase + s.usage * DESIGN.sourceNodeMultiplier,
         DESIGN.sourceNodeMin,
@@ -133,15 +209,17 @@ export function computeLayout(
       })
       .filter((x): x is { angle: number; weight: number } => x !== null);
 
+    const fallback = ringAngle(i, sortedJur.length, jurPhase);
     let angle =
       circularMeanWeighted(pairs) ??
-      ringAngle(i, sortedJur.length, jurPhase);
+      fallback;
+    angle = blendAngles(angle, fallback, 0.58);
     angle += i * 0.004;
 
     positions.set(j.id, {
       ...j,
-      px: cx + Math.cos(angle) * rJur,
-      py: cy + Math.sin(angle) * rJur,
+      px: cx + Math.cos(angle) * jurRx,
+      py: cy + Math.sin(angle) * jurRy,
       r: clamp(
         DESIGN.jurisdictionNodeBase +
           j.usage * DESIGN.jurisdictionNodeMultiplier,
@@ -150,6 +228,8 @@ export function computeLayout(
       ),
     });
   });
+
+  resolveNodeOverlaps(positions, canvasWidth, canvasHeight);
 
   return positions;
 }

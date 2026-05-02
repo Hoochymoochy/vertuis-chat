@@ -50,15 +50,10 @@ function drawEdge(
   ctx: CanvasRenderingContext2D,
   from: PositionedNode,
   to: PositionedNode,
-  edge: GraphEdge,
   alpha: number
 ) {
-  const color =
-    edge.edgeType === "FROM" ? DESIGN.edgeFromOpen : DESIGN.edgeUsedOpen;
-  const width = 0.5 + (edge.weight / 15) * 2.5;
-
-  ctx.strokeStyle = `${color}${alpha})`;
-  ctx.lineWidth = Math.min(DESIGN.edgeWidthMax, Math.max(DESIGN.edgeWidthMin, width));
+  ctx.strokeStyle = `${DESIGN.edgeNeutralOpen}${alpha})`;
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.moveTo(from.px, from.py);
   ctx.lineTo(to.px, to.py);
@@ -90,87 +85,8 @@ function withAlpha(hex: string, a: number): string {
   return hex;
 }
 
-/** Small centered glyph per node type (canvas paths). */
-function drawNodeTypeIcon(
-  ctx: CanvasRenderingContext2D,
-  type: PositionedNode["type"],
-  px: number,
-  py: number,
-  r: number,
-  iconAlpha: number
-) {
-  const s = Math.max(3.8, Math.min(14, Math.min(r * 0.42, 13)));
-  const ink = withAlpha("#FFF8E8", Math.max(0.2, iconAlpha * 0.92));
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  switch (type) {
-    case "user":
-      break;
-    case "query": {
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = Math.max(1.05, s * 0.13);
-      const ox = px - s * 0.12;
-      const oy = py - s * 0.12;
-      ctx.beginPath();
-      ctx.arc(ox, oy, s * 0.26, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(ox + s * 0.2, oy + s * 0.2);
-      ctx.lineTo(px + s * 0.48, py + s * 0.48);
-      ctx.stroke();
-      break;
-    }
-    case "source": {
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = Math.max(1, s * 0.11);
-      const w = s * 0.52;
-      const h = s * 0.62;
-      const left = px - w / 2;
-      const top = py - h / 2;
-      ctx.strokeRect(left, top, w, h);
-      for (let i = 0; i < 3; i++) {
-        const y = top + h * 0.26 + i * s * 0.15;
-        ctx.beginPath();
-        ctx.moveTo(left + w * 0.18, y);
-        ctx.lineTo(left + w * 0.82, y);
-        ctx.stroke();
-      }
-      break;
-    }
-    case "jurisdiction": {
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.moveTo(px, py - s * 0.42);
-      ctx.bezierCurveTo(
-        px + s * 0.45,
-        py - s * 0.1,
-        px + s * 0.35,
-        py + s * 0.38,
-        px,
-        py + s * 0.42
-      );
-      ctx.bezierCurveTo(
-        px - s * 0.35,
-        py + s * 0.38,
-        px - s * 0.45,
-        py - s * 0.1,
-        px,
-        py - s * 0.42
-      );
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = withAlpha(DESIGN.charcoal, 0.55 * iconAlpha);
-      ctx.beginPath();
-      ctx.arc(px, py - s * 0.02, s * 0.12, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    }
-    default:
-      break;
-  }
-  ctx.restore();
+function clamp01(n: number) {
+  return Math.max(0, Math.min(1, n));
 }
 
 function drawNodeDisc(
@@ -183,43 +99,18 @@ function drawNodeDisc(
 ) {
   const alpha = isDimmed ? 0.12 : isSelected || isHovered ? 1 : 0.85;
   const base = nodeFillColor(node.type);
-
+  const r = node.r + (isSelected ? pulseValue * 2 : 0);
   ctx.save();
-  if (isSelected) {
-    ctx.shadowColor = withAlpha(DESIGN.gold, 0.55);
-    ctx.shadowBlur = 16 + pulseValue * 8;
-  } else if (isHovered && !isDimmed) {
-    ctx.shadowColor = withAlpha(DESIGN.gold, 0.35);
-    ctx.shadowBlur = 10;
-  }
-
-  const r = node.r + (isSelected ? pulseValue * 3 : 0);
-  const grd = ctx.createRadialGradient(
-    node.px - r * 0.3,
-    node.py - r * 0.3,
-    0,
-    node.px,
-    node.py,
-    r
-  );
-  grd.addColorStop(0, withAlpha(DESIGN.highlightWarm, 0.42 * alpha));
-  grd.addColorStop(0.38, withAlpha(base, 0.96 * alpha));
-  grd.addColorStop(1, withAlpha(DESIGN.charcoal, 0.72 * alpha));
-
   ctx.beginPath();
   ctx.arc(node.px, node.py, r, 0, Math.PI * 2);
-  ctx.fillStyle = grd;
+  ctx.fillStyle = withAlpha(base, alpha);
   ctx.fill();
-
-  ctx.shadowBlur = 0;
   ctx.strokeStyle = withAlpha(
-    DESIGN.gold,
-    (isSelected ? 0.9 : isHovered ? 0.55 : 0.38) * alpha
+    DESIGN.nodeStroke,
+    (isSelected ? 0.95 : isHovered ? 0.75 : 0.55) * alpha
   );
-  ctx.lineWidth = isSelected ? 2.2 : 1;
+  ctx.lineWidth = isSelected ? 2 : 1.1;
   ctx.stroke();
-
-  drawNodeTypeIcon(ctx, node.type, node.px, node.py, r, alpha);
   ctx.restore();
 }
 
@@ -228,38 +119,44 @@ function truncate(s: string, max: number) {
   return `${s.slice(0, max - 1)}…`;
 }
 
-/** Label only for the hovered node (not shown by default under nodes). */
-function drawHoverLabel(
+function drawNodeLabels(
   ctx: CanvasRenderingContext2D,
   positions: Map<string, PositionedNode>,
   fontSans: string,
   relatedIds: Set<string>,
   hasSelection: boolean,
-  hoveredId: string | null
+  hoveredId: string | null,
+  showAllLabels: boolean
 ) {
-  if (!hoveredId) return;
-  const node = positions.get(hoveredId);
-  if (!node) return;
-  const dim = hasSelection && !relatedIds.has(node.id);
+  const toDraw = showAllLabels
+    ? [...positions.values()]
+    : hoveredId
+      ? [positions.get(hoveredId)].filter(
+          (node): node is PositionedNode => node !== undefined
+        )
+      : [];
+  if (toDraw.length === 0) return;
 
-  const line1 =
-    node.type === "query"
-      ? truncate(node.label, 30)
-      : node.type === "source"
-        ? truncate(node.label, 32)
-        : truncate(node.label, 28);
-
-  const x = node.px;
-  const y = node.py + node.r + 8;
   ctx.save();
-  ctx.font = `500 12px ${fontSans}`;
+  ctx.font = `500 11px ${fontSans}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "rgba(0,0,0,0.72)";
-  ctx.strokeText(line1, x, y);
-  ctx.fillStyle = withAlpha(DESIGN.textPrimary, dim ? 0.45 : 0.95);
-  ctx.fillText(line1, x, y);
+  ctx.lineWidth = 3.5;
+  for (const node of toDraw) {
+    const dim = hasSelection && !relatedIds.has(node.id);
+    const line1 =
+      node.type === "query"
+        ? truncate(node.label, showAllLabels ? 20 : 30)
+        : node.type === "source"
+          ? truncate(node.label, showAllLabels ? 22 : 32)
+          : truncate(node.label, showAllLabels ? 18 : 28);
+    const x = node.px;
+    const y = node.py + node.r + 7;
+    ctx.strokeStyle = "rgba(0,0,0,0.7)";
+    ctx.strokeText(line1, x, y);
+    ctx.fillStyle = withAlpha(DESIGN.textPrimary, dim ? 0.38 : 0.9);
+    ctx.fillText(line1, x, y);
+  }
   ctx.restore();
 }
 
@@ -277,11 +174,14 @@ export type SourceMapCanvasProps = {
   positions: Map<string, PositionedNode>;
   edges: GraphEdge[];
   relatedIds: Set<string>;
+  hoverDistances: Map<string, number>;
+  hoverRevealProgress: number;
   selectedId: string | null;
   hoveredId: string | null;
   pulse: number;
   fontSans: string;
   hasSelection: boolean;
+  showLabelsAlways?: boolean;
   emptyMessage?: string;
   layoutKey?: string;
   onSelectNode: (id: string | null, kind: NodeKind | null) => void;
@@ -312,11 +212,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       positions,
       edges,
       relatedIds,
+      hoverDistances,
+      hoverRevealProgress,
       selectedId,
       hoveredId,
       pulse,
       fontSans,
       hasSelection,
+      showLabelsAlways = false,
       emptyMessage,
       layoutKey,
       onSelectNode,
@@ -528,8 +431,24 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       ctx.translate(tx, ty);
       ctx.scale(scale, scale);
 
+      const maxHoverDistance = Math.max(...hoverDistances.values(), 0);
+      const revealFront = hoverRevealProgress * (maxHoverDistance + 1);
+
       const edgeAlpha = (fromId: string, toId: string) => {
-        if (!hasSelection) return DESIGN.activeAlpha;
+        const base = DESIGN.idleEdgeAlpha;
+        if (hoveredId) {
+          const fromD = hoverDistances.get(fromId);
+          const toD = hoverDistances.get(toId);
+          if (fromD === undefined || toD === undefined) return base;
+          const edgeDistance = Math.min(fromD, toD);
+          const distanceFade = 1 - edgeDistance / Math.max(1, maxHoverDistance + 1);
+          const frontierWindow = 1.15;
+          const localProgress = clamp01((revealFront - edgeDistance + 0.2) / frontierWindow);
+          const easedProgress =
+            localProgress * localProgress * (3 - 2 * localProgress);
+          return base + distanceFade * DESIGN.hoverEdgeBoost * easedProgress;
+        }
+        if (!hasSelection) return base;
         if (relatedIds.has(fromId) && relatedIds.has(toId)) return 0.8;
         return DESIGN.dimAlpha;
       };
@@ -538,7 +457,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         const from = effectivePositions.get(e.from);
         const to = effectivePositions.get(e.to);
         if (!from || !to) continue;
-        drawEdge(ctx, from, to, e, edgeAlpha(e.from, e.to));
+        drawEdge(ctx, from, to, edgeAlpha(e.from, e.to));
       }
 
       const ordered = [...effectivePositions.entries()].sort(
@@ -559,13 +478,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         );
       }
 
-      drawHoverLabel(
+      drawNodeLabels(
         ctx,
         effectivePositions,
         fontSans,
         relatedIds,
         hasSelection,
-        hoveredId
+        hoveredId,
+        showLabelsAlways
       );
       ctx.restore();
 
@@ -584,11 +504,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       effectivePositions,
       edges,
       relatedIds,
+      hoverDistances,
+      hoverRevealProgress,
       selectedId,
       hoveredId,
       pulse,
       fontSans,
       hasSelection,
+      showLabelsAlways,
       emptyMessage,
       view,
     ]);
