@@ -61,9 +61,7 @@ function drawEdge(
   ctx.lineWidth = Math.min(DESIGN.edgeWidthMax, Math.max(DESIGN.edgeWidthMin, width));
   ctx.beginPath();
   ctx.moveTo(from.px, from.py);
-  const mx = (from.px + to.px) / 2 + (to.py - from.py) * 0.08;
-  const my = (from.py + to.py) / 2 - (to.px - from.px) * 0.08;
-  ctx.quadraticCurveTo(mx, my, to.px, to.py);
+  ctx.lineTo(to.px, to.py);
   ctx.stroke();
 }
 
@@ -301,6 +299,9 @@ type NodeDragRef = {
   startSx: number;
   startSy: number;
   dragging: boolean;
+  vx: number;
+  vy: number;
+  lastMoveMs: number;
 } | null;
 
 export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvasProps>(
@@ -349,9 +350,78 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
       startY: number;
     } | null>(null);
     const nodeDragRef = useRef<NodeDragRef>(null);
+    const inertiaRef = useRef<{
+      velocities: Record<string, { vx: number; vy: number }>;
+      lastTs: number | null;
+      raf: number | null;
+    }>({
+      velocities: {},
+      lastTs: null,
+      raf: null,
+    });
 
     const [isPanning, setIsPanning] = useState(false);
     const [isNodeDragging, setIsNodeDragging] = useState(false);
+
+    const stopNodeInertia = useCallback((id: string) => {
+      const state = inertiaRef.current;
+      if (state.velocities[id]) {
+        delete state.velocities[id];
+      }
+      if (Object.keys(state.velocities).length === 0) {
+        state.lastTs = null;
+        if (state.raf !== null && typeof window !== "undefined") {
+          window.cancelAnimationFrame(state.raf);
+          state.raf = null;
+        }
+      }
+    }, []);
+
+    const ensureInertiaLoop = useCallback(() => {
+      const state = inertiaRef.current;
+      if (state.raf !== null || typeof window === "undefined") return;
+
+      const tick = (ts: number) => {
+        const s = inertiaRef.current;
+        const prevTs = s.lastTs ?? ts;
+        const dt = Math.max(0.001, Math.min(50, ts - prevTs));
+        s.lastTs = ts;
+        const friction = Math.pow(0.9, dt / 16.6667);
+        const stopSpeed = 0.0022; // world px/ms
+
+        setNodeOffsets((prev) => {
+          const next = { ...prev };
+          let active = 0;
+          for (const [id, v] of Object.entries(s.velocities)) {
+            v.vx *= friction;
+            v.vy *= friction;
+            const speed = Math.hypot(v.vx, v.vy);
+            if (speed < stopSpeed) {
+              delete s.velocities[id];
+              continue;
+            }
+            active++;
+            const cur = next[id] ?? { dx: 0, dy: 0 };
+            next[id] = { dx: cur.dx + v.vx * dt, dy: cur.dy + v.vy * dt };
+          }
+          if (active === 0) {
+            if (s.raf !== null && typeof window !== "undefined") {
+              window.cancelAnimationFrame(s.raf);
+            }
+            s.raf = null;
+            s.lastTs = null;
+          }
+          return next;
+        });
+
+        if (s.raf !== null && typeof window !== "undefined") {
+          s.raf = window.requestAnimationFrame(tick);
+        }
+      };
+
+      state.lastTs = null;
+      state.raf = window.requestAnimationFrame(tick);
+    }, []);
 
     const prevLayoutKey = useRef<string | undefined>(undefined);
     useEffect(() => {
@@ -364,6 +434,12 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         prevLayoutKey.current = layoutKey;
         setView({ tx: 0, ty: 0, scale: 1 });
         setNodeOffsets({});
+        inertiaRef.current.velocities = {};
+        inertiaRef.current.lastTs = null;
+        if (inertiaRef.current.raf !== null && typeof window !== "undefined") {
+          window.cancelAnimationFrame(inertiaRef.current.raf);
+          inertiaRef.current.raf = null;
+        }
       }
     }, [layoutKey]);
 
@@ -396,10 +472,26 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
         resetView: () => {
           setView({ tx: 0, ty: 0, scale: 1 });
           setNodeOffsets({});
+          inertiaRef.current.velocities = {};
+          inertiaRef.current.lastTs = null;
+          if (inertiaRef.current.raf !== null && typeof window !== "undefined") {
+            window.cancelAnimationFrame(inertiaRef.current.raf);
+            inertiaRef.current.raf = null;
+          }
         },
       }),
       [zoomAtCenter]
     );
+
+    useEffect(() => {
+      return () => {
+        const state = inertiaRef.current;
+        if (state.raf !== null && typeof window !== "undefined") {
+          window.cancelAnimationFrame(state.raf);
+          state.raf = null;
+        }
+      };
+    }, []);
 
     const hitTestWorld = useCallback(
       (wx: number, wy: number, graph: Map<string, PositionedNode>) => {
@@ -541,8 +633,11 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           };
           canvasRef.current?.setPointerCapture(e.pointerId);
         } else {
+          stopNodeInertia(hit.id);
           panRef.current = { active: false, pointerId: -1, lastX: 0, lastY: 0 };
           clickRef.current = null;
+          const now =
+            typeof performance !== "undefined" ? performance.now() : Date.now();
           nodeDragRef.current = {
             pointerId: e.pointerId,
             id: hit.id,
@@ -554,11 +649,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
             startSx: sx,
             startSy: sy,
             dragging: false,
+            vx: 0,
+            vy: 0,
+            lastMoveMs: now,
           };
           canvasRef.current?.setPointerCapture(e.pointerId);
         }
       },
-      [hitTestWorld, effectivePositions]
+      [hitTestWorld, effectivePositions, stopNodeInertia]
     );
 
     const onPointerMove = useCallback(
@@ -584,6 +682,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           if (drag.dragging) {
             const dwx = wx - drag.lastWx;
             const dwy = wy - drag.lastWy;
+            const now =
+              typeof performance !== "undefined" ? performance.now() : Date.now();
+            const dt = Math.max(1, now - drag.lastMoveMs);
+            const instantVx = dwx / dt;
+            const instantVy = dwy / dt;
+            drag.vx = drag.vx * 0.55 + instantVx * 0.45;
+            drag.vy = drag.vy * 0.55 + instantVy * 0.45;
+            drag.lastMoveMs = now;
             drag.lastWx = wx;
             drag.lastWy = wy;
             const id = drag.id;
@@ -636,6 +742,14 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           nodeDragRef.current = null;
           setIsNodeDragging(false);
 
+          if (wasDragging) {
+            const launchSpeed = Math.hypot(nd.vx, nd.vy);
+            if (launchSpeed > 0.0022) {
+              inertiaRef.current.velocities[nd.id] = { vx: nd.vx, vy: nd.vy };
+              ensureInertiaLoop();
+            }
+          }
+
           if (!wasDragging && movedScreen <= 6) {
             onSelectNode(nd.id, nd.kind);
           }
@@ -661,7 +775,7 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
           return;
         }
       },
-      [onSelectNode]
+      [ensureInertiaLoop, onSelectNode]
     );
 
     const onPointerLeave = useCallback(() => {
