@@ -52,12 +52,21 @@ function drawEdge(
   to: PositionedNode,
   alpha: number
 ) {
-  ctx.strokeStyle = `${DESIGN.edgeNeutralOpen}${alpha})`;
-  ctx.lineWidth = 1.2;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const glowStrength = Math.min(0.55, 0.08 + alpha * 0.65);
+  ctx.shadowColor = withAlpha(DESIGN.goldPure, glowStrength * 0.7);
+  ctx.shadowBlur = 3.5 + alpha * 12;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.strokeStyle = `${DESIGN.edgeStrokeOpen}${alpha})`;
+  ctx.lineWidth = 1.15;
   ctx.beginPath();
   ctx.moveTo(from.px, from.py);
   ctx.lineTo(to.px, to.py);
   ctx.stroke();
+  ctx.restore();
 }
 
 function nodeFillColor(type: PositionedNode["type"]): string {
@@ -85,6 +94,25 @@ function withAlpha(hex: string, a: number): string {
   return hex;
 }
 
+function hexToRgb(hex: string): [number, number, number] {
+  if (!hex.startsWith("#") || hex.length !== 7) return [245, 240, 230];
+  return [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+}
+
+function blendHex(a: string, b: string, t: number): string {
+  const u = Math.max(0, Math.min(1, t));
+  const [ar, ag, ab] = hexToRgb(a);
+  const [br, bg, bb] = hexToRgb(b);
+  const r = Math.round(ar + (br - ar) * u);
+  const g = Math.round(ag + (bg - ag) * u);
+  const bl = Math.round(ab + (bb - ab) * u);
+  return `rgb(${r},${g},${bl})`;
+}
+
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
 }
@@ -97,18 +125,24 @@ function drawNodeDisc(
   isDimmed: boolean,
   pulseValue: number
 ) {
-  const alpha = isDimmed ? 0.12 : isSelected || isHovered ? 1 : 0.85;
   const base = nodeFillColor(node.type);
   const r = node.r + (isSelected ? pulseValue * 2 : 0);
+  const fillColor = isDimmed
+    ? blendHex(base, DESIGN.charcoal, 0.72)
+    : base;
   ctx.save();
   ctx.beginPath();
   ctx.arc(node.px, node.py, r, 0, Math.PI * 2);
-  ctx.fillStyle = withAlpha(base, alpha);
+  ctx.fillStyle = fillColor;
   ctx.fill();
-  ctx.strokeStyle = withAlpha(
-    DESIGN.nodeStroke,
-    (isSelected ? 0.95 : isHovered ? 0.75 : 0.55) * alpha
-  );
+
+  let strokeColor: string;
+  if (isSelected) strokeColor = DESIGN.highlightWarm;
+  else if (isHovered && !isDimmed) strokeColor = DESIGN.goldLight;
+  else if (isDimmed) strokeColor = blendHex(base, DESIGN.charcoal, 0.82);
+  else strokeColor = DESIGN.nodeStroke;
+
+  ctx.strokeStyle = strokeColor;
   ctx.lineWidth = isSelected ? 2 : 1.1;
   ctx.stroke();
   ctx.restore();
@@ -146,7 +180,9 @@ function drawNodeLabels(
     const y = node.py + node.r + 10;
     ctx.strokeStyle = "rgba(0,0,0,0.7)";
     ctx.strokeText(line1, x, y);
-    ctx.fillStyle = withAlpha(DESIGN.textPrimary, dim ? 0.38 : 0.9);
+    ctx.fillStyle = dim
+      ? blendHex(DESIGN.textPrimary, DESIGN.charcoal, 0.55)
+      : DESIGN.textPrimary;
     ctx.fillText(line1, x, y);
   }
   ctx.restore();
@@ -440,12 +476,15 @@ export const SourceMapCanvas = forwardRef<SourceMapCanvasHandle, SourceMapCanvas
                   const edgeDistance = Math.min(fromD, toD);
                   const distanceFade =
                     1 - edgeDistance / Math.max(1, maxHoverDistance + 1);
-                  const frontierWindow = 1.15;
+                  const frontierWindow = 2.35;
                   const localProgress = clamp01(
-                    (revealFront - edgeDistance + 0.2) / frontierWindow
+                    (revealFront - edgeDistance + 0.35) / frontierWindow
                   );
                   const easedProgress =
-                    localProgress * localProgress * (3 - 2 * localProgress);
+                    localProgress *
+                    localProgress *
+                    localProgress *
+                    (localProgress * (localProgress * 6 - 15) + 10);
                   return base + distanceFade * DESIGN.hoverEdgeBoost * easedProgress;
                 })();
 

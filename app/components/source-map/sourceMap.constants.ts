@@ -1,23 +1,37 @@
-/** Aligned with site gold palette (globals --gold-*) + neutral-950 shell */
+/**
+ * Matches `app/globals.css` --gold-* tokens (site gold palette).
+ * Canvas cannot read CSS variables here, so hex mirrors those vars.
+ */
 export const DESIGN = {
+  /** --gold-400 */
   gold: "#F7C948",
+  /** --gold-200 */
   goldLight: "#FCE588",
+  /** --gold-600 */
   goldDark: "#DE911D",
+  /** --gold-DEFAULT */
+  goldPure: "#FFD700",
   obsidian: "#0A0A0C",
   onyx: "#111114",
   charcoal: "#1A1A1F",
   textPrimary: "#F5F0E6",
   textMuted: "#a3a3a3",
 
-  /** Nodes: gold family + warm neutrals (no blue/purple) */
+  /** Nodes: distinct roles, all from site gold scale */
   nodeUser: "#FCE588",
-  nodeQuery: "#4F46E5",
-  nodeSource: "#2563EB",
-  nodeJurisdiction: "#0891B2",
-  nodeStroke: "#E5E7EB",
+  nodeQuery: "#F7C948",
+  /** --gold-500 */
+  nodeSource: "#F0B429",
+  /** --gold-700 */
+  nodeJurisdiction: "#CB6E17",
+  /** Opaque rim (no alpha on node stroke). */
+  nodeStroke: "#D8C9A8",
 
-  /** Edge stroke prefixes: append `${alpha})` */
-  edgeNeutralOpen: "rgba(148, 163, 184,",
+  /**
+   * Edge main stroke: warm muted gold-gray (append `${alpha})`).
+   * Glow uses `gold` / `goldPure` in canvas with alpha.
+   */
+  edgeStrokeOpen: "rgba(196, 175, 120,",
 
   highlightWarm: "#fff8e6",
 

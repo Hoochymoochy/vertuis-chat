@@ -361,7 +361,7 @@ export function SourceMap() {
     let raf = 0;
 
     const runReveal = () => {
-      const durationMs = 1750;
+      const durationMs = 3200;
       const start = performance.now();
       const tick = (ts: number) => {
         const t = Math.max(0, Math.min(1, (ts - start) / durationMs));
