@@ -4,14 +4,14 @@
     "features": "RECURSOS",
     "product": "PRODUTO",
     "contact": "CONTATO",
-    "signIn": "ENTRAR"
+    "waitlist": "LISTA DE ESPERA"
   },
   "Hero": {
     "eyebrow": "Inteligência jurídica",
     "title": "VERITUS",
     "tagline": "IA em Que Você Pode Confiar",
     "description": "Respostas fundamentadas. Citações verificadas. Feito para advogados e juristas que exigem precisão.",
-    "joinBeta": "Entre no Beta",
+    "joinWaitlist": "Entrar na Lista de Espera",
     "seeProduct": "Ver o Produto",
     "learnMore": "Saiba Mais"
   },
@@ -49,18 +49,14 @@
     "caseDesc": "Organize processos, documentos e contexto em um espaço de trabalho feito para o direito."
   },
   "Contact": {
-    "title": "Comece com",
-    "titleHighlight": "Veritus",
-    "description": "Junte-se a profissionais jurídicos que usam IA sem abrir mão da verdade.",
-    "existingTitle": "Usuários Existentes",
-    "existingDesc": "Acesse sua conta",
-    "existingButton": "Entrar",
-    "newTitle": "Novo no Veritus?",
-    "newDesc": "Solicite acesso beta",
-    "newButton": "Entre no Beta",
-    "earlyAccess": "ACESSO ANTECIPADO",
+    "title": "Entre na",
+    "titleHighlight": "Lista de Espera",
+    "description": "Estamos abrindo o acesso com cuidado. Deixe seu email e avisaremos quando o Veritus estiver pronto.",
     "emailPlaceholder": "seu@escritorio.com",
-    "requestAccess": "Solicitar Acesso"
+    "submit": "Entrar na Lista",
+    "submitting": "Enviando...",
+    "success": "Você está na lista. Entraremos em contato.",
+    "invalidEmail": "Informe um email válido."
   },
   "Footer": {
     "copyright": "© 2026 Veritus AI. Inteligência jurídica redefinida.",

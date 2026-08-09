@@ -4,14 +4,14 @@
     "features": "FEATURES",
     "product": "PRODUCT",
     "contact": "CONTACT",
-    "signIn": "SIGN IN"
+    "waitlist": "JOIN WAITLIST"
   },
   "Hero": {
     "eyebrow": "Legal intelligence",
     "title": "VERITUS",
     "tagline": "AI You Can Swear By",
     "description": "Source-backed answers. Verified citations. Built for lawyers who demand precision.",
-    "joinBeta": "Join the Beta",
+    "joinWaitlist": "Join the Waitlist",
     "seeProduct": "See the Product",
     "learnMore": "Learn More"
   },
@@ -49,18 +49,14 @@
     "caseDesc": "Organize matters, documents, and context in one workspace built for legal work."
   },
   "Contact": {
-    "title": "Start with",
-    "titleHighlight": "Veritus",
-    "description": "Join legal professionals using AI that never compromises on truth.",
-    "existingTitle": "Existing Users",
-    "existingDesc": "Access your account",
-    "existingButton": "Sign In",
-    "newTitle": "New to Veritus?",
-    "newDesc": "Request beta access",
-    "newButton": "Join Beta",
-    "earlyAccess": "EARLY ACCESS",
+    "title": "Join the",
+    "titleHighlight": "Waitlist",
+    "description": "We're opening access carefully. Leave your email and we'll notify you when Veritus is ready.",
     "emailPlaceholder": "your@firm.com",
-    "requestAccess": "Request Access"
+    "submit": "Join Waitlist",
+    "submitting": "Joining...",
+    "success": "You're on the list. We'll be in touch.",
+    "invalidEmail": "Enter a valid email address."
   },
   "Footer": {
     "copyright": "© 2026 Veritus AI. Legal intelligence redefined.",

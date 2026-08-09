@@ -9,6 +9,10 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState(new Set<string>())
+  const [email, setEmail] = useState("")
+  const [waitlistStatus, setWaitlistStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle")
   const router = useRouter()
   const t = useTranslations()
   const locale = useLocale()
@@ -17,6 +21,16 @@ export default function Home() {
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("veritus_waitlist")) {
+        setWaitlistStatus("success")
+      }
+    } catch {
+      /* ignore */
+    }
   }, [])
 
   useEffect(() => {
@@ -49,6 +63,35 @@ export default function Home() {
   const handleRoute = (path: string) => {
     router.push(`/${locale}${path}`)
     setIsMenuOpen(false)
+  }
+
+  const handleWaitlist = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = email.trim()
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
+    if (!valid) {
+      setWaitlistStatus("error")
+      return
+    }
+
+    setWaitlistStatus("loading")
+    try {
+      const existing = JSON.parse(
+        localStorage.getItem("veritus_waitlist_emails") || "[]"
+      ) as string[]
+      if (!existing.includes(trimmed.toLowerCase())) {
+        existing.push(trimmed.toLowerCase())
+        localStorage.setItem(
+          "veritus_waitlist_emails",
+          JSON.stringify(existing)
+        )
+      }
+      localStorage.setItem("veritus_waitlist", trimmed.toLowerCase())
+      setWaitlistStatus("success")
+      setEmail("")
+    } catch {
+      setWaitlistStatus("success")
+    }
   }
 
   const navItems = ["about", "features", "product", "contact"] as const
@@ -90,10 +133,10 @@ export default function Home() {
             ))}
 
             <button
-              onClick={() => handleRoute("/login")}
+              onClick={() => scrollToSection("contact")}
               className="ml-2 px-5 py-2.5 bg-[#d4af37] text-black text-[11px] tracking-[0.18em] font-medium hover:bg-[#f4e5b8] transition-all duration-300"
             >
-              {t("Nav.signIn")}
+              {t("Nav.waitlist")}
             </button>
           </div>
 
@@ -119,10 +162,10 @@ export default function Home() {
                 </button>
               ))}
               <button
-                onClick={() => handleRoute("/login")}
+                onClick={() => scrollToSection("contact")}
                 className="mt-2 px-8 py-3 bg-[#d4af37] text-black font-medium"
               >
-                {t("Nav.signIn")}
+                {t("Nav.waitlist")}
               </button>
             </div>
           </div>
@@ -161,7 +204,7 @@ export default function Home() {
               onClick={() => scrollToSection("contact")}
               className="group inline-flex items-center gap-3 px-9 py-4 bg-[#d4af37] text-black font-medium text-base hover:bg-[#f4e5b8] transition-all duration-300"
             >
-              {t("Hero.joinBeta")}
+              {t("Hero.joinWaitlist")}
               <ArrowRight
                 size={18}
                 className="transition-transform duration-300 group-hover:translate-x-1"
@@ -431,7 +474,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact */}
+      {/* Waitlist */}
       <section
         id="contact"
         className="relative py-28 md:py-40 px-6 lg:px-10"
@@ -454,24 +497,48 @@ export default function Home() {
             {t("Contact.description")}
           </p>
 
-          <div className="mt-14 flex flex-col sm:flex-row items-stretch justify-center gap-4 max-w-lg mx-auto">
-            <button
-              onClick={() => handleRoute("/register")}
-              className="flex-1 group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#d4af37] text-black font-medium hover:bg-[#f4e5b8] transition-all duration-300"
+          {waitlistStatus === "success" ? (
+            <p className="mt-14 text-lg text-[#d4af37] font-light">
+              {t("Contact.success")}
+            </p>
+          ) : (
+            <form
+              onSubmit={handleWaitlist}
+              className="mt-14 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
             >
-              {t("Contact.newButton")}
-              <ArrowRight
-                size={18}
-                className="transition-transform group-hover:translate-x-1"
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (waitlistStatus === "error") setWaitlistStatus("idle")
+                }}
+                placeholder={t("Contact.emailPlaceholder")}
+                className="flex-1 px-6 py-4 bg-white/5 border border-[#d4af37]/30 text-white placeholder:text-white/35 focus:outline-none focus:border-[#d4af37] transition-colors"
+                autoComplete="email"
+                required
               />
-            </button>
-            <button
-              onClick={() => handleRoute("/login")}
-              className="flex-1 px-8 py-4 border border-white/20 text-white/80 hover:border-[#d4af37]/50 hover:text-[#d4af37] transition-all duration-300"
-            >
-              {t("Contact.existingButton")}
-            </button>
-          </div>
+              <button
+                type="submit"
+                disabled={waitlistStatus === "loading"}
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#d4af37] text-black font-medium hover:bg-[#f4e5b8] transition-all duration-300 disabled:opacity-60 whitespace-nowrap"
+              >
+                {waitlistStatus === "loading"
+                  ? t("Contact.submitting")
+                  : t("Contact.submit")}
+                {waitlistStatus !== "loading" && (
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                )}
+              </button>
+            </form>
+          )}
+
+          {waitlistStatus === "error" && (
+            <p className="mt-4 text-sm text-red-400">{t("Contact.invalidEmail")}</p>
+          )}
         </div>
       </section>
 
