@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { TaglineProps } from "./type";
+import { TaglineProps } from "@/types/chat";
 
 export function Tagline({ isSubmitted, t }: TaglineProps) {
   return (

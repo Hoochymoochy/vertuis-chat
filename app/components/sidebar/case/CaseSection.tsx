@@ -1,6 +1,6 @@
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
-import { useSidebar } from "../../../hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 import { useTranslations } from "next-intl";
 
 export function CaseSection() {

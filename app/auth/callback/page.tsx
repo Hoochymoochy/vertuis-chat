@@ -2,9 +2,9 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/app/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import { motion } from "framer-motion";
-import Spinner from "../../components/global/spinner";
+import Spinner from "@/components/global/spinner";
 
 function AuthCallbackContent() {
   const router = useRouter();

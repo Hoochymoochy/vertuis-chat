@@ -1,7 +1,7 @@
 // SidebarLeft.tsx - Uses context directly, no props needed
 import { sidebarSections } from "./menu.config";
 import { MenuSection } from "./MenuSection";
-import { useSidebar } from "../../hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 
 export default function SidebarLeft() {
   const { isCollapsed } = useSidebar();

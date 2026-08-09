@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { Chat as ChatIcon } from "@carbon/icons-react";
 import { ANIMATION } from "../sidebar.constants";
 import { AddButton } from "../Button";
-import { useChats } from "@/app/hooks/Chat/useChat";
+import { useChats } from "@/hooks/chat/useChat";
 import { useTranslations } from "next-intl";
-import { ChatListSkeleton } from "@/app/components/chat/ChatSkeleton";
+import { ChatListSkeleton } from "@/components/chat/ChatSkeleton";
 
 export function ChatSection() {
   const { isCollapsed, chats, newChat, openChat, loading } = useChats();

@@ -3,9 +3,9 @@
 import { motion, AnimatePresence, Transition } from "framer-motion"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
-import { InputBoxProps } from "./type"
+import { InputBoxProps } from "@/types/chat"
 
-import { useInputMessage } from "@/app/hooks/Input/useInputMessage"
+import { useInputMessage } from "@/hooks/input/useInputMessage"
 
 
 export function InputBox({

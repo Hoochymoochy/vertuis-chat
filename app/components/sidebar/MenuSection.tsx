@@ -1,7 +1,7 @@
 // MenuSection.tsx - Uses context directly, minimal props
 import { MenuItem } from "./MenuItem";
 import { ANIMATION } from "./sidebar.constants";
-import { useSidebar } from "../../hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 
 interface MenuSectionProps {
   section: {

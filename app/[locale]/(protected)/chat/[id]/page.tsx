@@ -3,12 +3,12 @@
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import { InputBox } from "@/app/components/chat/InputBox";
-import { ChatMessageRenderer } from "../../../../components/chat/LoadingMessage";
+import { InputBox } from "@/components/chat/InputBox";
+import { ChatMessageRenderer } from "@/components/chat/LoadingMessage";
 
-import { useChatSession } from "@/app/hooks/Chat/useChatSession";
-import { useAutoScroll } from "@/app/hooks/Chat/useAutoScroll";
-import { Overlay } from "@/app/components/chat/Overlay";
+import { useChatSession } from "@/hooks/chat/useChatSession";
+import { useAutoScroll } from "@/hooks/chat/useAutoScroll";
+import { Overlay } from "@/components/chat/Overlay";
 
 export default function ChatPage() {
   const t = useTranslations("ChatPage");

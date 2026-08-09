@@ -1,7 +1,7 @@
 // SettingSection.tsx - Settings-specific content for SidebarRight
 import { motion } from "framer-motion";
 import { ANIMATION } from "../sidebar.constants";
-import { useSidebar } from "../../../hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 import { useTranslations } from "next-intl";
 
 export function SettingSection() {

@@ -3,15 +3,11 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { supabase } from "@/app/lib/supabaseClient";
-import { getCountry, getState, getLanguage, setLanguage } from "@/app/lib/user";
-import { getAllChats } from "@/app/lib/chat";
-import { Case } from "@/app/components/case/type";
-
-export interface Chat {
-  id: string;
-  title: string;
-}
+import { supabase } from "@/lib/supabaseClient";
+import { getCountry, getState, getLanguage, setLanguage } from "@/lib/user";
+import { getAllChats } from "@/lib/chat";
+import type { Case } from "@/types/case";
+import type { Chat } from "@/types/chat";
 
 type SidebarContextType = {
   // Modal states

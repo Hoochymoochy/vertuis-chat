@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { updatePassword } from "@/app/lib/user";
+import { updatePassword } from "@/lib/user";
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {

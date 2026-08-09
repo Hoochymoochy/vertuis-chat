@@ -1,13 +1,13 @@
 import { Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { documentContent } from "../case/type";
+import type { DocumentContentProps } from "@/types/case";
 import { useTranslations } from "next-intl";
 
 export function DocumentContent({
   selectedDoc,
   switchingTab,
   setSwitchingTab,
-}: documentContent) {
+}: DocumentContentProps) {
   const t = useTranslations("Case");
 
   if (!selectedDoc) {

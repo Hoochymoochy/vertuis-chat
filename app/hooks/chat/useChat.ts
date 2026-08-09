@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { getAllChats } from "@/app/lib/chat";
+import { getAllChats } from "@/lib/chat";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { useSidebar } from "../Global/SidebarContext";
-import { useAuth } from "../Auth/useAuth";
+import { useSidebar } from "@/providers/sidebar-context";
+import { useAuth } from "@/hooks/auth/useAuth";
+import type { Chat } from "@/types/chat";
 
-export interface Chat {
-  id: string;
-  title: string;
-}
+export type { Chat };
 
 export function useChats() {
   const { isCollapsed, toggleMapCollapse } = useSidebar();

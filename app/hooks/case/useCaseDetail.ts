@@ -4,10 +4,10 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useLocale } from "next-intl"
 
-import { getAllDocument, addDocument } from "@/app/lib/document"
-import { getCase, getCaseSummaries } from "@/app/lib/case"
-import { useSidebar } from "../Global/SidebarContext"
-import { Case } from "@/app/components/case/type"
+import { getAllDocument, addDocument } from "@/lib/document"
+import { getCase, getCaseSummaries } from "@/lib/case"
+import { useSidebar } from "@/providers/sidebar-context"
+import { Case } from "@/types/case"
 
 export function useCaseDetail() {
   const params = useParams()

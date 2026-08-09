@@ -1,4 +1,4 @@
-import type { addDocument } from "./type";
+import type { AddDocumentProps } from "@/types/case";
 import { X, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -11,7 +11,7 @@ export function AddDocument({
   file,
   isSubmitting,
   handleFileChange,
-}: addDocument) {
+}: AddDocumentProps) {
   const t = useTranslations("Case");
 
   if (!showAddDocument) {

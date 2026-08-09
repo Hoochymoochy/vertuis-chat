@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { OverlayProps } from "./type";
+import { OverlayProps } from "@/types/chat";
 
 export default function FileOverlay({ isDragging }: OverlayProps) {
   return (

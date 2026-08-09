@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/app/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export function useAuth() {
   const [userId, setUserId] = useState<string | null>(null);

@@ -1,8 +1,8 @@
 // app/[locale]/protected/layout.tsx
 import { ReactNode } from "react";
-import { Sidebar } from "@/app/components/sidebar/Sidebar";
-import { SidebarWrapper } from "@/app/hooks/Global/SidebarWrapper";
-import { getAuthenticatedUser } from "@/app/lib/server";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { SidebarWrapper } from "@/providers/sidebar-wrapper";
+import { getAuthenticatedUser } from "@/lib/server";
 
 export default async function ProtectedLayout({
   children,

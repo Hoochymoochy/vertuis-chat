@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { caseSummaries } from "../case/type";
+import type { CaseSummariesProps } from "@/types/case";
 import { useTranslations, useLocale } from "next-intl";
 
 export function CaseSummary({
@@ -10,7 +10,7 @@ export function CaseSummary({
   showSummary,
   handleGenerateNewSummary,
   isGeneratingSummary,
-}: caseSummaries) {
+}: CaseSummariesProps) {
   const t = useTranslations("Case");
   const locale = useLocale();
 
@@ -22,7 +22,7 @@ export function CaseSummary({
         </h2>
 
         <div className="flex items-center gap-3">
-          {caseSummaries && caseItem.title && (
+          {caseSummaries && caseItem?.title && (
             <button
               onClick={toggleShowSummary}
               className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 px-4 py-2 transition-all"
@@ -52,7 +52,7 @@ export function CaseSummary({
         </div>
       </div>
 
-      {showSummary && caseSummaries && caseItem.title && (
+      {showSummary && caseSummaries && caseItem?.title && (
         <div className="mt-6 bg-black/50 border border-[#d4af37]/20 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-[#d4af37]" />
@@ -129,7 +129,7 @@ export function CaseSummary({
 
           <div className="mt-4 text-xs text-[#d4af37] font-bold">
             {t("lastGenerated")}:{" "}
-            {new Date(caseItem.summary_updated).toLocaleDateString(locale)}
+            {caseItem && new Date(caseItem.summary_updated).toLocaleDateString(locale)}
           </div>
         </div>
       )}

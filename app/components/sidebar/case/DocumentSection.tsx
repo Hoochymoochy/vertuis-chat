@@ -1,7 +1,7 @@
 import { ChevronLeft, Clock } from "lucide-react"
 import { AddButton } from "../Button"
 import { ANIMATION } from "../sidebar.constants"
-import { useSidebar } from "../../../hooks/Global/SidebarContext"
+import { useSidebar } from "@/providers/sidebar-context"
 import { useTranslations } from "next-intl"
 
 const getFileIcon = (type: string) => {

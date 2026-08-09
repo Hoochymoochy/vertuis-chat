@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { useState } from "react";
-import { Case } from "@/app/components/case/type";
+import { Case } from "@/types/case";
 import {
   formatUpdatedTime,
-  useformatUpdatedTime,
-} from "@/app/hooks/Case/useformatUpdatedTime";
+  useFormatUpdatedTime,
+} from "@/hooks/case/useFormatUpdatedTime";
 import { useLocale, useTranslations } from "next-intl";
 
 export function CaseList({ cases }: { cases: Case[] }) {
@@ -12,7 +12,7 @@ export function CaseList({ cases }: { cases: Case[] }) {
   const t = useTranslations("Case");
 
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
-  const sortedCases = useformatUpdatedTime(cases, setVisibleItems);
+  const sortedCases = useFormatUpdatedTime(cases, setVisibleItems);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/lib/supabaseClient";
-import { getOnbaording } from "@/app/lib/user";
+import { supabase } from "@/lib/supabaseClient";
+import { getOnbaording } from "@/lib/user";
 
 export function AuthGuard({ 
   children, 

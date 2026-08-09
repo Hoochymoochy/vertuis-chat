@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { addFeedback } from "../../lib/feedback"
+import { addFeedback } from "@/lib/feedback"
 
 
 export default function ChatBubble({

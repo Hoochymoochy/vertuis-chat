@@ -1,6 +1,6 @@
 // hooks/Chat/useChatFeedback.ts
 import { useState } from "react"
-import { addFeedback } from "../../lib/feedback"
+import { addFeedback } from "@/lib/feedback"
 
 type FeedbackType = "up" | "down"
 

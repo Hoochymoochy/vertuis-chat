@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCountry, getState, getLanguage, setLanguage } from "@/app/lib/user";
+import { getCountry, getState, getLanguage, setLanguage } from "@/lib/user";
 import { useRouter } from "next/navigation";
 
 export function useUserPreferences(userId: string | null) {

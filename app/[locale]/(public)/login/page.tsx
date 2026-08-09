@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import google from "@/public/google.svg";
-import { signIn, signInWithGoogle } from "@/app/lib/user";
+import { signIn, signInWithGoogle } from "@/lib/user";
 import { Mail, AlertCircle } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 

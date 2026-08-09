@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import type { addCase } from "./type";
+import type { AddCaseProps } from "@/types/case";
 import { X } from "lucide-react";
 
 export function AddCase({
@@ -7,7 +7,7 @@ export function AddCase({
   toggleAddCase,
   handleAddCase,
   isSubmitting,
-}: addCase) {
+}: AddCaseProps) {
   const t = useTranslations("Case");
 
   if (!isAdding) {

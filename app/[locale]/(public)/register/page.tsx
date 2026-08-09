@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signUp, signInWithGoogle } from "@/app/lib/user";
+import { signUp, signInWithGoogle } from "@/lib/user";
 import Image from "next/image";
 import google from "@/public/google.svg";
 import { Mail, CheckCircle2, ArrowRight } from "lucide-react";

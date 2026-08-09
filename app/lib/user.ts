@@ -1,5 +1,5 @@
 'use client'
-import { supabase } from '@/app/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 
 // Sign up a user + seed user_data
 export async function signUp(email: string, password: string) {

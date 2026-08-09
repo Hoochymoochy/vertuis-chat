@@ -1,11 +1,11 @@
 "use client"
 
-import { AddDocument } from "../../../../components/case/AddDocument"
-import { CaseSummary } from "../../../../components/case/CaseSummary"
-import { DocumentContent } from "../../../../components/case/DocumentContent"
-import { useCaseDetail } from "../../../../hooks/Case/useCaseDetail"
-import { CaseSummarySkeleton } from "../../../../components/case/CaseSummarySkeleton"
-import { DocumentSummarySkeleton } from "../../../../components/case/DocumentSummarySkeleton"
+import { AddDocument } from "@/components/case/AddDocument"
+import { CaseSummary } from "@/components/case/CaseSummary"
+import { DocumentContent } from "@/components/case/DocumentContent"
+import { useCaseDetail } from "@/hooks/case/useCaseDetail"
+import { CaseSummarySkeleton } from "@/components/case/CaseSummarySkeleton"
+import { DocumentSummarySkeleton } from "@/components/case/DocumentSummarySkeleton"
 export default function DocumentPage() {
   const {
     caseItem,

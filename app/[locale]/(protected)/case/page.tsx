@@ -1,9 +1,9 @@
 "use client"
 
-import { CaseList } from "../../../components/case/CaseList"
-import { CaseListSkeleton } from "../../../components/case/CaseSkeleton"
-import { AddCase } from "@/app/components/case/AddCase"
-import { useCases } from "../../../hooks/Case/useCase"
+import { CaseList } from "@/components/case/CaseList"
+import { CaseListSkeleton } from "@/components/case/CaseSkeleton"
+import { AddCase } from "@/components/case/AddCase"
+import { useCases } from "@/hooks/case/useCase"
 
 export default function CasesPage() {
   const {

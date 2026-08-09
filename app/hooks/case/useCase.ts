@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { addCase, getAllCase } from "@/app/lib/case"
-import { useSidebar } from "../Global/SidebarContext"
-import { Case } from "@/app/components/case/type"
+import { addCase, getAllCase } from "@/lib/case"
+import { useSidebar } from "@/providers/sidebar-context"
+import { Case } from "@/types/case"
 
 export function useCases() {
   const [cases, setCases] = useState<Case[]>([])

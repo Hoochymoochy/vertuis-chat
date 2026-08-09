@@ -1,11 +1,10 @@
-// type.ts - Enhanced type definitions with chat support
-import { ComponentType } from "react";
-import { Chat } from "../../hooks/Chat/useChat";
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
+import type { Chat } from "@/types/chat";
 
 export interface SidebarContent {
   children: ReactNode;
 }
+
 export interface MenuItem {
   id: string;
   label: string;
@@ -46,8 +45,6 @@ export interface SidebarRightProps {
   toggleExpanded: (key: string) => void;
   activeSection: string;
   setSubSection: (subSection: string) => void;
-  
-  // Chat-specific props
   chats?: Chat[];
   onNewChat?: () => void;
   onChatClick?: (id: string) => void;
@@ -60,26 +57,21 @@ export interface SidebarRightProps {
   onToggleLang?: () => void;
   onLanguageChange?: (langCode: string) => void;
   t?: (key: string) => string;
-
-  // Case-specific props
   onAddCase?: () => void;
-
-  // Doucment-specific props
   handleBack?: () => void;
-  selectedDoc?: string
-  setShowAddDocument: () => void,
-  setSelectedDoc: string,
-
-  isAdding: boolean,
-  toggleAddCase: () => void
+  selectedDoc?: string;
+  setShowAddDocument: () => void;
+  setSelectedDoc: string;
+  isAdding: boolean;
+  toggleAddCase: () => void;
 }
 
 export interface SidebarLeftProps {
-    isCollapsed: boolean;
-    expandedItems: Set<string>;
-    toggleExpanded: (key: string) => void;
-    activeSection: string;
-    setSection: (section: string) => void;
+  isCollapsed: boolean;
+  expandedItems: Set<string>;
+  toggleExpanded: (key: string) => void;
+  activeSection: string;
+  setSection: (section: string) => void;
 }
 
 export interface SearchContainerProps {
@@ -88,5 +80,5 @@ export interface SearchContainerProps {
 
 export interface CaseSectionProps {
   isCollapsed: boolean;
-  toggleAddCase: () => void
+  toggleAddCase: () => void;
 }

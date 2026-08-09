@@ -1,19 +1,14 @@
 'use client'
 
+import type { Chat } from '@/types/chat'
 import { supabase } from './supabaseClient'
+
+export type { Chat }
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
 
 if (!backendUrl) {
-  throw new Error('NEXT_PUBLIC_CASE_RULE is not defined')
-}
-// Types for better type safety
-export interface Chat {
-  id: string;
-  user_id: string;
-  title: string;
-  created_at: string;
-  file_path?: string;
+  throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined')
 }
 
 // Add a new user

@@ -1,5 +1,5 @@
 import { useEffect, Dispatch, SetStateAction } from "react"
-import { Case } from "@/app/components/case/type"
+import { Case } from "@/types/case"
 
 export function formatUpdatedTime(dateString: string) {
     const updated = new Date(dateString)
@@ -23,7 +23,7 @@ export function formatUpdatedTime(dateString: string) {
     return `${years} year${years !== 1 ? "s" : ""} ago`
 }
 
-export function useformatUpdatedTime(
+export function useFormatUpdatedTime(
   cases: Case[], 
   setVisibleItems: Dispatch<SetStateAction<number[]>>
 ) {

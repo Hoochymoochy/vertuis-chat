@@ -3,14 +3,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-import { InputBox } from "@/app/components/chat/InputBox";
-import { Tagline } from "@/app/components/chat/Tagline";
-import { Overlay } from "@/app/components/chat/Overlay";
+import { InputBox } from "@/components/chat/InputBox";
+import { Tagline } from "@/components/chat/Tagline";
+import { Overlay } from "@/components/chat/Overlay";
 
-import { useSidebar } from "@/app/hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 
-import { useChatInit } from "../../../hooks/Chat/useChatInit";
-import { useChatAnimations } from "../../../hooks/Chat/useChatAnimations";
+import { useChatInit } from "@/hooks/chat/useChatInit";
+import { useChatAnimations } from "@/hooks/chat/useChatAnimations";
 
 export default function Chat() {
   const t = useTranslations("Chat");

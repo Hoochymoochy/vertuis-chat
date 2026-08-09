@@ -10,7 +10,7 @@ import { CaseSection } from "./case/CaseSection";
 import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
-import { useSidebar } from "../../hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 import { useTranslations } from "next-intl";
 
 

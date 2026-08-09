@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ANIMATION } from "./sidebar.constants";
-import { useSidebar } from "@/app/hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 
 interface MenuItemProps {
   item: {

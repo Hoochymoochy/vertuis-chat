@@ -1,5 +1,5 @@
 "use client";
-import { getLanguage } from "@/app/lib/user";
+import { getLanguage } from "@/lib/user";
 import { supabase } from "./supabaseClient";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;

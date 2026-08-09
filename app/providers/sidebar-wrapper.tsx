@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarProvider } from "@/app/hooks/Global/SidebarContext";
+import { SidebarProvider } from "@/providers/sidebar-context";
 export function SidebarWrapper({ 
   children,
   userId

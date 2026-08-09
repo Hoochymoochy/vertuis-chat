@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useSidebar } from "@/app/hooks/Global/SidebarContext";
+import { useSidebar } from "@/providers/sidebar-context";
 
 export function Overlay() {
     const { isCollapsed, toggleCollapse } = useSidebar();

@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import { useAuth } from "@/app/hooks/Auth/useAuth";
-import { getMessages } from "@/app/lib/message";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { getMessages } from "@/lib/message";
 import { useLocale } from "next-intl";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
