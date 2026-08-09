@@ -1,14 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  casebarSections, 
-  chatbarSections, 
+import {
+  casebarSections,
+  chatbarSections,
   documentsbarSections,
-  settingsbarSections
+  integrationsbarSections,
+  settingsbarSections,
 } from "./menu.config";
 import { ChatSection } from "./chat/ChatSection";
 import { CaseSection } from "./case/CaseSection";
 import { DocumentSection } from "./case/DocumentSection"
 import { SettingSection } from "./setting/SettingSection";
+import { IntegrationSection } from "./integration/IntegrationSection";
 import { SIDEBAR, ANIMATION } from "./sidebar.constants";
 import { useSidebar } from "../../hooks/Global/SidebarContext";
 import { useTranslations } from "next-intl";
@@ -38,7 +40,12 @@ export default function SidebarRight() {
       title: t("documents"),
       sections: documentsbarSections,
       Component: DocumentSection
-    }
+    },
+    integrations: {
+      title: t("integrations"),
+      sections: integrationsbarSections,
+      Component: IntegrationSection,
+    },
   } as const;
   
   const currentConfig = SECTION_CONFIG[activeSection as keyof typeof SECTION_CONFIG] || SECTION_CONFIG.chat;

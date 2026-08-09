@@ -2,55 +2,52 @@
   "Nav": {
     "about": "SOBRE",
     "features": "RECURSOS",
-    "global": "GLOBAL",
+    "product": "PRODUTO",
     "contact": "CONTATO",
     "signIn": "ENTRAR"
   },
   "Hero": {
+    "eyebrow": "Inteligência jurídica",
     "title": "VERITUS",
     "tagline": "IA em Que Você Pode Confiar",
-    "description": "A próxima geração de inteligência jurídica. Cada citação verificada. Cada resposta confiável. Construído para advogados e juristas que exigem precisão em uma era de incerteza.",
+    "description": "Respostas fundamentadas. Citações verificadas. Feito para advogados e juristas que exigem precisão.",
     "joinBeta": "Entre no Beta",
+    "seeProduct": "Ver o Produto",
     "learnMore": "Saiba Mais"
   },
   "About": {
     "title": "Direito Não Deveria Ser um",
     "titleHighlight": "Jogo de Adivinhação",
     "problem": "O Problema",
-    "problemDesc": "Todos os dias, advogados e juristas perdem horas conferindo dispositivos legais, acompanhado alterações normativas e verificando a vigência de leis e precedentes. Além disso, enfrentam alucinações ou respostas imprecisas geradas por IAs.",
+    "problemDesc": "Todos os dias, advogados e juristas perdem horas conferindo dispositivos legais, acompanhando alterações normativas e enfrentando alucinações de IA.",
     "solution": "A Solução",
-    "solutionDesc": "Veritus elimina a incerteza ao oferecer respostas fundamentadas em legislação vigente, jurisprudência atualizada e fontes oficiais. Previsão técnica, fundamentação verificável e tolerância zero a imprecisões.",
-    "future": "O Futuro",
-    "futureDesc": "Uma nova era em que advogados podem confiar na ia como ferramenta estratégica, concentrando-se na análise e na tomada de decisão e não na verificação manual de informações.",
-    "closing": "A próxima era da integridade jurídica começa aqui."
+    "solutionDesc": "Veritus oferece respostas fundamentadas em fontes oficiais, com tolerância zero a imprecisões—para você focar na estratégia, não na verificação manual.",
+    "closing": "Integridade jurídica em que você pode confiar o seu nome."
   },
   "Features": {
     "title": "Precisão",
-    "titleHighlight": "Técnica, Construída para o Direito",
-    "subtitle": "Três pilares da lA jurídica em que você pode confiar",
+    "titleHighlight": "Técnica",
+    "subtitle": "Três pilares da IA jurídica em que você pode confiar.",
     "sourceBackedTitle": "Chat com Fundamentação Jurídica",
-    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas fundamentadas na legislação vigente, jurisprudência atualizada e fontes oficiais. Cada afirmação é fundamentada.",
+    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas fundamentadas na legislação vigente, jurisprudência e fontes oficiais.",
     "documentTitle": "Análise de Documentos",
-    "documentDesc": "Carregue contratos, petições, decisões judiciais, entre outros. Identifique cláusulas essenciais, realize o cruzamento automático de dispositivos legais e precedentes, e compreenda o contexto normativo com precisão técnica (em breve).",
-    "jurisdictionTitle": "Monitoramento Legislativo e Jurisprudencial",
-    "jurisdictionDesc": "Acompanhe, em tempo real, alterações na legislação federal, estadual e municipal. Receba atualizações sobre novas redações de leis, alterações normativas e mudanças relevantes de entendimento nos tribunais superiores (em breve)."
+    "documentDesc": "Carregue contratos, petições e decisões. Identifique cláusulas essenciais e cruze dispositivos legais e precedentes.",
+    "jurisdictionTitle": "Monitoramento Legislativo",
+    "jurisdictionDesc": "Acompanhe alterações na legislação federal, estadual e municipal—e mudanças relevantes nos tribunais superiores."
   },
-  "Global": {
-    "title": "Começando Local,",
-    "titleHighlight": "Expandindo Globalmente",
-    "description": "Estamos dominando as leis federais primeiro. Em seguida, integraremos leis específicas, jurisprudência e atualizações normativas. Na sequência, expandiremos nacionalmente com o mesmo nível de precisão e confiabilidade jurídica.",
-    "roadmap": "Roteiro de Cobertura",
-    "brazil": "Leis e Regulamentos do Brasil",
-    "usCanada": "EUA e Canadá",
-    "restOfWorld": "Resto do Mundo",
-    "live": "Ativo",
-    "q2": "2º Trimestre 2025",
-    "year": "2026"
+  "Product": {
+    "title": "Veja",
+    "titleHighlight": "Em Ação",
+    "subtitle": "Chat para respostas. Casos para o processo completo.",
+    "chatTitle": "Chat",
+    "chatDesc": "Faça perguntas jurídicas e receba respostas fundamentadas com citações verificáveis.",
+    "caseTitle": "Caso",
+    "caseDesc": "Organize processos, documentos e contexto em um espaço de trabalho feito para o direito."
   },
   "Contact": {
-    "title": "Junte-se ao",
-    "titleHighlight": "Futuro do Direito",
-    "description": "Esteja entre os primeiros profissionais jurídicos a experimentar a IA que nunca compromete a verdade.",
+    "title": "Comece com",
+    "titleHighlight": "Veritus",
+    "description": "Junte-se a profissionais jurídicos que usam IA sem abrir mão da verdade.",
     "existingTitle": "Usuários Existentes",
     "existingDesc": "Acesse sua conta",
     "existingButton": "Entrar",
@@ -62,7 +59,7 @@
     "requestAccess": "Solicitar Acesso"
   },
   "Footer": {
-    "copyright": "© 2025 Veritus AI. Inteligência jurídica redefinida.",
+    "copyright": "© 2026 Veritus AI. Inteligência jurídica redefinida.",
     "privacy": "Privacidade",
     "terms": "Termos",
     "contact": "Contato"
@@ -183,6 +180,9 @@
     "Sidebar": {
       "chat": "Conversa",
       "case": "Caso",
+      "integrations": "Integrações",
+      "integrationsWhatsApp": "WhatsApp",
+      "integrationsPanelHint": "Conecte o WhatsApp aqui para trazer conversas ao Veritus para busca e contexto de casos.",
       "settings": "Ajustes",
       "document": "Documento",
       "recentChats": "Conversas Recentes",
@@ -196,6 +196,15 @@
       "documents": "Doc",
       "noChatsYet": "Nenhuma conversa ainda"
 
+    },
+    "IntegrationsPage": {
+      "title": "Integrações",
+      "subtitle": "Associe mensagens externas para o Veritus usar esses dados junto com o seu trabalho.",
+      "gmailTitle": "Gmail",
+      "gmailBadge": "Email",
+      "gmailBody": "Quando conectado, sua caixa de entrada do Gmail pode ser usada no Veritus para busca, linhas do tempo e revisão assistida por IA em comunicações relacionadas ao caso.",
+      "connect": "Conectar Gmail",
+      "comingSoon": "O fluxo de conexão segura ainda não está implementado. Este botão iniciará o OAuth do Google quando o backend e o app no Google Cloud estiverem configurados."
     },
     "Case": {
       "createNewCase": "Criar Novo Caso",
