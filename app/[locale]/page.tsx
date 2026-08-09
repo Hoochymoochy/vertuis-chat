@@ -239,70 +239,117 @@ export default function Home() {
       {/* Features */}
       <section
         id="features"
-        className="relative py-28 md:py-36 px-6 lg:px-10 border-t border-white/5"
+        className="relative py-28 md:py-40 px-6 lg:px-10 overflow-hidden"
       >
         <div className="absolute inset-0 bg-[#050505]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.12),transparent_55%)]" />
+        <div className="absolute -right-32 top-1/4 w-96 h-96 bg-[#d4af37]/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute -left-32 bottom-1/4 w-80 h-80 bg-[#d4af37]/8 blur-[90px] rounded-full pointer-events-none" />
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
+          }}
+        />
 
         <div
           className={`relative z-10 max-w-6xl mx-auto transition-all duration-1000 ${reveal("features")}`}
         >
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-20">
-            <div className="space-y-5 max-w-xl">
-              <h2 className="text-4xl md:text-6xl font-serif font-semibold">
-                {t("Features.title")}{" "}
-                <span className="text-gradient">{t("Features.titleHighlight")}</span>
-              </h2>
-              <p className="text-lg text-white/50 leading-relaxed">
-                {t("Features.subtitle")}
-              </p>
-            </div>
+          <div className="mb-16 md:mb-24 max-w-3xl">
+            <p className="mb-5 text-[11px] tracking-[0.35em] uppercase text-[#d4af37]/80">
+              {t("Features.eyebrow")}
+            </p>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold leading-[1.05]">
+              {t("Features.title")}{" "}
+              <span className="text-gradient">{t("Features.titleHighlight")}</span>
+            </h2>
+            <p className="mt-6 text-lg md:text-xl text-white/50 leading-relaxed max-w-2xl">
+              {t("Features.subtitle")}
+            </p>
           </div>
 
-          <div className="divide-y divide-white/10 border-y border-white/10">
+          <div className="space-y-6 md:space-y-8">
             {[
               {
                 title: t("Features.sourceBackedTitle"),
                 desc: t("Features.sourceBackedDesc"),
+                tags: t("Features.sourceBackedTags"),
                 icon: "/icons/scale2.png",
                 num: "01",
+                pipeline: ["Query", "Embed", "Retrieve", "Ground", "Stream"],
               },
               {
                 title: t("Features.documentTitle"),
                 desc: t("Features.documentDesc"),
+                tags: t("Features.documentTags"),
                 icon: "/icons/doc2.png",
                 num: "02",
+                pipeline: ["Upload", "Parse", "Summarize", "Index", "Attach"],
               },
               {
                 title: t("Features.jurisdictionTitle"),
                 desc: t("Features.jurisdictionDesc"),
+                tags: t("Features.jurisdictionTags"),
                 icon: "/icons/globe2.png",
                 num: "03",
+                pipeline: ["Scope", "Filter", "Rank", "Generate"],
               },
             ].map((feature, i) => (
-              <div
+              <article
                 key={feature.num}
-                className="group grid md:grid-cols-[auto_1fr_1.2fr] gap-6 md:gap-10 items-start md:items-center py-10 md:py-12 transition-colors duration-500 hover:bg-white/2"
-                style={{ transitionDelay: `${i * 80}ms` }}
+                className="group relative overflow-hidden border border-[#d4af37]/15 bg-black/40 backdrop-blur-sm transition-all duration-500 hover:border-[#d4af37]/45 hover:bg-black/60"
+                style={{ transitionDelay: `${i * 60}ms` }}
               >
-                <span className="text-[11px] tracking-[0.25em] text-[#d4af37]/70 font-light">
-                  {feature.num}
-                </span>
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
-                    <img
-                      src={feature.icon}
-                      alt=""
-                      className="object-contain w-full h-full"
-                    />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-[#d4af37]/80 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-linear-to-r from-[#d4af37]/0 to-transparent group-hover:from-[#d4af37]/5 transition-all duration-700 pointer-events-none" />
+
+                <div className="relative grid lg:grid-cols-[7rem_1fr] gap-6 lg:gap-10 p-7 md:p-10">
+                  <div className="flex lg:flex-col items-center lg:items-start gap-4 lg:gap-6">
+                    <span className="font-serif text-4xl md:text-5xl text-[#d4af37]/35 group-hover:text-[#d4af37]/70 transition-colors tabular-nums">
+                      {feature.num}
+                    </span>
+                    <div className="w-12 h-12 md:w-14 md:h-14 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <img
+                        src={feature.icon}
+                        alt=""
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-serif text-white group-hover:text-[#d4af37] transition-colors duration-300">
-                    {feature.title}
-                  </h3>
+
+                  <div className="space-y-6 min-w-0">
+                    <div className="space-y-3">
+                      <h3 className="text-2xl md:text-4xl font-serif text-white group-hover:text-[#f4e5b8] transition-colors duration-300">
+                        {feature.title}
+                      </h3>
+                      <p className="text-[15px] md:text-base text-white/55 leading-relaxed max-w-3xl">
+                        {feature.desc}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] md:text-[11px] tracking-[0.18em] uppercase text-[#d4af37]/70">
+                      {feature.pipeline.map((step, si) => (
+                        <span key={step} className="inline-flex items-center gap-2">
+                          <span className="px-2.5 py-1 border border-[#d4af37]/25 bg-[#d4af37]/5 text-[#d4af37]/90 group-hover:border-[#d4af37]/50 transition-colors">
+                            {step}
+                          </span>
+                          {si < feature.pipeline.length - 1 && (
+                            <span className="text-[#d4af37]/35" aria-hidden>
+                              →
+                            </span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="text-[11px] md:text-xs tracking-wide text-white/35 font-mono">
+                      {feature.tags}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-white/50 leading-relaxed md:pl-4">
-                  {feature.desc}
-                </p>
-              </div>
+              </article>
             ))}
           </div>
         </div>

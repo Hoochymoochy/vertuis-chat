@@ -27,13 +27,17 @@
   "Features": {
     "title": "Precisão",
     "titleHighlight": "Técnica",
-    "subtitle": "Três pilares da IA jurídica em que você pode confiar.",
+    "eyebrow": "Arquitetura do sistema",
+    "subtitle": "Uma stack de IA jurídica fundamentada—recuperação, geração em streaming e corpora por jurisdição.",
     "sourceBackedTitle": "Chat com Fundamentação Jurídica",
-    "sourceBackedDesc": "Faça qualquer pergunta jurídica e receba respostas fundamentadas na legislação vigente, jurisprudência e fontes oficiais.",
+    "sourceBackedDesc": "As consultas são embedadas e confrontadas com um corpus indexado de fontes jurídicas primárias. Os trechos recuperados condicionam o modelo via RAG (retrieval-augmented generation) e a resposta é transmitida token a token por SSE. As citações ficam vinculadas às fontes recuperadas—leis, jurisprudência, regulamentos—para que cada afirmação seja auditável, e não texto livre alucinado.",
+    "sourceBackedTags": "RAG · Recuperação vetorial · Streaming SSE · Fundamentação por citação",
     "documentTitle": "Análise de Documentos",
-    "documentDesc": "Carregue contratos, petições e decisões. Identifique cláusulas essenciais e cruze dispositivos legais e precedentes.",
-    "jurisdictionTitle": "Monitoramento Legislativo",
-    "jurisdictionDesc": "Acompanhe alterações na legislação federal, estadual e municipal—e mudanças relevantes nos tribunais superiores."
+    "documentDesc": "Autos e peças são enviados a um workspace do caso, parseados e processados por um pipeline de sumarização (incluindo análise de arquivos em streaming). Estrutura e resumos permanecem ligados ao registro do caso, dando ao modelo contexto durável entre petições, contratos e anexos—para cruzar dispositivos com o corpus jurídico vivo, não com uma única janela de prompt.",
+    "documentTags": "Pipeline de ingestão · Sumarização em streaming · Contexto do caso · Workspace multi-doc",
+    "jurisdictionTitle": "Sincronização por Jurisdição",
+    "jurisdictionDesc": "A recuperação é filtrada pela jurisdição aplicável antes da geração. Corpora federal, estadual e regional são particionados para que o ranker priorize autoridades do ordenamento correto—reduzindo contaminação entre jurisdições e mantendo as respostas alinhadas ao direito que de fato rege o caso.",
+    "jurisdictionTags": "Particionamento de corpus · Filtros de jurisdição · Ranking de autoridades · Evita conflitos"
   },
   "Product": {
     "title": "Veja",

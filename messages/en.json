@@ -27,13 +27,17 @@
   "Features": {
     "title": "Precision",
     "titleHighlight": "Engineered",
-    "subtitle": "Three pillars of legal AI you can trust.",
+    "eyebrow": "System architecture",
+    "subtitle": "A grounded legal AI stack—retrieval, streaming generation, and jurisdiction-scoped corpora.",
     "sourceBackedTitle": "Source-Backed Chat",
-    "sourceBackedDesc": "Ask any legal question and receive answers with verifiable citations from primary sources. Every claim. Every time.",
+    "sourceBackedDesc": "User queries are embedded and matched against a indexed corpus of primary legal authorities. Retrieved passages condition the model via retrieval-augmented generation (RAG), then the answer is token-streamed over SSE so counsel can read as it generates. Citations are bound to the retrieved sources—statutes, case law, regulations—so claims are auditable, not hallucinated free text.",
+    "sourceBackedTags": "RAG · Vector retrieval · SSE streaming · Citation grounding",
     "documentTitle": "Document Analysis",
-    "documentDesc": "Upload contracts, statutes, or case law. Highlight key provisions, cross-reference citations, and understand context.",
+    "documentDesc": "Case files are uploaded into a matter-scoped workspace, parsed, and run through a summarization pipeline (including streaming file analysis). Extracted structure and summaries stay attached to the case record, giving the model durable context across pleadings, contracts, and exhibits—so analysis can cross-reference provisions against the live legal corpus, not a single prompt window.",
+    "documentTags": "Ingestion pipeline · Streaming summarize · Matter context · Multi-doc workspace",
     "jurisdictionTitle": "Jurisdiction Sync",
-    "jurisdictionDesc": "Stay aligned with federal, state, and regional law—so you never miss an amendment or new precedent."
+    "jurisdictionDesc": "Retrieval is filtered by governing jurisdiction before generation. Federal, state, and regional corpora are partitioned so the ranker prefers authorities from the correct legal system—reducing cross-jurisdictional contamination and keeping answers aligned with the law that actually applies to the matter.",
+    "jurisdictionTags": "Corpus partitioning · Jurisdiction filters · Authority ranking · Conflict avoidance"
   },
   "Product": {
     "title": "See It",
